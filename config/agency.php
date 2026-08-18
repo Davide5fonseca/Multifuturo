@@ -1,0 +1,37 @@
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| Dados da agência
+|--------------------------------------------------------------------------
+|
+| Identificação comercial da Multifuturo Imóveis Lda usada em rodapé, meta
+| tags, JSON-LD e emails. Tudo vem do .env.
+|
+| O número AMI é OBRIGATÓRIO por lei em toda a comunicação comercial de
+| mediação imobiliária (Lei n.º 15/2013). Existe um teste que falha se
+| estiver vazio em produção — não é um TODO, é uma não-conformidade.
+|
+*/
+
+return [
+
+    'name' => env('AGENCY_NAME', 'Multifuturo Imóveis Lda'),
+
+    // Licença AMI (ex.: "AMI 12345"). Só o número; o prefixo é aplicado na view.
+    'ami' => env('AGENCY_AMI'),
+
+    'phone' => env('AGENCY_PHONE'),
+    'email' => env('AGENCY_EMAIL'),
+    'address' => env('AGENCY_ADDRESS'),
+
+    'social' => [
+        'facebook' => env('AGENCY_FACEBOOK'),
+        'instagram' => env('AGENCY_INSTAGRAM'),
+        'linkedin' => env('AGENCY_LINKEDIN'),
+    ],
+
+    // Livro de Reclamações eletrónico — obrigatório no rodapé.
+    'complaints_book_url' => env('AGENCY_COMPLAINTS_BOOK_URL', 'https://www.livroreclamacoes.pt/'),
+
+];
