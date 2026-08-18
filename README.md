@@ -44,3 +44,21 @@ O AMI é obrigatório em produção (há um teste que falha se estiver vazio).
 
 Os ficheiros em `storage/app/casafari/` contêm dados reais do feed (incluindo dados
 de proprietários) e estão fora do git.
+
+## Frontend
+
+```powershell
+npm install
+npm run build        # produção → public/build (não versionado)
+npm run dev          # Vite com HMR (porta 5173)
+```
+
+Fontes servidas localmente de `public/fonts/` (Fraunces + Inter, woff2). Os tokens de
+cor vivem em `resources/css/app.css` (`@theme`) — nunca usar hex soltos nos componentes.
+
+## Testes
+
+```powershell
+.\sail.ps1 pest
+.\sail.ps1 pint --test    # estilo de código
+```
