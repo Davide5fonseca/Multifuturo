@@ -9,6 +9,64 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Fase 6 — legal e conformidade
+
+$${\color{#6B7248}\textsf{2026-08-18 · 15:44}}$$
+
+**Commit:** `2904ccf` — `Fase 6: legal e conformidade — políticas, página da agência, banner de cookies com consentimento granular, scripts bloqueados até opt-in`
+
+### Textos legais e institucionais
+- `lang/pt/legal.php` — **política de privacidade** (responsável, dados recolhidos por
+  formulário e por favoritos/cookies, finalidades e fundamentos RGPD por alínea,
+  destinatários incl. CASAFARI como subcontratante, prazos, direitos e CNPD, segurança,
+  alterações; mostra a `privacy_policy_version` — a mesma gravada em cada lead),
+  **termos e condições** (identificação com AMI, informação de imóveis não vinculativa,
+  utilização, propriedade intelectual, responsabilidade, Livro de Reclamações e RAL, lei
+  aplicável), **política de cookies** (necessários: sessão, XSRF, cookie de consentimento;
+  localStorage dos favoritos; análise/marketing inexistentes e só após opt-in; conteúdos de
+  terceiros — OpenStreetMap só ao clicar; como gerir) e **página "A agência"**. Textos com
+  placeholders `:name`, `:ami`, `:address`, `:email`, `:phone` preenchidos pela config.
+  Nota no ficheiro: minutas a rever por quem responde pela conformidade legal.
+- `resources/views/pages/legal.blade.php` — documento genérico: cabeçalho, índice lateral
+  (sticky), secções numeradas com âncoras. `pages/placeholder.blade.php` **removido**.
+- `app/Http/Controllers/PageController.php` — `about/privacy/terms/cookies` servem
+  `legal()` com as substituições; deixam de ter `noindex`.
+- `app/Support/helpers.php` (+ `composer.json` autoload `files`) — `trans_replace()`.
+
+### Consentimento de cookies (sem CMP de terceiros)
+- `config/consent.php` — nome do cookie (`mf_consent`), validade (180 dias), versão,
+  categorias opcionais (`analytics`, `marketing`).
+- `resources/js/consent.js` — store Alpine `consent`: lê/escreve cookie first-party JSON
+  (`SameSite=Lax`, `Secure` em HTTPS); `acceptAll()`, `rejectAll()`, `saveChoices()`,
+  `manage()`; **ativa scripts `type="text/plain"[data-consent=…]` só após opt-in** da
+  categoria e dispara `mf:consent`. Importado em `app.js`.
+- `resources/views/components/site/consent-banner.blade.php` — banner fixo em baixo com
+  **Aceitar tudo / Recusar não essenciais / Personalizar** (recusa com o mesmo peso visual),
+  painel por categoria (necessários sempre ativos; análise; marketing) e "Guardar escolhas";
+  ligação à política de cookies; `role=dialog`, `aria-labelledby/describedby`.
+- `resources/views/components/consent-script.blade.php` — `<x-consent-script category
+  src|slot>` renderiza `type="text/plain"`: o navegador nunca o executa antes do opt-in.
+- `resources/views/components/layouts/app.blade.php` — `window.MF_CONSENT` (config, sem
+  segredos), banner incluído, e **`@livewireStyles`/`@livewireScripts` forçados**: o
+  Livewire 3 só injetava o seu script (que traz o Alpine) em páginas com componente
+  Livewire — nas restantes não havia menu móvel, favoritos nem banner. Bug encontrado ao
+  correr a app em headless.
+- `resources/views/components/site/footer.blade.php` — ligação **"Gerir cookies"**
+  (reabre o banner em modo personalizar).
+
+### Testes
+- `tests/Feature/LegalTest.php` — 9 testes: páginas legais/institucional respondem, são
+  indexáveis, têm nome/AMI/email substituídos e **nenhum placeholder por substituir**;
+  privacidade mostra a versão em vigor; cookies descreve o cookie de consentimento, os
+  favoritos locais e o OpenStreetMap; rodapé liga a políticas, Livro de Reclamações e
+  "Gerir cookies"; banner presente em todas as páginas com recusa e personalização;
+  **nenhuma página carrega scripts externos** (nem GTM/GA/Facebook); `<x-consent-script>`
+  renderiza como `text/plain`; `trans_replace()`.
+- `tests/Feature/PublicPagesTest.php` — teste das páginas provisórias removido (já não existem).
+- Total: **84 testes a passar**, 1 ignorado fora de produção. Pint limpo.
+
+---
+
 ## Fase 4 — correções após run visual
 
 $${\color{#6B7248}\textsf{2026-08-18 · 15:23}}$$
