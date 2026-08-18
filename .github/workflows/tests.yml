@@ -74,7 +74,7 @@ jobs:
           ./vendor/bin/pest --ci 2>&1 | tee pest.log
           code=${PIPESTATUS[0]}
           if [ "$code" -ne 0 ]; then
-            grep -E "FAILED|ERROR|Error|Exception|Tests:" pest.log | head -n 8 | sed 's/^/::error::/'
+            { grep -E "FAILED|ERROR|Error|Exception|Tests:" pest.log | head -n 5; head -n 5 pest.log; } | sed 's/^/::error::/'
           fi
           exit $code
         env:
