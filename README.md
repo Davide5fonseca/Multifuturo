@@ -29,6 +29,10 @@ Mailpit UI **8025** (as portas 5432/6379 estão ocupadas por outros serviços ne
 
 ## Configuração
 
+> Numa máquina nova, copie o `.env.example` para `.env` **antes** do `composer install`:
+> o `package:discover` arranca a aplicação e, sem `APP_ENV`, ela assume produção e recusa
+> arrancar sem `AGENCY_AMI` (comportamento intencional).
+
 Copiar `.env.example` para `.env` e preencher:
 
 - `CASAFARI_FEED_URL`, `CASAFARI_TOKEN`, `CASAFARI_CUSTOMER_ORIGIN_ID` — `config/casafari.php`

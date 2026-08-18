@@ -40,8 +40,20 @@ jobs:
           extensions: mbstring, intl, pdo_pgsql, pgsql, xml, dom, gd, redis, zip
           coverage: none
 
+      # O .env tem de existir ANTES do composer install: o package:discover arranca a
+      # aplicação e, sem APP_ENV, ela assume produção e recusa arrancar sem AMI (por desenho).
+      - name: Ambiente
+        run: cp .env.example .env
+
       - name: Composer
         run: composer install --no-interaction --prefer-dist --no-progress
+        env:
+          APP_ENV: testing
+
+      - name: Chave da aplicação
+        run: php artisan key:generate --force
+        env:
+          APP_ENV: testing
 
       - name: Node
         uses: actions/setup-node@v4
@@ -51,13 +63,6 @@ jobs:
 
       - name: Assets
         run: npm ci && npm run build
-
-      - name: Ambiente
-        run: |
-          cp .env.example .env
-          php artisan key:generate --force
-        env:
-          APP_ENV: testing
 
       - name: Estilo (Pint)
         run: ./vendor/bin/pint --test
