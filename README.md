@@ -86,6 +86,8 @@ a cada minuto; falhas vão por email para `CASAFARI_ALERT_EMAIL`.
 A estrutura do feed em `config/casafari.php` (`feed`/`mapping`) é **provisória** até
 o `casafari:inspect` correr sobre o feed real.
 
+Ver também [docs/CHECKLIST.md](docs/CHECKLIST.md) — tudo o que falta para pôr o site online.
+
 ## Frontend público (Fase 4)
 
 | Rota | Conteúdo |
