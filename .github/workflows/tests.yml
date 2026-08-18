@@ -68,7 +68,15 @@ jobs:
         run: ./vendor/bin/pint --test
 
       - name: Testes (Pest)
-        run: ./vendor/bin/pest --ci
+        # Em caso de falha, as linhas relevantes saem como annotations (visíveis sem login).
+        run: |
+          set +e
+          ./vendor/bin/pest --ci 2>&1 | tee pest.log
+          code=${PIPESTATUS[0]}
+          if [ "$code" -ne 0 ]; then
+            grep -E "FAILED|ERROR|Error|Exception|Tests:" pest.log | head -n 8 | sed 's/^/::error::/'
+          fi
+          exit $code
         env:
           APP_ENV: testing
           DB_CONNECTION: pgsql
