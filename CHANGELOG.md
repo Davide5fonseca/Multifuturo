@@ -9,6 +9,125 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Fase 4 — frontend público
+
+$${\color{#6B7248}\textsf{2026-08-18 · 15:16}}$$
+
+**Commit:** `771aaa8` — `Fase 4: frontend público — homepage, listagens Livewire com filtros, ficha de imóvel, zonas, favoritos, sitemap e cache`
+
+**Referência de layout:** template Wix "Consultor Imobiliário (Elegante)" (wh-1112), indicado
+pelo cliente. Seguiu-se a **estrutura e o tom** (hero full-bleed com texto centrado, secções
+largas, três colunas de argumentos, formulário no fim, rodapé com políticas), com a nossa
+paleta beje/azeitona e Fraunces + Inter. Sem depoimentos (não há depoimentos reais).
+
+### Suporte
+- `app/Support/Format.php` — `price()` ("785 000 €", "/mês" no arrendamento, "Preço sob
+  consulta"), `area()` ("142 m²"), `typology()` ("T3"), `location()` ("Estoril, Cascais").
+- `app/Support/PropertyCache.php` — cache com tag `properties` (TTL 1 h) para tudo o que lê
+  imóveis; `remember()`/`flush()`; cai para cache sem tags em drivers sem suporte.
+- `app/Listeners/FlushPropertyCache.php` — ouve `PropertiesSynced` e limpa a cache **só se**
+  houve criados/atualizados/desativados (ou `--force`).
+- `app/Support/Zones.php` — concelhos e freguesias derivados da carteira ativa (com
+  contagens venda/arrendamento), slugs públicos, resolução slug → nome. Em cache.
+- `resources/js/app.js` — store Alpine `favorites` (localStorage, só slugs) e fallback global
+  de imagens (`data-fallback`) para o placeholder local quando um URL do CRM falha.
+- `public/images/placeholder-property.jpg` — placeholder local gerado (GD).
+
+### Componentes
+- `resources/views/components/property/image.blade.php` — `<img>` do CRM com `loading=lazy`,
+  `decoding=async`, largura/altura e `aspect-ratio` explícitos (sem layout shift), fallback.
+- `resources/views/components/property/card.blade.php` — **cartão de imóvel** reutilizável:
+  foto 4:3, badge "Exclusivo", botão de favorito (Alpine/localStorage, `aria-pressed`),
+  referência + finalidade, título, localização, preço em Fraunces, specs (T, área, lote, CE).
+- `resources/views/components/property/gallery.blade.php` — capa + 4 miniaturas; lightbox
+  Alpine (Esc, ← →, foco preso, `x-trap.noscroll`); sem JS as imagens são links diretos.
+- `resources/views/pagination/multifuturo.blade.php` — paginação com os tokens (funciona
+  em Livewire e em páginas normais).
+- `resources/views/components/site/header.blade.php` — + **Zonas** e **Favoritos** (com contador).
+
+### Homepage
+- `resources/views/pages/home.blade.php` — 1) hero full-bleed (foto de `AGENCY_HERO_IMAGE`
+  ou capa do 1.º destaque; véu `ink/45`; título/lead centrados; CTA), 2) pesquisa rápida
+  sobreposta, 3) **Imóveis em destaque** (grelha de cartões), 4) **Sobre a Multifuturo**
+  (texto), 5) **Porquê a Multifuturo** (3 colunas, fundo `sand-100`), 6) **Zonas onde
+  atuamos** (grelha de concelhos com contagem), 7) banda de contacto/avaliação em bege
+  (sem áreas grandes de azeitona — o verde fica nos botões).
+- `app/Http/Controllers/PageController.php` — `home()` com destaques (`is_featured`,
+  completados com os mais recentes até 3–6), hero e zonas; `buy()`/`rent()` passam a
+  montar o Livewire; descrições SEO por listagem.
+- `config/agency.php` — `hero_image` (`AGENCY_HERO_IMAGE`).
+
+### Listagens (`/comprar`, `/arrendar`)
+- `app/Livewire/PropertyListing.php` — filtros **na query string** (`#[Url]`: `q`, `tipo`,
+  `tipologia`, `concelho`, `freguesia`, `preco_min`, `preco_max`, `area_min`,
+  `caracteristicas[]`, `ordenar`, `page`); primeiro render server-side já filtrado;
+  **sanitização** de tudo o que vem do URL (limites, dígitos, whitelist de ordenação,
+  máx. 12 características); pesquisa livre por referência/concelho/freguesia/zona/título;
+  filtro de características pelo índice GIN; ordenação recentes/preço ↑/↓ (`NULLS LAST`);
+  **paginação real 12/página**; resultados e opções de filtro em cache (`PropertyCache`);
+  finalidade fixa por rota (não é filtro).
+- `resources/views/livewire/property-listing.blade.php` — cabeçalho com contagem
+  (`aria-live`), ordenação, filtros em coluna (desktop) / painel (mobile), formulário GET
+  funcional sem JS (`<noscript>` aplicar), grelha de cartões, paginação.
+- `resources/views/pages/listing.blade.php` — monta `<livewire:property-listing>`.
+
+### Ficha de imóvel (`/imoveis/{slug}`)
+- `app/Http/Controllers/PropertyController.php` — `show()`: imóvel **inativo → 410 Gone**
+  com semelhantes e contacto (não 404); semelhantes = mesma finalidade, prioridade ao mesmo
+  concelho e tipo (cache); **JSON-LD `RealEstateListing`** (nome, URL, identificador, data,
+  imagens, oferta com preço/moeda e função venda/arrendamento, morada, `numberOfRooms`,
+  `floorSize`, `provider`; `geo` **só se `gmap_visible`** — o acessor `coordinates` já
+  devolve null).
+- `resources/views/pages/property.blade.php` — meta title/description e OG image por imóvel,
+  canonical, breadcrumb, galeria, cabeçalho (ref., finalidade, exclusivo, título,
+  localização, preço, favorito, visita virtual/vídeo/planta), características em `<dl>`,
+  descrição, comodidades, **mapa**: só com `gmap_visible`; iframe OpenStreetMap criado
+  **apenas ao clicar** (aviso explícito; zero pedidos externos até lá; `<noscript>` link);
+  sem `gmap_visible` mostra "localização exata mediante contacto"; consultor (nome/foto);
+  formulário de lead pré-preenchido com a referência (sticky); semelhantes.
+- `resources/views/pages/property-gone.blade.php` — página 410 (`noindex`).
+
+### Zonas
+- `database/migrations/2026_08_18_160000_create_zones_table.php` + `app/Models/Zone.php` —
+  texto editorial opcional por zona (`city_slug`, `locality_slug`, `title`,
+  `meta_description`, `intro`, `body`, `cover_url`, `is_published`).
+- `app/Http/Controllers/ZoneController.php` — `/zonas` (concelhos com contagens),
+  `/zonas/{concelho}` (editorial + freguesias + imóveis paginados), `/zonas/{concelho}/
+  {freguesia}`; 404 se a zona não existir na carteira; ligações para comprar/arrendar
+  filtrados nessa zona.
+- `resources/views/pages/zones.blade.php`, `pages/zone.blade.php`.
+
+### Favoritos
+- `app/Http/Controllers/FavoritesController.php` + `resources/views/pages/favorites.blade.php`
+  — sem registo: o browser lê os slugs do localStorage e recarrega com `?slugs=`; o servidor
+  devolve só cartões de imóveis ativos (máx. 60, slugs validados); `noindex`.
+
+### SEO
+- `app/Http/Controllers/SitemapController.php` — home, listagens, zonas (concelhos e
+  freguesias), avaliação, contactos e **todos os imóveis ativos** (`lastmod` = data do CRM),
+  em chunks; em cache.
+- `routes/web.php` — `property.show`, `zones.*`, `favorites`.
+- `lang/pt/ui.php` — blocos `listing`, `property`, `favorites`, `zones`, `home_sections`
+  (todo o texto da homepage é editável aqui).
+
+### Testes
+- `tests/Feature/FrontendTest.php` — 18 testes: homepage (destaques, zonas, banda);
+  `/comprar` vs `/arrendar` e inativos excluídos; filtros lidos da query string no 1.º
+  render; preço/características/limpar; ordenação; paginação 12 e sanitização de valores
+  maliciosos; pesquisa livre; ficha (JSON-LD, canonical, OG, formulário pré-preenchido);
+  **sem coordenadas no HTML nem JSON-LD com `gmap_visible=false`**; com `true` tem `geo` e
+  o iframe só existe dentro de `<template x-if>`; **410 para inativos** com semelhantes;
+  semelhantes nunca incluem o próprio nem outra finalidade; zonas derivadas e 404 para
+  zona inexistente; editorial de zona; favoritos filtram inativos e lixo; sitemap só ativos
+  + zonas; cache limpa no `PropertiesSynced` com alterações e intacta sem alterações.
+- Total: **77 testes a passar**, 1 ignorado fora de produção. Pint limpo.
+
+### Notas
+- Falta a fotografia do hero (`AGENCY_HERO_IMAGE`) e um `og-default.jpg` real.
+- Em local, as fotos dos 3 imóveis fictícios apontam para `example.test` e caem no placeholder.
+
+---
+
 ## Fase 5 — leads
 
 $${\color{#6B7248}\textsf{2026-08-18 · 14:56}}$$
