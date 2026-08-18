@@ -27,10 +27,6 @@ it('tem rotas separadas para comprar e arrendar', function () {
     $this->get('/arrendar')->assertOk()->assertSee(__('ui.listing.rent_title'));
 });
 
-it('as páginas provisórias ficam com noindex', function (string $route) {
-    $this->get(route($route))->assertOk()->assertSee('<meta name="robots" content="noindex,follow">', false);
-})->with(['about', 'privacy', 'terms', 'cookies']);
-
 it('a 404 mostra a pesquisa de imóveis', function () {
     $this->get('/pagina-que-nao-existe')
         ->assertNotFound()

@@ -2,6 +2,7 @@
 // Sem tracking, sem chamadas externas: qualquer script de terceiros fica atrás
 // do consentimento de cookies (Fase 6).
 import './bootstrap';
+import './consent';
 
 /*
  * Favoritos em localStorage — sem registo, sem servidor. Guardamos só os slugs;

@@ -63,7 +63,7 @@ class PageController extends Controller
 
     public function about(): View
     {
-        return $this->placeholder(__('ui.nav.about'));
+        return $this->legal('about');
     }
 
     public function contact(): View
@@ -73,22 +73,38 @@ class PageController extends Controller
 
     public function privacy(): View
     {
-        return $this->placeholder(__('ui.footer.privacy'));
+        return $this->legal('privacy');
     }
 
     public function terms(): View
     {
-        return $this->placeholder(__('ui.footer.terms'));
+        return $this->legal('terms');
     }
 
     public function cookies(): View
     {
-        return $this->placeholder(__('ui.footer.cookies'));
+        return $this->legal('cookies');
     }
 
-    /** Página provisória: título + aviso. Fica com noindex até ter conteúdo real. */
-    private function placeholder(string $title): View
+    /**
+     * Documento legal/institucional a partir de lang/pt/legal.php, com os dados
+     * da agência substituídos nos textos.
+     */
+    private function legal(string $key): View
     {
-        return view('pages.placeholder', ['title' => $title]);
+        $agency = config('agency');
+
+        return view('pages.legal', [
+            'key' => $key,
+            'replacements' => [
+                'name' => $agency['name'],
+                'ami' => filled($agency['ami']) ? $agency['ami'] : __('ui.footer.ami_missing'),
+                'address' => $agency['address'],
+                'email' => $agency['email'],
+                'phone' => $agency['phone'],
+                'version' => $agency['privacy_policy_version'],
+                'consent_cookie' => config('consent.cookie'),
+            ],
+        ]);
     }
 }

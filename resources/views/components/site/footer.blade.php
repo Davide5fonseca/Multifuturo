@@ -51,6 +51,7 @@
                 <li><a href="{{ route('privacy') }}" class="hover:text-sand-50">{{ __('ui.footer.privacy') }}</a></li>
                 <li><a href="{{ route('terms') }}" class="hover:text-sand-50">{{ __('ui.footer.terms') }}</a></li>
                 <li><a href="{{ route('cookies') }}" class="hover:text-sand-50">{{ __('ui.footer.cookies') }}</a></li>
+                <li><button type="button" x-data @click="$store.consent.manage()" class="hover:text-sand-50">{{ __('legal.consent.manage') }}</button></li>
                 <li>
                     <a href="{{ $agency['complaints_book_url'] }}" rel="noopener" target="_blank" class="hover:text-sand-50">
                         {{ __('ui.footer.complaints_book') }}
