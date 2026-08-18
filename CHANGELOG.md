@@ -9,6 +9,95 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Fase 5 — leads
+
+$${\color{#6B7248}\textsf{2026-08-18 · 14:56}}$$
+
+**Commit:** `1868e10` — `Fase 5: leads — migration, model, StoreLeadRequest, LeadController, job SendLeadToCasafari, notificação, formulário e testes`
+
+(A Fase 4 — frontend público — foi adiada por decisão do cliente até haver layout; a 5 e a 6 não dependem do visual.)
+
+### Base de dados
+- `database/migrations/2026_08_18_150000_create_leads_table.php` — tabela `leads`: `name`,
+  `email`, `phone`, `message`; `property_id` (FK `properties`, `nullOnDelete`),
+  `business_type`, `source` (`property|contact|valuation`), `payload` jsonb (campos extra
+  da avaliação); RGPD: `consent_contact`, `consent_marketing` (ambos default **false**),
+  `policy_version`, `ip_hash` (HMAC-SHA256 do IP com a APP_KEY — **nunca o IP em claro**),
+  `user_agent`; CRM: `crm_status` (`pending|sent|failed`, default pending), `crm_response`
+  jsonb, `sent_at`, `attempts`, `last_error`; índices `(crm_status, created_at)` e `email`;
+  **CHECK constraints** em `crm_status` e `source`.
+- `app/Enums/LeadStatus.php` (`Pending/Sent/Failed`), `app/Enums/LeadSource.php`
+  (`Property/Contact/Valuation`).
+- `app/Models/Lead.php` — casts (enums, jsonb, booleanos, datas), relação `property()`,
+  `Lead::hashIp()`.
+- `database/factories/LeadFactory.php` — só para testes.
+
+### Fluxo HTTP
+- `app/Http/Requests/StoreLeadRequest.php` — validação (`source` enum, `name` 2–120,
+  `email` rfc, `phone` regex opcional, `message` ≤3000, `property_slug` existe,
+  consentimentos booleanos, `payload` só com chaves conhecidas — `address/city/
+  property_type/bedrooms/area/condition` — e limites); `prepareForValidation` normaliza
+  os consentimentos; **anti-spam sem CAPTCHA**: `looksLikeSpam()` = honeypot `website`
+  preenchido **ou** `form_ts` (timestamp assinado com HMAC da APP_KEY) inválido/forjado
+  ou com menos de 3 s desde a renderização.
+- `app/Http/Controllers/LeadController.php` — `POST /leads`: spam → aceita em silêncio
+  (mesma resposta que um humano, sem gravar); caso contrário **grava a lead PRIMEIRO**
+  (email em minúsculas, `policy_version` da config, `ip_hash`, `crm_status=pending`,
+  imóvel resolvido pelo slug e `business_type` herdado) e só depois `SendLeadToCasafari::
+  dispatch(...)->afterCommit()`. Responde com redirect + flash `lead_sent` ou JSON 201.
+- `routes/web.php` — `POST /leads` (`leads.store`) com middleware `throttle:leads`.
+- `app/Providers/AppServiceProvider.php` — `RateLimiter::for('leads')`: por IP (hash),
+  **5/min e 20/h**.
+
+### Job de envio ao CRM
+- `app/Jobs/SendLeadToCasafari.php` (`ShouldQueue`) — `tries=5`, `backoff=[60,300,900,3600]`,
+  timeout 60 s. Idempotente (não reenvia `sent`). Sem `CASAFARI_TOKEN` lança exceção
+  (fica pending). `POST asForm` para `casafari.lead_url` com: `Token`, `PropertyID`
+  (= `internal_id` do CRM, só quando há imóvel), `CustomerOriginID`, `EntityName`,
+  `EntityEmail`, `EntityPhone`, `Message` (texto + contexto: origem, referência, dados de
+  avaliação), `CreateProfile=true`, `EntityCulture=pt`, `EntityType` (config, **a confirmar**),
+  `AssignBrokerIDFromProperty=true`, `IncludeOptIn`/`IncludeMailing` = consentimentos
+  **tal como dados, nunca forçados**. **Armadilha tratada:** HTTP 200 com
+  `json.status !== true` → grava `crm_response`/`last_error`, incrementa `attempts` e lança
+  `RuntimeException` (entra em retry). Sucesso → `sent` + `sent_at` + `crm_response`.
+  `failed()` → `failed`, `last_error`, `Log::error` e notificação.
+- `app/Notifications/LeadDeliveryFailed.php` — email para `casafari.alert_email` com os
+  dados necessários ao envio manual.
+
+### Formulário e páginas
+- `resources/views/components/lead-form.blade.php` — `<x-lead-form source="property|
+  contact|valuation" :property>`: server-rendered, funciona sem JS; honeypot fora do
+  ecrã e do tab; `form_ts` assinado; campos extra da avaliação; **duas checkboxes de
+  consentimento separadas, desmarcadas**; aviso com link para a política de privacidade;
+  mensagem pré-preenchida com a referência do imóvel; erros por campo; flash de sucesso.
+  Visual mínimo com os tokens — a re-skinnar na Fase 4.
+- `resources/views/pages/contact.blade.php` e `pages/valuation.blade.php` — páginas
+  `/contactos` e `/quanto-vale-a-minha-casa` funcionais (deixam de ser provisórias/noindex).
+- `app/Http/Controllers/PageController.php` — `contact()` e `valuation()` servem as novas views.
+- `lang/pt/ui.php` — bloco `lead` (títulos, campos, consentimentos, aviso, sucesso, erro).
+
+### Configuração
+- `config/agency.php` — `privacy_policy_version` (`AGENCY_PRIVACY_POLICY_VERSION`, default
+  2026-08-18) — atualizar quando o texto da política mudar.
+- `config/casafari.php` — `lead_entity_type` (`CASAFARI_LEAD_ENTITY_TYPE`, default `Lead`,
+  **a confirmar com a documentação**).
+- `.env`/`.env.example` — as duas variáveis acima.
+
+### Testes
+- `tests/Feature/LeadsTest.php` — 17 testes: grava local + queue (email normalizado,
+  consentimentos false, policy_version, ip_hash sem IP); **grava local mesmo com o CRM
+  em baixo**; associação ao imóvel e finalidade herdada; consentimentos separados;
+  payload da avaliação (chave desconhecida rejeitada); validação; **honeypot aceita em
+  silêncio sem gravar**; timestamp rápido/forjado = spam; **rate limiting 429 ao 6.º**;
+  job envia os campos esperados (PropertyID = internal_id, IncludeOptIn/IncludeMailing) e
+  marca sent; sem PropertyID quando não há imóvel; **HTTP 200 com status=false lança
+  exceção e fica pending**; `failed()` marca failed e notifica; idempotência; sem token não
+  chama o CRM; tries/backoff; páginas mostram honeypot e consentimentos desmarcados.
+- `tests/Feature/PublicPagesTest.php` — `valuation`/`contact` saem da lista de provisórias.
+- Total: **59 testes a passar**, 1 ignorado fora de produção. Pint limpo.
+
+---
+
 ## Fase 3 — motor de sincronização CASAFARI
 
 $${\color{#6B7248}\textsf{2026-08-18 · 14:46}}$$
