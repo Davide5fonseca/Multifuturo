@@ -1,15 +1,18 @@
 # Changelog
 
 Registo de tudo o que foi realizado, **commit a commit**, do mais recente para o
-mais antigo. Cada entrada lista os ficheiros criados/alterados e o que cada um faz.
-O hash de um commit é acrescentado na entrada seguinte (não é conhecido antes de
-o commit existir).
+mais antigo. Cada entrada abre com a **data e hora** do commit em destaque (a verde
+azeitona — renderizado como expressão matemática, que é a única forma de cor que o
+GitHub aceita em Markdown), seguida do hash e do título, e lista os ficheiros
+criados/alterados e o que cada um faz. Horas em Europe/Lisbon.
 
 ---
 
-## 2026-08-18 — Fase 1: scaffold e fundações
+## Fase 1 — scaffold e fundações
 
-**Commit:** `Fase 1: layout base, tokens Tailwind, fontes locais, sitemap/robots, 404, testes`
+$${\color{#6B7248}\textsf{2026-08-18 · 12:32}}$$
+
+**Commit:** `702773f` — `Fase 1: layout base, tokens Tailwind, fontes locais, sitemap/robots, 404, testes`
 
 ### Dependências
 - `livewire/livewire ^3` (componentes interativos server-rendered; traz o Alpine).
@@ -113,10 +116,12 @@ o commit existir).
 
 ---
 
-## 2026-08-18 — Passo 0: ambiente, configuração e `casafari:inspect`
+## Passo 0 — ambiente, configuração e `casafari:inspect`
+
+$${\color{#6B7248}\textsf{2026-08-18 · 12:21}}$$
 
 **Commit:** `717561f` — `Passo 0: ambiente Sail, configuração CASAFARI/agência e comando casafari:inspect`
-(sobre o `8bfdfd1 Initial commit` já existente no GitHub, cujo README de uma linha foi substituído)
+(sobre o `8bfdfd1 Initial commit` de 2026-08-18 · 12:19 já existente no GitHub, cujo README de uma linha foi substituído)
 
 ### Ambiente
 - Projeto **Laravel 12.66** criado com `composer create-project` dentro de Docker
