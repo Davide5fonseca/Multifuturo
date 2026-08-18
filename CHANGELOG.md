@@ -4,7 +4,79 @@ Registo de tudo o que foi realizado, **commit a commit**, do mais recente para o
 mais antigo. Cada entrada abre com a **data e hora** do commit em destaque (a verde
 azeitona — renderizado como expressão matemática, que é a única forma de cor que o
 GitHub aceita em Markdown), seguida do hash e do título, e lista os ficheiros
-criados/alterados e o que cada um faz. Horas em Europe/Lisbon.
+criados/alterados e o que cada um faz. Horas em Europe/Lisbon. Os commits que apenas
+atualizam este ficheiro não têm entrada própria.
+
+---
+
+## Fase 2 — schema `properties`
+
+$${\color{#6B7248}\textsf{2026-08-18 · 12:43}}$$
+
+**Commit:** `da34971` — `Fase 2: migration properties, model Property, enum BusinessType, factory e testes de schema`
+
+### Base de dados
+- `database/migrations/2026_08_18_120000_create_properties_table.php` — tabela `properties`:
+  - Identidade: `internal_id` (unique, chave do upsert), `reference` (index).
+  - Negócio: `price decimal(12,2)`, `currency char(3)` default EUR, `business_type`
+    (`sale|rent`), `property_type` (index), `property_condition`.
+  - Divisões/áreas: `bedrooms`, `bathrooms`, `house_area`, `plot_area`, `gross_area`.
+  - Localização: `country` default PT, `district` (index), `city` (concelho), `locality`
+    (freguesia), `zone`, `zipcode`, `lat/lon decimal(10,7)`, `gmap_visible` default **false**.
+  - Edifício: `floor_number`, `build_year`, `energy_rating`.
+  - Ligações: `crm_property_url`, `video_url`, `virtual_tour_url`, `floorplan_url`.
+  - jsonb: `translations` (`{ "pt": { title, description } }`), `photos`, `features`, `broker`
+    (só nome e foto — **sem contactos**).
+  - Publicação/sync: `slug` (unique, estável), `payload_hash char(64)`, `crm_updated_at`,
+    `is_active` default true, `is_exclusive`, `is_featured`, `synced_at`, timestamps (tz).
+  - Índices: `(is_active, business_type, price)`, `(city, locality)`,
+    `(is_active, crm_updated_at)`, **GIN** em `features` (`jsonb_path_ops`), unique em
+    `slug` e `internal_id`.
+  - Comentário no topo com a regra de privacidade: **não existe coluna para `Owner`**;
+    nunca se apagam linhas (só `is_active = false`).
+
+### Aplicação
+- `app/Models/Property.php` — casts (enum, decimais, booleanos, jsonb→array, datas),
+  `getRouteKeyName()` = `slug`, scopes `active()`, `forSale()`, `forRent()`, `featured()`,
+  `withFeatures([...])` (usa `@>` e o índice GIN), acessores `title`/`description`
+  (com fallback de idioma), `coordinates` (**null se `gmap_visible` for false** — a
+  regra de exposição vive no model, não em cada view), `coverPhoto`; `generateSlug()`
+  a partir de tipo + concelho + referência, com sufixo numérico em colisão, chamado
+  uma única vez na criação.
+- `app/Enums/BusinessType.php` — `Sale`/`Rent` com `routeName()` (buy/rent),
+  `label()` e `fromRouteName()`.
+- `database/factories/PropertyFactory.php` — factory **só para testes** (estados
+  `forRent`, `inactive`, `withoutMap`, `featured`); comentário a proibir o seu uso como seed.
+- `lang/pt/ui.php` — `business.sale` = Venda, `business.rent` = Arrendamento.
+- `sail.ps1` — comando `pint`.
+
+### Testes
+- `tests/Pest.php` — `RefreshDatabase` em todos os Feature (base `testing` em PostgreSQL;
+  o schema usa jsonb/GIN e não se testa em SQLite).
+- `tests/Feature/PropertySchemaTest.php` — 11 testes: colunas presentes; **nenhuma coluna
+  `owner*`**; tipos jsonb e índices (GIN, compostos, unique); duplicados de `internal_id`
+  e `slug` rejeitados; casts; filtro por características; scopes; **coordenadas ocultas
+  com `gmap_visible=false`** (o dado existe na BD, não é exposto); slugs únicos e não
+  recalculados; rota por slug; driver pgsql.
+- `tests/Feature/SeoFilesTest.php` — usa `AppUrl::forceFromConfig()` (limpeza do Pint).
+- Total: **29 testes a passar**, 1 ignorado fora de produção. Pint limpo.
+
+### Notas
+- Os nomes das colunas seguem o brief; quando o `casafari:inspect` correr sobre o feed
+  real, as diferenças (nomes, tipos, campos em falta/extra) são reportadas antes de
+  ajustar — não se força o feed a caber no schema.
+
+---
+
+## Changelog — data e hora em destaque
+
+$${\color{#6B7248}\textsf{2026-08-18 · 12:36}}$$
+
+**Commit:** `119852e` — `Changelog: data e hora de cada commit em destaque (verde azeitona)`
+
+- `CHANGELOG.md` — reorganizado por commit; cada entrada abre com data e hora do commit
+  em verde azeitona (`\color` numa expressão matemática, a única cor que o GitHub renderiza
+  em Markdown), seguida do hash e do título.
 
 ---
 
