@@ -27,7 +27,7 @@ class PageController extends Controller
 
     public function valuation(): View
     {
-        return $this->placeholder(__('ui.nav.valuation'));
+        return view('pages.valuation');
     }
 
     public function about(): View
@@ -37,7 +37,7 @@ class PageController extends Controller
 
     public function contact(): View
     {
-        return $this->placeholder(__('ui.nav.contact'));
+        return view('pages.contact');
     }
 
     public function privacy(): View

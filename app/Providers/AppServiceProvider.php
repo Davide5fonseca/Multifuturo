@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Lead;
 use App\Support\AgencyCompliance;
 use App\Support\AppUrl;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,5 +28,16 @@ class AppServiceProvider extends ServiceProvider
 
         // Preload dos assets do Vite com prioridade agressiva (fontes já vão no layout).
         Vite::usePrefetchStrategy('aggressive');
+
+        // Anti-spam dos formulários de lead: por IP, 5 por minuto e 20 por hora.
+        // A chave usa o hash do IP — o IP em claro não entra na cache.
+        RateLimiter::for('leads', function (Request $request): array {
+            $key = Lead::hashIp($request->ip()) ?? 'anon';
+
+            return [
+                Limit::perMinute(5)->by('leads:m:'.$key),
+                Limit::perHour(20)->by('leads:h:'.$key),
+            ];
+        });
     }
 }

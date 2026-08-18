@@ -34,4 +34,8 @@ return [
     // Livro de Reclamações eletrónico — obrigatório no rodapé.
     'complaints_book_url' => env('AGENCY_COMPLAINTS_BOOK_URL', 'https://www.livroreclamacoes.pt/'),
 
+    // Versão da política de privacidade em vigor. Gravada em cada lead (RGPD: prova do texto apresentado).
+    // Atualizar sempre que o texto da política mudar.
+    'privacy_policy_version' => env('AGENCY_PRIVACY_POLICY_VERSION', '2026-08-18'),
+
 ];

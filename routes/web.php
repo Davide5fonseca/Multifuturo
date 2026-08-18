@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LeadController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
@@ -32,3 +33,9 @@ Route::get('/politica-de-cookies', [PageController::class, 'cookies'])->name('co
 // SEO — ambos derivados de config('app.url'); não existem ficheiros estáticos em public/.
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('/robots.txt', RobotsController::class)->name('robots');
+
+// Leads — POST único para os três formulários (imóvel, contacto, avaliação).
+// Rate limiting por IP definido em AppServiceProvider (limiter "leads").
+Route::post('/leads', [LeadController::class, 'store'])
+    ->middleware('throttle:leads')
+    ->name('leads.store');

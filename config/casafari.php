@@ -27,6 +27,9 @@ return [
     // Identificador da origem do cliente (CustomerOriginID) atribuído pelo CRM.
     'customer_origin_id' => env('CASAFARI_CUSTOMER_ORIGIN_ID'),
 
+    // EntityType enviado com cada lead. Valor A CONFIRMAR com a documentação da API de leads.
+    'lead_entity_type' => env('CASAFARI_LEAD_ENTITY_TYPE', 'Lead'),
+
     // Pedido HTTP ao feed: timeout em segundos e política de repetição.
     'feed_timeout' => (int) env('CASAFARI_FEED_TIMEOUT', 180),
     'feed_retries' => (int) env('CASAFARI_FEED_RETRIES', 3),
