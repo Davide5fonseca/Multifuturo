@@ -9,6 +9,99 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Fase 3 — motor de sincronização CASAFARI
+
+$${\color{#6B7248}\textsf{2026-08-18 · 14:46}}$$
+
+**Commit:** `3214eed` — `Fase 3: motor de sincronização CASAFARI (casafari:sync), mapper configurável, agendamento e testes`
+
+### Serviços (`app/Services/Casafari/`)
+- `FeedClient.php` — GET ao `feed_url` com `timeout` (180 s) e `retry(3, 5000)` da config,
+  corpo lido **em streaming** para `storage/app/casafari/latest.xml` (escreve num `.part`
+  e só substitui o `latest.xml` se o pedido correu bem; 0 bytes = erro). Sem URL lança exceção.
+- `FeedReader.php` — `XMLReader` (`LIBXML_NONET`, sem entidades externas) que devolve, um de
+  cada vez, o **XML bruto** de cada nó de imóvel (`feed.item_node`), saltando de irmão em
+  irmão sem carregar o documento — é sobre esse texto que se calcula o hash.
+- `PropertyMapper.php` — XML de um imóvel → array para `Property`. Toda a nomenclatura de
+  nós vem de `config('casafari.mapping')` (caminhos `A/B`, `@attr`, `A/@attr`); o ficheiro
+  não conhece nomes de elementos. **Owner é removido do DOM antes de qualquer leitura**
+  (`feed.ignored_nodes`), com comentário a explicar o porquê (RGPD/minimização; não há
+  coluna). Broker: só nome e foto. Tudo tratado como não confiável: tipos forçados,
+  strings limitadas, URLs validados (`http(s)` apenas), decimais com vírgula aceites,
+  booleanos por lista `truthy`, finalidade normalizada por `business_type_map`
+  (`sale/venda/…`, `rent/arrendamento/…`), traduções por idioma (atributo `lang` ou
+  elemento), fotos ordenadas por `order` com URLs inválidos descartados, características
+  em minúsculas e sem duplicados, datas do CRM normalizadas para o fuso da aplicação.
+- `PropertySyncer.php` — motor: carrega `internal_id → payload_hash` conhecidos numa query;
+  por imóvel: `sha256` do nó; se igual e sem `--force` só toca em `synced_at`/`is_active`
+  via `toBase()` (não mexe no `updated_at`); senão `fill+save` no existente (**slug nunca
+  reescrito**) ou `create` com `generateSlug()`. `internal_id` duplicado no feed conta como
+  erro (primeira ocorrência ganha). **Guard crítico:** `seen < casafari.min_items` (mín. 1)
+  lança `EmptyFeedException` **antes** de qualquer desativação. Desativação por semântica
+  de conjunto — `is_active=false` onde `internal_id NOT IN (vistos)`; acima de 30 000 ids
+  usa tabela temporária em vez de bindings. Se houve erros de mapeamento a desativação é
+  **saltada** (não sabemos que imóveis falharam). Erros por imóvel não param a execução;
+  são registados e contados.
+- `SyncResult.php` — contadores (`seen/created/updated/skipped/deactivated/errors`),
+  `deactivationSkipped`, mensagens de erro (máx. 20), duração; `toArray()` para logs.
+- `EmptyFeedException.php`.
+
+### Comando, evento e agendamento
+- `app/Console/Commands/CasafariSync.php` — `casafari:sync {--force} {--dry-run} {--file=}`:
+  lock em cache (`casafari:sync`, 1 h) contra execuções simultâneas; barra de progresso;
+  tabela de resultados; `Log::info` com o resumo; `Log::error` em feed vazio/exceção;
+  dispara `PropertiesSynced` (não em dry-run); **exit code FAILURE** com feed vazio,
+  falha de download ou erros de mapeamento — é isso que faz o scheduler notificar.
+- `app/Events/PropertiesSynced.php` — evento com o `SyncResult` (a Fase 4 ouve-o para
+  invalidar a cache Redis das listagens).
+- `routes/console.php` — `casafari:sync` `hourlyAt(7)`, `withoutOverlapping(120)`,
+  `runInBackground()`, output anexado a `storage/logs/casafari-sync.log`, e
+  `emailOutputOnFailure(CASAFARI_ALERT_EMAIL)` se definido. Removido o comando `inspire`.
+
+### Configuração
+- `config/casafari.php` — novos: `alert_email`, `min_items`, bloco `feed` (`item_node`,
+  `lang_mode`, `lang_name`, `default_locale`, `ignored_nodes=[Owner]`) e bloco `mapping`
+  (`fields`, `translations`, `photos`, `features`, `broker`, `business_type_map`, `truthy`)
+  — **marcado como PROVISÓRIO** em comentário: palpite de trabalho até o `casafari:inspect`
+  correr sobre o feed real; só este bloco muda nessa altura.
+- `config/database.php` — ligação `pgsql` com `timezone` = `APP_TIMEZONE` (Europe/Lisbon):
+  o Eloquent grava datas sem offset e o Postgres interpretava-as em UTC (bug apanhado pelos
+  testes: `crm_updated_at` desviado uma hora).
+- `.env`/`.env.example` — `CASAFARI_MIN_ITEMS=1`, `CASAFARI_ALERT_EMAIL=`.
+
+### Testes
+- `tests/Fixtures/casafari-feed.xml` — fixture **provisória** (estrutura segue a config;
+  dados fictícios), 3 imóveis: venda com traduções pt/en, CDATA, fotos desordenadas + URL
+  inválido, características duplicadas, Broker com email/telefone e **`<Owner>` de
+  propósito**; arrendamento com `GmapVisible=0`; terreno com `BusinessType=Venda` e campos
+  em falta.
+- `tests/Feature/CasafariSyncTest.php` — 15 testes: criação com todos os campos mapeados
+  (ordem das fotos, features normalizadas, broker só nome/foto, slug, hash); finalidade em
+  português e `gmap_visible=0` (coordenadas ocultas); **Owner nunca persistido** (procura
+  em todas as colunas de todas as linhas, incl. contactos do consultor); hash inalterado
+  salta escrita (`updated_at` intacto, `synced_at` avança); alteração de título/preço/
+  concelho atualiza **sem mudar o slug**; desaparecido do feed → `is_active=false` sem
+  apagar, e reativa quando volta; **feed vazio → FAILURE sem desativar**; `min_items`
+  (feed truncado) → FAILURE sem desativar; `--dry-run` não escreve nem dispara evento;
+  `--force` reescreve; `PropertiesSynced` disparado; erros de mapeamento → não desativa;
+  download com `Http::fake` grava `latest.xml`; HTTP 500 → FAILURE sem tocar na BD;
+  sem `CASAFARI_FEED_URL` → FAILURE.
+- Total: **44 testes a passar**, 1 ignorado fora de produção. Pint limpo.
+
+### Documentação
+- `README.md` — secção "Sincronização com o CASAFARI" (comandos, regras, aviso de
+  estrutura provisória).
+
+### Notas
+- Corri `casafari:sync --file=tests/Fixtures/casafari-feed.xml` contra a base local:
+  ficaram 3 imóveis fictícios em `multifuturo` (úteis para desenvolver a Fase 4;
+  `migrate:fresh` limpa-os). Em produção a única fonte é o feed.
+- Estratégia de fotos (Passo 0, item 2) continua pendente do volume real; o sync guarda
+  os URLs do CRM em `photos` — hotlink por omissão, espelho local é acrescentável sem
+  mexer no motor.
+
+---
+
 ## Fase 2 — schema `properties`
 
 $${\color{#6B7248}\textsf{2026-08-18 · 12:43}}$$
