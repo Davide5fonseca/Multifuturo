@@ -63,6 +63,11 @@ class PropertyMapper
             throw new InvalidArgumentException('Imóvel sem internal_id no feed.');
         }
 
+        // Sem finalidade reconhecida não há onde o listar (nem coluna nullable): erro explícito, sem tocar na BD.
+        if ($data['business_type'] === null) {
+            throw new InvalidArgumentException("Imóvel {$data['internal_id']}: finalidade desconhecida (business_type).");
+        }
+
         $data['translations'] = $this->translations($xpath, $root, $cfg['translations']);
         $data['photos'] = $this->photos($xpath, $root, $cfg['photos']);
         $data['features'] = $this->features($xpath, $root, $cfg['features']);
