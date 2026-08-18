@@ -9,6 +9,62 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Fase 7 — revisão de cobertura e CI
+
+$${\color{#6B7248}\textsf{2026-08-18 · 15:49}}$$
+
+**Commit:** `3db625a` — `Fase 7: revisão de cobertura — testes do mapper isolado (XXE, URLs, datas, idioma como elemento, limites), casos-limite (itens maus não param o sync, 300 imóveis, XSS do feed escapado, JSON-LD, casafari:inspect, leads JSON, filtros, zonas com acentos) e CI GitHub Actions`
+
+### Checklist do brief (onde está coberta)
+- sync cria, atualiza e desativa — `CasafariSyncTest` (Fase 3)
+- feed vazio aborta sem desativar — `CasafariSyncTest` (Fase 3)
+- hash inalterado salta escrita — `CasafariSyncTest` (Fase 3)
+- Owner nunca persistido — `CasafariSyncTest` (Fase 3) + `PropertyMapperTest` (Fase 7)
+- slug não muda quando o título muda — `CasafariSyncTest` (Fase 3)
+- `gmap_visible=false` sem coordenadas no HTML nem no JSON-LD — `FrontendTest` (Fase 4)
+- lead grava local mesmo com o CRM em baixo — `LeadsTest` (Fase 5)
+- job marca falha com `status=false` em HTTP 200 — `LeadsTest` (Fase 5)
+- AMI vazio falha em produção — `AgencyConfigTest` (Fase 1)
+- fixture XML real anonimizada — **pendente do feed** (a atual é provisória)
+
+### Código
+- `app/Services/Casafari/PropertyMapper.php` — imóvel sem finalidade reconhecida passa a
+  ser rejeitado no mapper (`InvalidArgumentException`) **antes** de tocar na BD; o sync
+  conta o erro e continua com os restantes (antes rebentava na inserção).
+
+### Testes novos
+- `tests/Feature/PropertyMapperTest.php` — 9 testes: decimais com vírgula, booleanos
+  variados, datas com fuso normalizadas; URLs não-http(s)/`javascript:`/`data:` rejeitados
+  e datas inválidas → null; finalidade desconhecida rejeitada; sem `internal_id`/XML
+  inválido lança; **idioma como elemento irmão** (config `lang_mode=element`); URL da foto
+  em sub-elemento; **Owner removido mesmo com mapeamento a apontar para dentro dele**;
+  **XXE/DOCTYPE não resolvidos** (`LIBXML_NONET`); limites de tamanho das strings.
+- `tests/Feature/EdgeCasesTest.php` — 11 testes: imóvel sem finalidade conta como erro e os
+  outros são criados (exit code FAILURE); feed com **300 imóveis** sincroniza, pagina e
+  entra no sitemap; **HTML vindo do CRM é escapado** em título/descrição/características/
+  broker, na ficha e no cartão; JSON-LD escapa `</script>`; `casafari:inspect` descreve a
+  fixture e falha com mensagem clara sem URL/ficheiro; leads em JSON (201 / 422 com erros
+  por campo); filtros por tipo, área e freguesia + freguesia limpa ao mudar de concelho;
+  características do URL limitadas a 12 e normalizadas; zonas com acentos → slugs ASCII e
+  freguesia inexistente → 404.
+- Total: **104 testes a passar**, 1 ignorado fora de produção. Pint limpo.
+
+### CI
+- `.github/workflows/tests.yml` — em cada push/PR: PHP 8.3 (`pdo_pgsql`, `redis`, `gd`…),
+  PostgreSQL 16 e Redis como serviços, `composer install`, `npm ci && npm run build`,
+  **Pint `--test`** e **Pest `--ci`** contra a base `testing`. Em falha, as linhas
+  relevantes do log saem como *annotations* (visíveis sem login).
+
+### Correções de CI (commits seguintes)
+- `df75d35` (15:51) — o `.env` passa a ser criado **antes** do `composer install`: o
+  `package:discover` arranca a aplicação e, sem `APP_ENV`, ela assume produção e **recusa
+  arrancar sem AMI** (comportamento intencional). Documentado no README para máquinas novas.
+- `535ba3a` (15:54), `0233dc9` (15:56) — Pest a publicar erros e início do log como annotations.
+- `a0df88b` (15:59) — `phpunit.xml` sem a suite `Unit`: a pasta `tests/Unit` estava vazia e
+  o git não a versiona, pelo que no runner não existia. **CI verde** a partir daqui.
+
+---
+
 ## Fase 6 — legal e conformidade
 
 $${\color{#6B7248}\textsf{2026-08-18 · 15:44}}$$
