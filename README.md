@@ -62,3 +62,22 @@ cor vivem em `resources/css/app.css` (`@theme`) — nunca usar hex soltos nos co
 .\sail.ps1 pest
 .\sail.ps1 pint --test    # estilo de código
 ```
+
+## Sincronização com o CASAFARI
+
+```powershell
+.\sail.ps1 artisan casafari:sync              # descarrega o feed e sincroniza
+.\sail.ps1 artisan casafari:sync --dry-run    # só conta, não escreve
+.\sail.ps1 artisan casafari:sync --force      # ignora o hash e reescreve tudo
+.\sail.ps1 artisan casafari:sync --file=tests/Fixtures/casafari-feed.xml   # XML local
+.\sail.ps1 artisan schedule:work              # corre o agendamento em local (hourlyAt 7)
+```
+
+Regras: upsert por `internal_id`; sha256 do nó XML salta imóveis inalterados; slug
+nunca muda; o que desaparece do feed passa a `is_active=false` (nunca se apaga);
+feed vazio (ou abaixo de `CASAFARI_MIN_ITEMS`) aborta **antes** de desativar;
+`Owner` nunca é lido. Em produção, o cron do sistema corre `php artisan schedule:run`
+a cada minuto; falhas vão por email para `CASAFARI_ALERT_EMAIL`.
+
+A estrutura do feed em `config/casafari.php` (`feed`/`mapping`) é **provisória** até
+o `casafari:inspect` correr sobre o feed real.

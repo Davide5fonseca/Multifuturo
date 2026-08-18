@@ -97,6 +97,8 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            // Mesmo fuso que a aplicação: as datas vão para o Postgres sem offset e têm de ser lidas no mesmo fuso.
+            'timezone' => env('APP_TIMEZONE', 'Europe/Lisbon'),
         ],
 
         'sqlsrv' => [
