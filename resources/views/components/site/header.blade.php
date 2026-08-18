@@ -3,6 +3,7 @@
     $links = [
         ['route' => 'buy', 'label' => __('ui.nav.buy')],
         ['route' => 'rent', 'label' => __('ui.nav.rent')],
+        ['route' => 'zones.index', 'label' => __('ui.nav.zones')],
         ['route' => 'valuation', 'label' => __('ui.nav.valuation')],
         ['route' => 'about', 'label' => __('ui.nav.about')],
         ['route' => 'contact', 'label' => __('ui.nav.contact')],
@@ -14,7 +15,7 @@
             Multifuturo<span class="text-olive-600">.</span>
         </a>
 
-        <nav class="hidden items-center gap-8 lg:flex" aria-label="{{ __('ui.nav.main') }}">
+        <nav class="ml-auto hidden items-center gap-8 lg:flex" aria-label="{{ __('ui.nav.main') }}">
             @foreach ($links as $link)
                 <a href="{{ route($link['route']) }}"
                    @class(['text-sm tracking-wide transition-colors hover:text-olive-700', 'text-olive-700 font-medium' => request()->routeIs($link['route']), 'text-ink' => ! request()->routeIs($link['route'])])
@@ -23,6 +24,12 @@
                 </a>
             @endforeach
         </nav>
+
+        <a href="{{ route('favorites') }}" class="hidden items-center gap-2 text-sm text-ink hover:text-olive-700 lg:flex" x-data>
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linejoin="round" d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10Z"/></svg>
+            <span class="sr-only">{{ __('ui.nav.favorites') }}</span>
+            <span x-cloak x-show="$store.favorites.count > 0" x-text="$store.favorites.count" class="min-w-5 bg-olive-600 px-1.5 text-center text-xs text-sand-50"></span>
+        </a>
 
         <button type="button" class="lg:hidden -mr-2 p-2 text-ink" @click="open = !open" :aria-expanded="open" aria-controls="menu-movel">
             <span class="sr-only" x-text="open ? @js(__('ui.nav.menu_close')) : @js(__('ui.nav.menu_open'))"></span>
@@ -38,6 +45,7 @@
                     {{ $link['label'] }}
                 </a>
             @endforeach
+            <a href="{{ route('favorites') }}" class="py-3 text-base text-ink hover:text-olive-700">{{ __('ui.nav.favorites') }}</a>
         </div>
     </nav>
 </header>

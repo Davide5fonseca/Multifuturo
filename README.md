@@ -81,3 +81,16 @@ a cada minuto; falhas vão por email para `CASAFARI_ALERT_EMAIL`.
 
 A estrutura do feed em `config/casafari.php` (`feed`/`mapping`) é **provisória** até
 o `casafari:inspect` correr sobre o feed real.
+
+## Frontend público (Fase 4)
+
+| Rota | Conteúdo |
+|---|---|
+| `/` | hero (foto de `AGENCY_HERO_IMAGE` ou capa do 1.º destaque), pesquisa, destaques (`is_featured`, completa com recentes), sobre, porquê, zonas, banda de contacto |
+| `/comprar`, `/arrendar` | listagem Livewire com filtros na query string (`q`, `tipo`, `tipologia`, `concelho`, `freguesia`, `preco_min`, `preco_max`, `area_min`, `caracteristicas[]`, `ordenar`, `page`) |
+| `/imoveis/{slug}` | ficha; inativo → **410** com semelhantes; mapa só com `gmap_visible` e carregado ao clicar |
+| `/zonas`, `/zonas/{concelho}`, `/zonas/{concelho}/{freguesia}` | páginas de zona; texto editorial opcional na tabela `zones` (`city_slug`, `locality_slug`, `title`, `intro`, `body`, `cover_url`) |
+| `/favoritos` | favoritos em localStorage; o servidor só renderiza os cartões pedidos (`?slugs=`) |
+
+Cache: tudo o que lê imóveis passa por `App\Support\PropertyCache` (tag `properties`, TTL 1 h)
+e é invalidado no fim de cada sync com alterações (`FlushPropertyCache`).
