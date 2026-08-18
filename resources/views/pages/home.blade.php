@@ -6,18 +6,20 @@
 @php use App\Support\Format; @endphp
 <x-layouts.app :title="__('ui.home.title')" :description="__('ui.home_sections.hero_lead')" :canonical="route('home')" :image="$heroImage">
     {{-- 1. Hero: fotografia grande a dominar; texto centrado sobre véu escuro suave --}}
-    <section class="relative isolate flex min-h-[70vh] items-center justify-center overflow-hidden bg-olive-900 text-sand-50 sm:min-h-[80vh]">
+    {{-- Sem fotografia, o hero é bege com texto escuro (nunca um bloco grande de azeitona). --}}
+    <section @class(['relative isolate flex min-h-[70vh] items-center justify-center overflow-hidden sm:min-h-[80vh]', 'bg-olive-900 text-sand-50' => $heroImage, 'bg-sand-100 text-ink' => ! $heroImage])>
         @if ($heroImage)
             <img src="{{ $heroImage }}" alt="" width="1920" height="1080" fetchpriority="high" decoding="async"
-                 class="absolute inset-0 -z-20 h-full w-full object-cover" data-fallback="{{ asset('images/placeholder-property.jpg') }}">
+                 class="absolute inset-0 -z-20 h-full w-full object-cover" data-fallback="{{ asset('images/placeholder-property.jpg') }}"
+                 onerror="this.onerror=null;this.src=this.dataset.fallback">
             <div class="absolute inset-0 -z-10 bg-ink/45" aria-hidden="true"></div>
         @endif
         <div class="container-site py-24 text-center">
-            <p class="label text-sand-200!">{{ __('ui.home.eyebrow') }}</p>
+            <p @class(['label', 'text-sand-200!' => $heroImage])>{{ __('ui.home.eyebrow') }}</p>
             <h1 class="mx-auto mt-5 max-w-3xl text-4xl leading-tight sm:text-6xl">{{ __('ui.home_sections.hero_title') }}</h1>
-            <p class="mx-auto mt-6 max-w-xl text-lg text-sand-100">{{ __('ui.home_sections.hero_lead') }}</p>
+            <p @class(['mx-auto mt-6 max-w-xl text-lg', 'text-sand-100' => $heroImage, 'text-ink-muted' => ! $heroImage])>{{ __('ui.home_sections.hero_lead') }}</p>
             <div class="mt-10 flex justify-center">
-                <a href="{{ route('buy') }}" class="btn bg-sand-50 text-ink hover:bg-sand-100">{{ __('ui.home_sections.hero_cta') }}</a>
+                <a href="{{ route('buy') }}" @class(['btn', 'bg-sand-50 text-ink hover:bg-sand-100' => $heroImage, 'bg-olive-600 text-sand-50 hover:bg-olive-700' => ! $heroImage])>{{ __('ui.home_sections.hero_cta') }}</a>
             </div>
         </div>
     </section>

@@ -22,6 +22,7 @@
     decoding="async"
     @if ($eager) fetchpriority="high" @endif
     data-fallback="{{ $placeholder }}"
+    onerror="this.onerror=null;this.removeAttribute('srcset');this.src=this.dataset.fallback"
     sizes="{{ $sizes }}"
     {{ $attributes->merge(['class' => 'h-full w-full object-cover']) }}
     style="aspect-ratio: {{ $ratio }};"

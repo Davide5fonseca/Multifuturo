@@ -21,7 +21,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // URLs absolutos sempre a partir de config('app.url'), nunca do Host do pedido.
-        AppUrl::forceFromConfig();
+        // Exceção: em desenvolvimento local seguem o host usado (localhost ou multifuturo.test),
+        // senão os assets/links partem quando não há entrada no ficheiro hosts.
+        if (! $this->app->environment('local')) {
+            AppUrl::forceFromConfig();
+        }
 
         // Em produção, arrancar sem AMI é proibido (ver AgencyCompliance).
         AgencyCompliance::assertAmi($this->app->environment());

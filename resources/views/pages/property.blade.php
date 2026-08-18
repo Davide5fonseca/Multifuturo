@@ -136,7 +136,7 @@
                 @if ($p->broker && ($p->broker['name'] ?? null))
                     <div class="mb-6 flex items-center gap-4">
                         @if ($p->broker['photo'] ?? null)
-                            <img src="{{ $p->broker['photo'] }}" alt="" width="56" height="56" class="h-14 w-14 rounded-full object-cover" loading="lazy" data-fallback="{{ asset('images/placeholder-property.jpg') }}">
+                            <img src="{{ $p->broker['photo'] }}" alt="" width="56" height="56" class="h-14 w-14 rounded-full object-cover" loading="lazy" onerror="this.style.display='none'">
                         @endif
                         <div>
                             <p class="label">{{ __('ui.property.contact_broker') }}</p>
