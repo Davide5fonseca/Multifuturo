@@ -66,6 +66,11 @@ return [
         'lead' => 'A carteira da Multifuturo, atualizada diariamente.',
     ],
 
+    'business' => [
+        'sale' => 'Venda',
+        'rent' => 'Arrendamento',
+    ],
+
     'listing' => [
         'buy_title' => 'Imóveis para comprar',
         'rent_title' => 'Imóveis para arrendar',

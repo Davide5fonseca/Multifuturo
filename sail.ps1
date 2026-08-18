@@ -25,6 +25,7 @@ switch ($cmd) {
     "npx"      { docker compose exec -u sail $service npx @rest }
     "test"     { docker compose exec -u sail $service php artisan test @rest }
     "pest"     { docker compose exec -u sail $service ./vendor/bin/pest @rest }
+    "pint"     { docker compose exec -u sail $service ./vendor/bin/pint @rest }
     "shell"    { docker compose exec -u sail $service bash }
     "root"     { docker compose exec -u root $service bash }
     "psql"     { docker compose exec pgsql psql -U sail -d multifuturo @rest }
