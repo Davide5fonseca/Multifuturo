@@ -9,6 +9,20 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Fase 4 — correções após run visual
+
+$${\color{#6B7248}\textsf{2026-08-18 · 15:23}}$$
+
+**Commit:** `832b775` — `Fase 4: correções após run visual — URLs locais seguem o host (sem hosts), fallback inline de imagens, hero bege quando não há fotografia`
+
+- `app/Providers/AppServiceProvider.php` — em `local` os URLs absolutos deixam de ser forçados a `APP_URL` (seguem o host do pedido: `localhost` ou `multifuturo.test`); sem isto o CSS/JS não carregavam via `localhost` sem entrada no `hosts`. Em produção e testes continuam forçados.
+- `resources/views/components/property/image.blade.php` e hero — fallback de imagem em `onerror` inline (o listener JS chegava tarde para imagens já falhadas).
+- `resources/views/pages/home.blade.php` — sem fotografia, o hero é bege com texto escuro e botão azeitona (nunca um bloco grande de verde).
+- `resources/views/pages/property.blade.php` — foto do consultor esconde-se se falhar.
+- Verificado com screenshots headless (Edge) de `/`, `/comprar` e da ficha.
+
+---
+
 ## Fase 4 — frontend público
 
 $${\color{#6B7248}\textsf{2026-08-18 · 15:16}}$$
