@@ -13,7 +13,7 @@
 ![Tailwind](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
 ![Redis](https://img.shields.io/badge/Redis-cache%20%2B%20queue-DC382D?logo=redis&logoColor=white)
-![Pest](https://img.shields.io/badge/Pest-104%20testes-38B2AC)
+![Pest](https://img.shields.io/badge/Pest-117%20testes-38B2AC)
 
 ![sand](https://img.shields.io/badge/%20-F5F1E8?style=flat-square)
 ![sand-100](https://img.shields.io/badge/%20-F2EDE1?style=flat-square)
