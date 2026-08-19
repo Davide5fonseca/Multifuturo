@@ -9,6 +9,29 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Demo — remoção das imagens do template de referência
+
+$${\color{#6B7248}\textsf{2026-08-19 · 17:55}}$$
+
+**Commit:** `ea37472` — `Demo: remover as imagens copiadas do template de referência`
+
+A pedido do cliente, eliminou-se do site tudo o que tinha sido copiado do template de
+referência (wh-1112). O único material copiado eram as **imagens** — os textos
+(depoimentos, descrições dos imóveis demo, secções da homepage) foram sempre escritos
+de raiz e mantêm-se.
+
+- `public/images/demo/` **eliminada** (fotografias das casas, retrato da consultora e
+  hero — material do template Wix; nunca esteve no git).
+- `database/seeders/DemoContentSeeder.php` — os 10 imóveis demo ficam **sem fotografias**
+  (`photos: []`): cartões, galeria e hero mostram o placeholder/variante bege da marca;
+  a consultora fica sem foto. Reexecutado sobre a base local.
+- `.env` local: `AGENCY_HERO_IMAGE` limpo — o hero da homepage volta à variante bege
+  sem fotografia (comportamento já previsto desde a Fase 4).
+- `.gitignore`: entrada `public/images/demo/` removida (a pasta já não existe).
+- Verificado com screenshot da homepage; 117 testes e Pint verdes.
+
+---
+
 ## UI — geometria suavizada
 
 $${\color{#6B7248}\textsf{2026-08-19 · 12:43}}$$
