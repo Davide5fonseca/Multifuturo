@@ -28,7 +28,7 @@ $${\color{#6B7248}\textsf{2026-08-19 · 12:32}}$$
 
 ## Homepage — secção de depoimentos
 
-$${\color{#6B7248}	extsf{2026-08-19 · 11:59}}$$
+$${\color{#6B7248}\textsf{2026-08-19 · 11:59}}$$
 
 **Commit:** `5318515` — `Homepage: secção de depoimentos (estrutura do template de referência) com testemunhos provisórios de demonstração`
 
