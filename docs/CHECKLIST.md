@@ -1,6 +1,6 @@
 # Multifuturo Imóveis — o que falta para pôr o site online
 
-Estado em 2026-08-18: Passo 0 (parcial) e Fases 1 a 7 concluídas. 104 testes a passar, CI verde.
+Estado em 2026-08-19: Passo 0 (parcial) e Fases 1 a 7 concluídas + adiantamentos da secção B. 117 testes a passar, CI verde.
 Este documento lista **tudo** o que ainda é preciso, quem o faz, e o que desbloqueia.
 
 ---
@@ -89,13 +89,13 @@ token entrar.
 | A5 (zonas) | seeder para carregar textos de zona a partir de um ficheiro simples (Markdown/CSV) |
 | A7 | deploy completo (secção C) |
 
-## Trabalho meu que **não** depende de ninguém (posso fazer já)
+## Trabalho meu que **não** depende de ninguém — ✅ feito em 2026-08-19
 
-1. Seeder/estrutura para conteúdo das zonas (fica pronto a receber texto).
-2. Favicon e imagem OG genéricos com a identidade (até haver logótipo real).
-3. Página 500 mais útil e testes de acessibilidade automatizados básicos.
-4. Comando `leads:retry` para reenviar leads `failed` depois de o CRM voltar.
-5. Preparar os ficheiros de deploy (Dockerfile de produção / config de servidor) assim que se souber o alojamento.
+1. ✅ `zones:import` — conteúdo das zonas por ficheiros Markdown (`database/content/zones/`, exemplo incluído).
+2. ✅ Favicon + imagem OG com a identidade (Fraunces, azeitona/areia) — a substituir por logótipo oficial quando existir.
+3. ✅ Página 500 útil + testes de acessibilidade automatizados básicos (5 testes, 8 páginas).
+4. ✅ `leads:retry {--pending} {--id=*} {--dry-run}` — reenvio de leads falhadas/paradas.
+5. ⏳ Ficheiros de deploy — **aguarda a decisão do alojamento** (única coisa que resta nesta secção).
 
 ---
 
