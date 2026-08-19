@@ -9,6 +9,58 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Adiantamentos sem dependências externas
+
+$${\color{#6B7248}\textsf{2026-08-19 · 09:52}}$$
+
+**Commit:** `1ea4c60` — `Adiantamentos sem dependências: leads:retry, zones:import, favicon/OG da marca, página 500 útil e testes de acessibilidade`
+
+(Trabalho da secção B do [docs/CHECKLIST.md](docs/CHECKLIST.md) — nada disto precisava do feed, das credenciais ou do alojamento.)
+
+### Comandos de manutenção
+- `app/Console/Commands/LeadsRetry.php` — `leads:retry {--pending} {--id=*} {--dry-run}`:
+  recoloca na queue as leads `failed` (por defeito), as `pending` paradas há mais de 1 h
+  (`--pending` — caso "criadas antes de haver token"), ou ids específicos. Volta o estado
+  a `pending`, limpa `last_error`, e avisa se `CASAFARI_TOKEN` continuar vazio. O job é
+  idempotente, portanto repetir o comando é seguro.
+- `app/Console/Commands/ZonesImport.php` — `zones:import {--path=} {--prune}`: carrega o
+  conteúdo editorial das páginas de zona a partir de `database/content/zones/*.md` com
+  front matter simples (`city_slug`, `locality_slug`, `title`, `meta_description`,
+  `cover_url`, `published`); 1.º parágrafo = intro, resto = corpo. Upsert por
+  (`city_slug`,`locality_slug`) — reimportar é seguro; `--prune` despublica zonas sem
+  ficheiro; invalida a cache no fim. Exemplo em `_exemplo.md.dist` + README na pasta.
+
+### Identidade
+- Favicons e imagem Open Graph **gerados com a marca** (script GD com a Fraunces TTF,
+  guardada fora do git): `favicon.ico` (contentor ICO com PNG 32), `favicon-32.png`,
+  `favicon-192.png`, `apple-touch-icon.png` — "M." areia sobre azeitona; e
+  `public/images/og-default.jpg` (1200×630: wordmark "Multifuturo." com o ponto azeitona,
+  filete e claim sobre areia) — substitui o placeholder cru da Fase 1. Ligados no layout
+  (`rel=icon` 32/192 + `apple-touch-icon`). Continuam a ser genéricos de marca — um
+  logótipo oficial substitui-os quando existir.
+
+### Página 500
+- `resources/views/errors/500.blade.php` — saídas úteis (Tentar novamente, Início,
+  Contactos) e contactos diretos da agência; sem Livewire nem BD (para não depender do
+  que possa estar avariado). Strings novas em `lang/pt/ui.php`.
+
+### Acessibilidade
+- `tests/Feature/AccessibilityTest.php` — 5 testes sobre 8 páginas representativas:
+  `lang="pt-PT"`, skip link + `<main id>`, **exatamente um `h1`**, landmarks e nav com
+  `aria-label`; **todas as `<img>` com `alt`**; campos de formulário com label
+  associada/aria-label; ícones com nome acessível; sem `autofocus` nem tabindex positivo.
+  Não substituem auditoria manual (contraste, teclado, leitores de ecrã).
+- `resources/views/components/site/consent-banner.blade.php` — `aria-label` nas duas
+  checkboxes do banner (apanhado pelo teste novo).
+
+### Testes
+- `tests/Feature/MaintenanceCommandsTest.php` — 8 testes (retry: failed/pending/ids/
+  dry-run/vazio; import: parse completo, upsert, published:false, --prune + erro sem
+  city_slug, página de zona mostra o conteúdo importado).
+- Total: **117 testes a passar**, 1 ignorado fora de produção. Pint limpo.
+
+---
+
 ## Fase 7 — revisão de cobertura e CI
 
 $${\color{#6B7248}\textsf{2026-08-18 · 15:49}}$$
