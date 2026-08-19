@@ -129,17 +129,88 @@
     .container-site {
         @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
     }
-    .btn {
-        @apply inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium tracking-wide transition-colors;
-    }
-    .btn-primary {
-        @apply inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium tracking-wide transition-colors bg-olive-600 text-sand-50 hover:bg-olive-700;
-    }
+    /*
+     * Botões — micro-interações sóbrias, fiéis à direção (sem gradientes
+     * decorativos nem sombras): o hover é um varrimento diagonal de cor sólida
+     * (duas cores chapadas num background deslizante, nunca um degradê visível),
+     * o clique tem um "press" físico de 1 px, e o prefers-reduced-motion global
+     * desliga todas as transições.
+     */
+    .btn,
+    .btn-primary,
     .btn-secondary {
-        @apply inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium tracking-wide transition-colors border border-olive-600 text-olive-700 hover:bg-sand-100;
+        @apply relative inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium tracking-wide select-none;
+        transition:
+            background-position 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+            background-color 0.3s ease,
+            color 0.3s ease,
+            border-color 0.3s ease,
+            letter-spacing 0.3s ease,
+            transform 0.12s ease;
     }
+    .btn:hover,
+    .btn-primary:hover,
+    .btn-secondary:hover {
+        letter-spacing: 0.06em; /* respira ligeiramente ao passar */
+    }
+    .btn:active,
+    .btn-primary:active,
+    .btn-secondary:active {
+        transform: translateY(1px) scale(0.99); /* "press" físico */
+        transition-duration: 0.06s;
+    }
+
+    .btn-primary {
+        @apply text-sand-50;
+        /* Duas cores sólidas lado a lado; o hover desloca a janela — efeito de
+           varrimento diagonal escuro, sem nunca se ver um degradê parado. */
+        background-image: linear-gradient(
+            115deg,
+            var(--color-olive-900) 0%,
+            var(--color-olive-900) 50%,
+            var(--color-olive-600) 50.25%,
+            var(--color-olive-600) 100%
+        );
+        background-size: 235% 100%;
+        background-position: 100% 0;
+    }
+    .btn-primary:hover,
+    .btn-primary:focus-visible {
+        background-position: 0% 0;
+    }
+
+    .btn-secondary {
+        @apply border border-olive-600 text-olive-700;
+        /* O contorno enche-se de azeitona da esquerda para a direita. */
+        background-image: linear-gradient(
+            115deg,
+            var(--color-olive-600) 0%,
+            var(--color-olive-600) 50%,
+            transparent 50.25%,
+            transparent 100%
+        );
+        background-size: 235% 100%;
+        background-position: 100% 0;
+    }
+    .btn-secondary:hover,
+    .btn-secondary:focus-visible {
+        background-position: 0% 0;
+        color: var(--color-sand-50);
+    }
+
+    /* Links de texto: sublinhado que cresce da esquerda (substitui o estático). */
     .link {
-        @apply text-olive-700 underline decoration-sand-200 underline-offset-4 hover:decoration-olive-700;
+        @apply text-olive-700 no-underline;
+        background-image: linear-gradient(currentColor, currentColor);
+        background-repeat: no-repeat;
+        background-size: 0% 1px;
+        background-position: 0 calc(100% - 0.05em);
+        transition: background-size 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        padding-bottom: 0.1em;
+    }
+    .link:hover,
+    .link:focus-visible {
+        background-size: 100% 1px;
     }
     .price {
         @apply font-serif font-normal tabular-nums;
