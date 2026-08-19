@@ -56,6 +56,8 @@ return [
         '404_back' => 'Voltar à página inicial',
         '500_title' => 'Ocorreu um erro',
         '500_lead' => 'Algo correu mal do nosso lado. Já fomos avisados; tente novamente dentro de instantes.',
+        '500_direct' => 'Se for urgente, fale connosco diretamente:',
+        'retry' => 'Tentar novamente',
         '503_title' => 'Em manutenção',
         '503_lead' => 'Estamos a fazer uma atualização rápida. Volte dentro de alguns minutos.',
     ],
