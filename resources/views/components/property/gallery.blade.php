@@ -17,16 +17,16 @@
      @keydown.escape.window="open && close()" @keydown.arrow-right.window="open && next()" @keydown.arrow-left.window="open && prev()">
 
     <div class="grid gap-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <a href="{{ $cover ?: '#' }}" @click.prevent="total && show(0)" class="relative block overflow-hidden bg-sand-200" @if(!$cover) aria-hidden="true" tabindex="-1" @endif>
+        <a href="{{ $cover ?: '#' }}" @click.prevent="total && show(0)" class="relative block overflow-hidden rounded-xl bg-sand-200" @if(!$cover) aria-hidden="true" tabindex="-1" @endif>
             <x-property.image :src="$cover" :alt="$title" ratio="4/3" :eager="true" sizes="(min-width: 1024px) 66vw, 100vw" />
             @if ($total > 1)
-                <span class="absolute bottom-4 right-4 bg-sand-50/95 px-3 py-1.5 text-xs font-medium text-ink">{{ __('ui.property.open_gallery') }} ({{ $total }})</span>
+                <span class="absolute bottom-4 right-4 rounded-full bg-sand-50/95 px-4 py-1.5 text-xs font-medium text-ink">{{ __('ui.property.open_gallery') }} ({{ $total }})</span>
             @endif
         </a>
         @if ($thumbs)
             <div class="grid grid-cols-4 gap-2 lg:grid-cols-2">
                 @foreach ($thumbs as $k => $ph)
-                    <a href="{{ $ph['url'] }}" @click.prevent="show({{ $k + 1 }})" class="block overflow-hidden bg-sand-200">
+                    <a href="{{ $ph['url'] }}" @click.prevent="show({{ $k + 1 }})" class="block overflow-hidden rounded-lg bg-sand-200">
                         <x-property.image :src="$ph['url']" :alt="__('ui.property.photo_n', ['n' => $k + 2, 'total' => $total])" ratio="4/3" sizes="(min-width: 1024px) 16vw, 25vw" />
                     </a>
                 @endforeach

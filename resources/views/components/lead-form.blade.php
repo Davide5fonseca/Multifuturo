@@ -22,7 +22,7 @@
     $formId = 'lead-'.$source.($property?->id ? '-'.$property->id : '');
 @endphp
 
-<div {{ $attributes->merge(['class' => 'bg-sand-100 border border-sand-200 p-6 sm:p-8']) }} id="{{ $formId }}">
+<div {{ $attributes->merge(['class' => 'rounded-xl bg-sand-100 border border-sand-200 p-6 sm:p-8']) }} id="{{ $formId }}">
     <h2 class="text-2xl">{{ __('ui.lead.title_'.$source) }}</h2>
     <p class="mt-2 text-sm text-ink-muted">{{ __('ui.lead.lead_'.$source) }}</p>
 

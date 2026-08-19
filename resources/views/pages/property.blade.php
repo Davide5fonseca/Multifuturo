@@ -102,7 +102,7 @@
                         <h2 class="label">{{ __('ui.property.features') }}</h2>
                         <ul class="mt-4 grid grid-cols-2 gap-x-8 gap-y-2 text-sm sm:grid-cols-3">
                             @foreach ($p->features as $feature)
-                                <li class="flex items-center gap-2 capitalize"><span class="h-1.5 w-1.5 bg-olive-600" aria-hidden="true"></span>{{ $feature }}</li>
+                                <li class="flex items-center gap-2 capitalize"><span class="h-1.5 w-1.5 rounded-full bg-olive-600" aria-hidden="true"></span>{{ $feature }}</li>
                             @endforeach
                         </ul>
                     </section>
@@ -116,7 +116,7 @@
                             $lat = (float) $coords['lat']; $lon = (float) $coords['lon']; $d = 0.008;
                             $osm = sprintf('https://www.openstreetmap.org/export/embed.html?bbox=%F,%F,%F,%F&layer=mapnik&marker=%F,%F', $lon - $d, $lat - $d, $lon + $d, $lat + $d, $lat, $lon);
                         @endphp
-                        <div x-data="{ show: false }" class="mt-4 border border-sand-200 bg-sand-100">
+                        <div x-data="{ show: false }" class="mt-4 overflow-hidden rounded-xl border border-sand-200 bg-sand-100">
                             <div x-show="!show" class="flex flex-col items-start gap-3 p-6">
                                 <p class="text-sm text-ink-muted">{{ __('ui.property.map_notice') }}</p>
                                 <button type="button" class="btn-secondary py-2 text-xs" @click="show = true">{{ __('ui.property.show_map') }}</button>

@@ -31,7 +31,7 @@
         </header>
 
         @if ($editorial?->cover_url)
-            <div class="mt-10 overflow-hidden bg-sand-200">
+            <div class="mt-10 overflow-hidden rounded-xl bg-sand-200">
                 <img src="{{ $editorial->cover_url }}" alt="{{ $zoneName }}" width="1600" height="700" class="h-auto w-full object-cover" style="aspect-ratio: 16/7" loading="lazy" data-fallback="{{ asset('images/placeholder-property.jpg') }}">
             </div>
         @endif
@@ -49,7 +49,7 @@
                 <h2 class="label">{{ __('ui.zones.localities') }}</h2>
                 <ul class="mt-4 flex flex-wrap gap-2">
                     @foreach ($localities as $l)
-                        <li><a href="{{ route('zones.locality', [$citySlug, $l['slug']]) }}" class="inline-block border border-sand-200 px-3 py-1.5 text-sm hover:border-olive-600 hover:text-olive-700">{{ $l['name'] }} <span class="text-ink-muted">({{ $l['count'] }})</span></a></li>
+                        <li><a href="{{ route('zones.locality', [$citySlug, $l['slug']]) }}" class="inline-block rounded-full border border-sand-200 px-4 py-1.5 text-sm hover:border-olive-600 hover:text-olive-700">{{ $l['name'] }} <span class="text-ink-muted">({{ $l['count'] }})</span></a></li>
                     @endforeach
                 </ul>
             </section>

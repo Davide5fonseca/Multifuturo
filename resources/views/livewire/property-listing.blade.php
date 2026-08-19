@@ -117,7 +117,7 @@
         {{-- Resultados --}}
         <div wire:loading.class="opacity-60" class="transition-opacity">
             @if ($results->isEmpty())
-                <div class="border border-sand-200 bg-sand-100 px-6 py-16 text-center">
+                <div class="rounded-xl border border-sand-200 bg-sand-100 px-6 py-16 text-center">
                     <p class="text-lg">{{ __('ui.listing.empty') }}</p>
                     @if ($this->hasFilters())
                         <button type="button" wire:click="clearFilters" class="btn-secondary mt-6">{{ __('ui.listing.clear_filters') }}</button>

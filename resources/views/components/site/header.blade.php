@@ -28,7 +28,7 @@
         <a href="{{ route('favorites') }}" class="hidden items-center gap-2 text-sm text-ink hover:text-olive-700 lg:flex" x-data>
             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linejoin="round" d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10Z"/></svg>
             <span class="sr-only">{{ __('ui.nav.favorites') }}</span>
-            <span x-cloak x-show="$store.favorites.count > 0" x-text="$store.favorites.count" class="min-w-5 bg-olive-600 px-1.5 text-center text-xs text-sand-50"></span>
+            <span x-cloak x-show="$store.favorites.count > 0" x-text="$store.favorites.count" class="min-w-5 rounded-full bg-olive-600 px-1.5 text-center text-xs text-sand-50"></span>
         </a>
 
         <button type="button" class="lg:hidden -mr-2 p-2 text-ink" @click="open = !open" :aria-expanded="open" aria-controls="menu-movel">

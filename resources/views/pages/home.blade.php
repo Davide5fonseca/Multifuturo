@@ -104,7 +104,7 @@
                 <h2 class="text-3xl sm:text-4xl">{{ __('ui.home_sections.zones') }}</h2>
                 <a href="{{ route('zones.index') }}" class="link text-sm">{{ __('ui.home_sections.zones_all') }}</a>
             </div>
-            <ul class="mt-10 grid gap-px bg-sand-200 sm:grid-cols-2 lg:grid-cols-4">
+            <ul class="mt-10 grid gap-px overflow-hidden rounded-xl border border-sand-200 bg-sand-200 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach ($cities->take(8) as $c)
                     <li class="bg-sand-50">
                         <a href="{{ route('zones.city', $c['slug']) }}" class="group flex items-baseline justify-between gap-4 px-6 py-6 hover:bg-sand-100">
@@ -120,7 +120,7 @@
     {{-- 7. Banda de contacto / avaliação --}}
     <section class="container-site pt-24">
         {{-- Sem áreas grandes de azeitona: a banda é bege escuro; o verde fica nos botões. --}}
-        <div class="border-y border-sand-200 bg-sand-100 px-8 py-16 text-center sm:px-16">
+        <div class="rounded-2xl border border-sand-200 bg-sand-100 px-8 py-16 text-center sm:px-16">
             <h2 class="text-3xl sm:text-4xl">{{ __('ui.home_sections.cta_title') }}</h2>
             <p class="mx-auto mt-4 max-w-md text-ink-muted">{{ __('ui.home_sections.cta_lead') }}</p>
             <div class="mt-8 flex flex-wrap justify-center gap-4">

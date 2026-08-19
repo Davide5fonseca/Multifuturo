@@ -10,7 +10,7 @@
         <p class="mt-4 max-w-xl text-ink-muted">{{ __('ui.favorites.lead') }}</p>
 
         @if ($properties->isEmpty())
-            <div class="mt-12 border border-sand-200 bg-sand-100 px-6 py-16 text-center">
+            <div class="mt-12 rounded-xl border border-sand-200 bg-sand-100 px-6 py-16 text-center">
                 <p class="text-lg">{{ __('ui.favorites.empty') }}</p>
                 <a href="{{ route('buy') }}" class="btn-primary mt-6">{{ __('ui.nav.buy') }}</a>
             </div>

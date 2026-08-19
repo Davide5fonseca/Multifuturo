@@ -7,7 +7,7 @@
 <form {{ $attributes->merge(['class' => '']) }}
       x-data="{ type: @js($businessType), routes: { sale: @js(route('buy')), rent: @js(route('rent')) } }"
       :action="routes[type]" action="{{ $businessType === 'rent' ? route('rent') : route('buy') }}" method="get" role="search">
-    <fieldset class="flex flex-wrap items-stretch gap-0 border border-sand-200 bg-white">
+    <fieldset class="flex flex-wrap items-stretch gap-0 overflow-hidden rounded-lg border border-sand-200 bg-white">
         <legend class="sr-only">{{ __('ui.search.title') }}</legend>
 
         <label class="sr-only" for="pesquisa-tipo">{{ __('ui.search.business_type') }}</label>

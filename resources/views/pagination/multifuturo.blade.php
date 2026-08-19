@@ -18,9 +18,9 @@
                     @foreach ($element as $page => $url)
                         <li>
                             @if ($page == $paginator->currentPage())
-                                <span class="grid h-9 w-9 place-items-center bg-olive-600 text-sand-50" aria-current="page">{{ $page }}</span>
+                                <span class="grid h-9 w-9 place-items-center rounded-md bg-olive-600 text-sand-50" aria-current="page">{{ $page }}</span>
                             @else
-                                <a href="{{ $url }}" class="grid h-9 w-9 place-items-center hover:bg-sand-100" @isset($this) wire:click.prevent="gotoPage({{ $page }}, '{{ $paginator->getPageName() }}')" @endisset aria-label="{{ __('Go to page :page', ['page' => $page]) }}">{{ $page }}</a>
+                                <a href="{{ $url }}" class="grid h-9 w-9 place-items-center rounded-md hover:bg-sand-100" @isset($this) wire:click.prevent="gotoPage({{ $page }}, '{{ $paginator->getPageName() }}')" @endisset aria-label="{{ __('Go to page :page', ['page' => $page]) }}">{{ $page }}</a>
                             @endif
                         </li>
                     @endforeach

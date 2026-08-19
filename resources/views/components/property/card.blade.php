@@ -18,11 +18,11 @@
         $p->energy_rating ? 'CE '.$p->energy_rating : null,
     ]);
 @endphp
-<article {{ $attributes->merge(['class' => 'group relative flex flex-col bg-sand-100']) }} data-slug="{{ $p->slug }}">
+<article {{ $attributes->merge(['class' => 'group relative flex flex-col overflow-hidden rounded-xl bg-sand-100']) }} data-slug="{{ $p->slug }}">
     <a href="{{ $url }}" class="relative block overflow-hidden bg-sand-200" tabindex="-1" aria-hidden="true">
         <x-property.image :src="$p->cover_photo['url'] ?? null" :alt="$title" :eager="$eager" class="transition-transform duration-500 group-hover:scale-[1.02]" />
         @if ($p->is_exclusive)
-            <span class="absolute left-4 top-4 bg-sand-50 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-label text-ink">{{ __('ui.property.exclusive') }}</span>
+            <span class="absolute left-4 top-4 rounded-full bg-sand-50 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-label text-ink">{{ __('ui.property.exclusive') }}</span>
         @endif
     </a>
 
@@ -31,7 +31,7 @@
             @click.prevent="$store.favorites.toggle(@js($p->slug))"
             :aria-pressed="$store.favorites.has(@js($p->slug))"
             :aria-label="$store.favorites.has(@js($p->slug)) ? @js(__('ui.property.favorite_remove')) : @js(__('ui.property.favorite_add'))"
-            class="absolute right-3 top-3 z-10 grid h-9 w-9 place-items-center bg-sand-50/90 text-ink hover:text-olive-700">
+            class="absolute right-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-full bg-sand-50/90 text-ink hover:text-olive-700">
         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"
              :fill="$store.favorites.has(@js($p->slug)) ? 'currentColor' : 'none'">
             <path stroke-linejoin="round" d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10Z"/>
