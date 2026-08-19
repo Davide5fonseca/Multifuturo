@@ -12,10 +12,11 @@ use RuntimeException;
 /**
  * Conteúdo de DEMONSTRAÇÃO — apenas para desenvolvimento/apresentação.
  *
- * Cria imóveis fictícios (internal_id com prefixo DEMO-) com as fotografias do
- * template de referência guardadas em public/images/demo/ (fora do git), para
- * se ver o site "cheio" antes de haver feed real. Reexecutar substitui os
- * imóveis demo existentes e não toca em mais nada.
+ * Cria imóveis fictícios (internal_id com prefixo DEMO-) para se ver o site
+ * "cheio" antes de haver dados reais. Sem fotografias (usa o placeholder da
+ * marca): as imagens do template de referência foram removidas a pedido do
+ * cliente por serem material de terceiros. Reexecutar substitui os imóveis
+ * demo existentes e não toca em mais nada.
  *
  * NUNCA corre em produção. Remover tudo com:
  *   Property::where('internal_id', 'like', 'DEMO-%')->delete()
@@ -30,18 +31,9 @@ class DemoContentSeeder extends Seeder
             throw new RuntimeException('DemoContentSeeder não corre em produção.');
         }
 
-        if (! is_file(public_path('images/demo/hero.jpg'))) {
-            throw new RuntimeException('Faltam as imagens em public/images/demo/ (ver docs/CHECKLIST.md ou pedir ao assistente para as descarregar de novo).');
-        }
-
         Property::query()->where('internal_id', 'like', 'DEMO-%')->delete();
 
         foreach ($this->properties() as $i => $data) {
-            $photos = [];
-            foreach ($data['photos'] as $order => $file) {
-                $photos[] = ['url' => '/images/demo/'.$file, 'order' => $order + 1];
-            }
-
             Property::query()->create([
                 'internal_id' => 'DEMO-'.($i + 1),
                 'reference' => $data['reference'],
@@ -67,9 +59,9 @@ class DemoContentSeeder extends Seeder
                 'build_year' => $data['year'] ?? null,
                 'energy_rating' => $data['ce'],
                 'translations' => ['pt' => ['title' => $data['title'], 'description' => $data['description']]],
-                'photos' => $photos,
+                'photos' => [],  // sem fotografias: o site mostra o placeholder da marca
                 'features' => $data['features'],
-                'broker' => ['name' => $data['broker'], 'photo' => $data['broker'] === 'Marta Fonseca' ? '/images/demo/consultora.jpg' : null],
+                'broker' => ['name' => $data['broker'], 'photo' => null],
                 'slug' => Property::generateSlug($data['type'], $data['city'], $data['reference'], 'DEMO-'.($i + 1)),
                 'payload_hash' => hash('sha256', 'demo-'.$i),
                 'crm_updated_at' => now()->subDays($data['days_ago']),
@@ -111,12 +103,6 @@ class DemoContentSeeder extends Seeder
     /** @return array<int, array<string, mixed>> */
     private function properties(): array
     {
-        // Só 3 fotografias de imóveis no template; a variedade vem de recortes e ordens diferentes.
-        $casa = ['casa-moderna-1.jpg', 'interior-2.jpg', 'moradia-jardim-3.jpg', 'interior-4.jpg'];
-        $jardim = ['moradia-jardim-1.jpg', 'casa-moderna-2.jpg', 'interior-1.jpg', 'casa-moderna-3.jpg'];
-        $relvado = ['moradia-jardim-4.jpg', 'interior-3.jpg', 'casa-moderna-2.jpg', 'moradia-jardim-2.jpg'];
-        $interior = ['interior-1.jpg', 'casa-moderna-4.jpg', 'interior-3.jpg', 'moradia-jardim-2.jpg'];
-
         return [
             [
                 'reference' => 'MF-2041', 'title' => 'Moradia contemporânea com piscina e jardim',
@@ -127,7 +113,6 @@ class DemoContentSeeder extends Seeder
                 'lat' => 38.7057, 'lon' => -9.4249, 'price' => 1250000,
                 'features' => ['piscina', 'jardim', 'garagem', 'painéis solares', 'ar condicionado', 'alarme'],
                 'broker' => 'Marta Fonseca', 'days_ago' => 2, 'featured' => true, 'exclusive' => true,
-                'photos' => $jardim,
             ],
             [
                 'reference' => 'MF-2038', 'title' => 'Apartamento T3 com terraço e vista de mar',
@@ -138,7 +123,6 @@ class DemoContentSeeder extends Seeder
                 'lat' => 38.7076, 'lon' => -9.4014, 'price' => 785000,
                 'features' => ['terraço', 'garagem', 'elevador', 'arrecadação', 'vista de mar'],
                 'broker' => 'Marta Fonseca', 'days_ago' => 5, 'featured' => true,
-                'photos' => $casa,
             ],
             [
                 'reference' => 'MF-2035', 'title' => 'T2 renovado em Campo de Ourique',
@@ -149,7 +133,6 @@ class DemoContentSeeder extends Seeder
                 'lat' => 38.7169, 'lon' => -9.1665, 'price' => 465000,
                 'features' => ['ar condicionado', 'cozinha equipada', 'vidros duplos'],
                 'broker' => 'Ricardo Almeida', 'days_ago' => 9, 'featured' => true,
-                'photos' => $interior,
             ],
             [
                 'reference' => 'MF-2029', 'title' => 'Moradia V3 com relvado em Oeiras',
@@ -160,7 +143,6 @@ class DemoContentSeeder extends Seeder
                 'lat' => 38.6979, 'lon' => -9.3113, 'price' => 690000,
                 'features' => ['jardim', 'lareira', 'churrasqueira', 'garagem'],
                 'broker' => 'Ricardo Almeida', 'days_ago' => 14,
-                'photos' => $relvado,
             ],
             [
                 'reference' => 'MF-2044', 'title' => 'T1 mobilado junto à estação — arrendamento',
@@ -171,7 +153,6 @@ class DemoContentSeeder extends Seeder
                 'lat' => 38.6912, 'lon' => -9.2916, 'price' => 1250,
                 'features' => ['mobilado', 'elevador', 'varanda'],
                 'broker' => 'Sofia Ramos', 'days_ago' => 3, 'featured' => true,
-                'photos' => $interior,
             ],
             [
                 'reference' => 'MF-2042', 'title' => 'T2 com terraço na Estrela — arrendamento',
@@ -182,7 +163,6 @@ class DemoContentSeeder extends Seeder
                 'lat' => 38.7150, 'lon' => -9.1607, 'price' => 1850,
                 'features' => ['terraço', 'cozinha equipada', 'vidros duplos'],
                 'broker' => 'Sofia Ramos', 'days_ago' => 6,
-                'photos' => $casa,
             ],
             [
                 'reference' => 'MF-2018', 'title' => 'Quinta com moradia e terreno plano em Sintra',
@@ -193,7 +173,6 @@ class DemoContentSeeder extends Seeder
                 'lat' => 38.8712, 'lon' => -9.3945, 'gmap' => false, 'price' => 520000,
                 'features' => ['terreno plano', 'poço', 'pomar', 'anexo'],
                 'broker' => 'Marta Fonseca', 'days_ago' => 30, 'exclusive' => true,
-                'photos' => $relvado,
             ],
             [
                 'reference' => 'MF-2001', 'title' => 'Terreno urbano com projeto aprovado em Sesimbra',
@@ -204,7 +183,6 @@ class DemoContentSeeder extends Seeder
                 'lat' => 38.4479, 'lon' => -9.1015, 'price' => 320000,
                 'features' => ['projeto aprovado', 'infraestruturas'],
                 'broker' => 'Ricardo Almeida', 'days_ago' => 45,
-                'photos' => ['moradia-jardim-2.jpg', 'casa-moderna-3.jpg'],
             ],
             [
                 'reference' => 'MF-2047', 'title' => 'Loja com montra em zona de passagem — Algés',
@@ -215,7 +193,6 @@ class DemoContentSeeder extends Seeder
                 'lat' => 38.7009, 'lon' => -9.2318, 'price' => 1400,
                 'features' => ['montra', 'armazém'],
                 'broker' => 'Sofia Ramos', 'days_ago' => 21,
-                'photos' => ['interior-2.jpg', 'interior-4.jpg'],
             ],
             [
                 'reference' => 'MF-2050', 'title' => 'Penthouse T4 com vista rio — preço sob consulta',
@@ -226,7 +203,6 @@ class DemoContentSeeder extends Seeder
                 'lat' => 38.7681, 'lon' => -9.0972, 'price' => null,
                 'features' => ['terraço', 'piscina', 'domótica', 'garagem', 'vista de rio', 'condomínio fechado'],
                 'broker' => 'Marta Fonseca', 'days_ago' => 1, 'featured' => true, 'exclusive' => true,
-                'photos' => $casa,
             ],
         ];
     }
