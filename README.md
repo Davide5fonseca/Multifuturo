@@ -6,7 +6,7 @@
 
 *A carteira de imóveis do CASAFARI CRM, replicada localmente e servida com calma.*
 
-[![Testes](https://github.com/Davide5fonseca/Multifuturo_Im-veis/actions/workflows/tests.yml/badge.svg)](https://github.com/Davide5fonseca/Multifuturo_Im-veis/actions/workflows/tests.yml)
+[![Testes](https://github.com/Davide5fonseca/Multifuturo/actions/workflows/tests.yml/badge.svg)](https://github.com/Davide5fonseca/Multifuturo/actions/workflows/tests.yml)
 ![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?logo=php&logoColor=white)
 ![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?logo=laravel&logoColor=white)
 ![Livewire](https://img.shields.io/badge/Livewire-3-4E56A6)
@@ -27,7 +27,7 @@
 
 <br>
 
-[**📋 O que falta para ir online**](docs/CHECKLIST.md) · [**📜 Changelog por commit**](CHANGELOG.md) · [🐛 Issues](https://github.com/Davide5fonseca/Multifuturo_Im-veis/issues)
+[**📋 O que falta para ir online**](docs/CHECKLIST.md) · [**📜 Changelog por commit**](CHANGELOG.md) · [🐛 Issues](https://github.com/Davide5fonseca/Multifuturo/issues)
 
 </div>
 
