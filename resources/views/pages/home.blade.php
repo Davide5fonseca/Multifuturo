@@ -61,7 +61,26 @@
         </div>
     </section>
 
-    {{-- 5. Porquê — três colunas, fundo alternado --}}
+    {{-- 5. Depoimentos — como no template de referência: citações sóbrias, sem cartões pesados --}}
+    @php $testimonials = __('ui.home_sections.testimonials_list'); @endphp
+    @if (is_array($testimonials) && count($testimonials))
+        <section class="container-site pt-24">
+            <h2 class="text-3xl sm:text-4xl">{{ __('ui.home_sections.testimonials') }}</h2>
+            <div class="mt-10 grid gap-10 sm:grid-cols-3">
+                @foreach ($testimonials as $t)
+                    <figure class="border-l-2 border-olive-600 pl-6">
+                        <blockquote class="font-serif text-xl leading-relaxed">&ldquo;{{ $t['quote'] }}&rdquo;</blockquote>
+                        <figcaption class="mt-4 text-sm">
+                            <span class="font-medium">{{ $t['author'] }}</span>
+                            <span class="block text-ink-muted">{{ $t['context'] }}</span>
+                        </figcaption>
+                    </figure>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
+    {{-- 6. Porquê — três colunas, fundo alternado --}}
     <section class="mt-24 bg-sand-100">
         <div class="container-site py-20 text-center">
             <h2 class="text-3xl sm:text-4xl">{{ __('ui.home_sections.why') }}</h2>

@@ -214,6 +214,14 @@ return [
         'why_2_text' => 'Um consultor dedicado, contactável, que conhece o seu caso e responde com rapidez.',
         'why_3_title' => 'Processo sem sobressaltos',
         'why_3_text' => 'Tratamos da documentação, da avaliação e da negociação, e explicamos cada passo em linguagem clara.',
+        // Depoimentos: PROVISÓRIOS (demonstração) — substituir por testemunhos reais
+        // de clientes, com autorização escrita de cada um antes de publicar.
+        'testimonials' => 'O que dizem os nossos clientes',
+        'testimonials_list' => [
+            ['quote' => 'Venderam a nossa casa em seis semanas, pelo valor da avaliação, e trataram de toda a papelada. Sempre disponíveis, sempre claros.', 'author' => 'Família Correia', 'context' => 'Venda de moradia, Cascais'],
+            ['quote' => 'Foi a primeira casa que comprei e explicaram-me cada passo sem pressas. Senti que estava a decidir bem, e não a ser empurrada.', 'author' => 'Beatriz M.', 'context' => 'Compra de T2, Lisboa'],
+            ['quote' => 'Arrendaram o meu apartamento em duas semanas, com inquilinos verificados e contrato tratado. Não tive de me preocupar com nada.', 'author' => 'João P.', 'context' => 'Arrendamento, Oeiras'],
+        ],
         'zones' => 'Zonas onde atuamos',
         'zones_all' => 'Ver todas as zonas',
         'cta_title' => 'Quer vender ou arrendar a sua casa?',
