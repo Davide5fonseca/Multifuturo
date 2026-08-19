@@ -9,6 +9,30 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## UI — geometria suavizada
+
+$${\color{#6B7248}\textsf{2026-08-19 · 12:43}}$$
+
+**Commit:** `4f87ae8` — `UI: suavizar a geometria — raios 8/12/16/24 px, chips e badges em pílula`
+
+A pedido do cliente ("ainda estão todos muito quadrados"), a escala de raios de canto
+passou de 2–3 px (quase invisível) para uma escala moderna e ainda sóbria:
+
+- `resources/css/app.css` — tokens novos: `sm` 6 px, `md` 8 px (default), `lg` 12 px,
+  `xl` 16 px, `2xl` 24 px, `full`; **campos** (`.field`) e **botões** a `rounded-md`.
+- **`rounded-xl` (16 px):** cartão de imóvel (com `overflow-hidden` — a fotografia
+  acompanha os cantos), imagem principal da galeria, formulário de lead, caixa do mapa,
+  caixas de estado vazio, mosaicos das zonas (homepage e `/zonas`, agora com moldura),
+  capa da página de zona.
+- **`rounded-2xl` (24 px):** banda CTA da homepage (passa de faixa `border-y` a cartão).
+- **Pílulas (`rounded-full`):** badge "Exclusivo", contador "Ver todas as fotografias",
+  chips de freguesia nas páginas de zona, contador de favoritos no cabeçalho; botão de
+  favorito e a bolinha das comodidades ficam circulares.
+- Paginação: quadrados suavizados (`rounded-md`); miniaturas da galeria `rounded-lg`.
+- 117 testes e Pint verdes; verificado com screenshots de `/comprar` e da ficha.
+
+---
+
 ## UI — micro-interações nos botões e links
 
 $${\color{#6B7248}\textsf{2026-08-19 · 12:32}}$$
