@@ -9,6 +9,20 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Conteúdo de demonstração (imagens do template)
+
+$${\color{#6B7248}\textsf{2026-08-19 · 11:33}}$$
+
+**Commit:** `1289ef0` — `Demo: seeder de conteúdo com as imagens do template de referência (dev-only)`
+
+- `database/seeders/DemoContentSeeder.php` — a pedido do cliente, povoou-se o site com conteúdo de demonstração usando as fotografias do template de referência (wh-1112): **10 imóveis fictícios** realistas (moradia com piscina em Cascais exclusiva e em destaque, T3 com vista de mar, T2 em Campo de Ourique, V3 em Oeiras, T1 e T2 para arrendamento, quinta em Sintra com `gmap_visible=false`, terreno em Sesimbra, loja em Algés, penthouse com preço sob consulta), com descrições, características, 3 consultores (o retrato do template como foto da consultora) e **2 zonas editoriais** (Cascais e Lisboa).
+- As imagens vivem em `public/images/demo/` (recortes variados das 3 fotos de imóveis do template + retrato + hero), **fora do git** — são material do template Wix, servem só para demonstração local e nunca vão para produção; o seeder recusa correr em `production` e avisa se as imagens faltarem.
+- Ids com prefixo `DEMO-`: reexecutar substitui-os; o primeiro `casafari:sync` real desativa-os automaticamente (não vêm no feed).
+- Fixture antiga (ids 1001–1003) removida da base local; `AGENCY_HERO_IMAGE` local a apontar para o hero de demo.
+- Verificado com screenshots: homepage com hero real e destaques, `/comprar` com 9 cartões e filtros povoados (13 características), ficha completa com galeria, consultora e semelhantes.
+
+---
+
 ## Adiantamentos sem dependências externas
 
 $${\color{#6B7248}\textsf{2026-08-19 · 09:52}}$$
