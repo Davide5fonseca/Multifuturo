@@ -239,7 +239,24 @@ paleta beje/azeitona e Fraunces + Inter. Sem depoimentos (não há depoimentos r
   em Livewire e em páginas normais).
 - `resources/views/components/site/header.blade.php` — + **Zonas** e **Favoritos** (com contador).
 
-### Homepage
+### UI — micro-interações nos botões e links
+
+$${\color{#6B7248}\textsf{2026-08-19 · 12:32}}$$
+
+**Commit:** `00b7e51` — `UI: botões e links com micro-interações — varrimento diagonal de cor sólida no hover, press físico no clique, sublinhado que cresce`
+
+- `resources/css/app.css` — botões mais dinâmicos, fiéis à direção (sem gradientes decorativos nem sombras):
+  - **`.btn-primary`**: no hover, um varrimento diagonal a 115° desliza a cor de `olive-600` para `olive-900` (duas cores sólidas num background deslizante — em repouso e em movimento nunca se vê um degradê);
+  - **`.btn-secondary`**: o contorno enche-se de azeitona da esquerda para a direita e o texto passa a areia;
+  - todos os botões: o `letter-spacing` abre ligeiramente no hover ("respira") e o `:active` tem um press físico (`translateY(1px) + scale(.99)` com transição curta);
+  - **`.link`**: sublinhado que cresce da esquerda com easing suave, em vez do sublinhado estático;
+  - o `prefers-reduced-motion` global continua a desligar todas as transições.
+- Nota técnica: no Tailwind 4 não se pode `@apply` uma classe própria — a base partilhada dos botões passou a seletor agrupado (`.btn, .btn-primary, .btn-secondary`).
+- Verificado com página de pré-visualização dos três estados (normal/hover/pressionado) em screenshot headless.
+
+---
+
+## Homepage
 - `resources/views/pages/home.blade.php` — 1) hero full-bleed (foto de `AGENCY_HERO_IMAGE`
   ou capa do 1.º destaque; véu `ink/45`; título/lead centrados; CTA), 2) pesquisa rápida
   sobreposta, 3) **Imóveis em destaque** (grelha de cartões), 4) **Sobre a Multifuturo**
