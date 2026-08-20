@@ -88,7 +88,18 @@ macOS/Linux/WSL2 — **no Windows** usa o wrapper `sail.ps1`:
 npm install; npm run build    # assets (ver nota abaixo)
 ```
 
-Abrir **http://localhost/** ✅
+### Onde corre, e em que endereços
+
+Tudo corre em **Docker, na sua máquina** — não há nada online. O container
+`multifuturo.test` serve o site com `php artisan serve` na porta 80:
+
+| | Endereço |
+|---|---|
+| **Site** | **http://localhost/** |
+| **Backoffice** | **http://localhost/admin** |
+| Emails de teste (Mailpit) | http://localhost:8025 |
+| PostgreSQL | `localhost:54320` |
+| Redis | `localhost:63790` |
 
 <details>
 <summary><b>Portas, domínio local e atalhos do wrapper</b></summary>
@@ -110,6 +121,14 @@ Abrir **http://localhost/** ✅
 ```
 127.0.0.1   multifuturo.test
 ```
+
+> **Desempenho em Windows:** o Sail serve o site com `php artisan serve`, ou seja pelo
+> SAPI de linha de comandos — onde o **OPcache vem desligado**. Com o projeto no disco do
+> Windows e montado no container, cada pedido recompilava centenas de ficheiros PHP
+> através dessa ponte (**2 a 3 segundos por página**). O `docker/php-dev.ini`, montado
+> pelo `compose.yaml`, liga o OPcache e aumenta a cache de caminhos — as páginas passam a
+> ~**0,15 s**. As alterações ao código aplicam-se dentro de 10 segundos
+> (`opcache.revalidate_freq`); para as ver de imediato, `.\sail.ps1 restart`.
 
 > **Assets:** o tema do Filament instalou dependências dentro do container, por isso
 > compile lá — `.\sail.ps1 npm run build`. Correr `npm install` no Windows volta a

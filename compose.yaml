@@ -19,6 +19,8 @@ services:
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
         volumes:
             - '.:/var/www/html'
+            # OPcache ligado no CLI: sem isto o "artisan serve" recompila tudo a cada pedido.
+            - './docker/php-dev.ini:/etc/php/8.3/cli/conf.d/99-multifuturo.ini'
         networks:
             - sail
         depends_on:
