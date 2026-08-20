@@ -197,7 +197,8 @@ npm run build    # produção → public/build (não versionado)
 
 Tipografia **Fraunces + Inter** servida de `public/fonts/` (zero pedidos a CDNs).
 Tokens de cor em `resources/css/app.css` (`@theme`) — **nunca** hex soltos nos componentes.
-Referência de layout: template "Consultor Imobiliário (Elegante)" — estrutura e tom, não cópia.
+Direção: fotografia grande, muito espaço branco, tipografia sóbria; o azeitona é acento
+(botões, estados ativos), nunca fundo de áreas grandes.
 
 | Rota | Conteúdo |
 |---|---|

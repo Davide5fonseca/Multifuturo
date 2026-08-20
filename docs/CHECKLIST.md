@@ -59,7 +59,7 @@ token entrar.
 |---|---|---|
 | Homepage: título/lead do hero, "Sobre", "Porquê" (3 argumentos), banda de contacto | `lang/pt/ui.php` → `home_sections` | provisório (escrito por mim) |
 | Página "A agência" | `lang/pt/legal.php` → `about` | provisório |
-| Depoimentos (opcional, o template de referência tem) | a criar se houver 2–3 reais | não existe |
+| Depoimentos de clientes (opcional) | só com testemunhos reais e autorização escrita de cada cliente | secção removida |
 | Conteúdo editorial por zona (concelho/freguesia) | tabela `zones` | vazia — é o que gera tráfego orgânico de cauda longa |
 | Emails de resposta automática ao cliente (opcional) | a criar | não existe (hoje só há confirmação no ecrã) |
 

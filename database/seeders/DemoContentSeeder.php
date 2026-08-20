@@ -13,15 +13,12 @@ use RuntimeException;
  * Conteúdo de DEMONSTRAÇÃO — apenas para desenvolvimento/apresentação.
  *
  * Cria imóveis fictícios (internal_id com prefixo DEMO-) para se ver o site
- * "cheio" antes de haver dados reais. Sem fotografias (usa o placeholder da
- * marca): as imagens do template de referência foram removidas a pedido do
- * cliente por serem material de terceiros. Reexecutar substitui os imóveis
- * demo existentes e não toca em mais nada.
+ * "cheio" antes de haver dados reais. Sem fotografias: usa o placeholder da
+ * marca. Reexecutar substitui os imóveis demo existentes e não toca em mais nada.
  *
  * NUNCA corre em produção. Remover tudo com:
  *   Property::where('internal_id', 'like', 'DEMO-%')->delete()
- * ou simplesmente correr o casafari:sync real (o feed não traz estes ids,
- * portanto ficam is_active=false e desaparecem do site).
+ * ou apagá-los no backoffice.
  */
 class DemoContentSeeder extends Seeder
 {
