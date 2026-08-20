@@ -9,6 +9,70 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Backoffice — módulos de CRM e dashboard
+
+$${\color{#6B7248}\textsf{2026-08-20 · 15:16}}$$
+
+**Commit:** `accb842` — `Backoffice: módulos de CRM — clientes, leads com pipeline, agenda, histórico e visualizações`
+
+A pedido do cliente, a dashboard do backoffice passa a ter os mesmos quadros e
+funcionalidades do painel do antigo CRM.
+
+### Estrutura de dados
+- `database/migrations/2026_08_20_160000_create_crm_tables.php`:
+  - **`contacts`** — clientes (comprador / proprietário / ambos), contactos, concelho,
+    notas, preferências (jsonb) e responsável.
+  - **`events`** — agenda: telefonema, visita, reunião, tarefa, lembrete; data/hora,
+    concluído, ligações a cliente e imóvel.
+  - **`property_activities`** — histórico por imóvel (tipo + detalhe + autor).
+  - **`property_views`** — contador de visualizações **por imóvel e por dia**.
+  - **`leads`** ganham `kind` (angariação / comprador), `status` (pipeline),
+    `priority`, `assigned_to` e `contact_id`, mais notas internas.
+- Enums: `LeadKind`, `LeadStage` (pipelines distintos por tipo: prospeção → contactar
+  proprietário → avaliação → angariado, e recebido → qualificação → visita → proposta →
+  fechado), `LeadPriority` (normal/alta/urgente), `ContactKind`, `EventType`.
+- Models `Contact`, `Event`, `PropertyActivity`, `PropertyView` (com `record()` atómico).
+
+### Dashboard (widgets)
+- **Leads de angariação** e **Leads de compradores** — dois quadros lado a lado com
+  utilizador, data, cliente (e referência do imóvel), estado e prioridade em badge;
+  mostram apenas as que estão **em aberto**; clicar abre a lead.
+- **Actualizações** — histórico automático: nova ficha, alteração de preço
+  (`520 001 € → 520 000 €`), publicada/vendida/retirada, edição; com miniatura,
+  referência e autor.
+- **Agenda — próximos eventos** — o que está por fazer, com **atrasados a vermelho** e
+  ação rápida "Concluir".
+- **Visualizações de imóveis (30 dias)** — gráfico de linha na cor da marca.
+
+### Automatismos
+- `app/Observers/PropertyObserver.php` — escreve o histórico em cada criação, alteração
+  de preço, mudança de estado ou edição, sempre com o utilizador autenticado.
+- `PropertyController::show()` — regista a visualização da ficha. **Privacidade:** só um
+  contador por imóvel e por dia, sem IP, sem cookies, sem identificador de visitante —
+  métrica agregada, não rastreio (e por isso não depende do consentimento de cookies).
+  Fichas indisponíveis (410) não contam.
+
+### Menu
+- **Clientes** e **Agenda** como secções próprias, a par de Imóveis, Pedidos do site e
+  Zonas.
+- `database/seeders/DemoCrmSeeder.php` — clientes, leads nos vários estados, agenda com
+  atrasados e 30 dias de visualizações, para ver a dashboard preenchida (nunca em produção).
+
+### Testes
+- `tests/Feature/CrmDashboardTest.php` — 11 testes: separação dos dois quadros; só leads
+  em aberto; concluir evento na agenda; histórico por ordem; soma diária do gráfico;
+  registo automático de criação/preço/estado/edição e autor; contagem de visualizações
+  **sem dados do visitante**; 410 não conta; cliente agrega leads e eventos; pipelines
+  por tipo.
+- Total: **139 testes a passar**, Pint limpo.
+
+### Por fazer nesta área
+- Calendário mensal (a vista de mês do CRM) — precisa de um package de calendário para
+  Filament, a aprovar.
+- "Datas a lembrar" como quadro próprio (hoje são eventos do tipo *lembrete* na agenda).
+
+---
+
 ## Backoffice — o painel que substitui o CRM
 
 $${\color{#6B7248}\textsf{2026-08-20 · 14:32}}$$
