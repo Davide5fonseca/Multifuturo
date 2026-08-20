@@ -83,23 +83,54 @@ Pré-requisito: Docker Desktop a correr. O `./vendor/bin/sail` só corre em
 macOS/Linux/WSL2 — **no Windows** usa o wrapper `sail.ps1`:
 
 ```powershell
-.\sail.ps1 up -d              # arranca app + PostgreSQL + Redis + Mailpit
+.\sail.ps1 up -d              # arranca app + nginx + PostgreSQL + Redis + Mailpit
 .\sail.ps1 artisan migrate    # cria as tabelas
 npm install; npm run build    # assets (ver nota abaixo)
 ```
 
 ### Onde corre, e em que endereços
 
-Tudo corre em **Docker, na sua máquina** — não há nada online. O container
-`multifuturo.test` serve o site com `php artisan serve` na porta 80:
+Tudo corre em **Docker, na sua máquina** — não há nada online.
 
 | | Endereço |
 |---|---|
-| **Site** | **http://localhost/** |
-| **Backoffice** | **http://localhost/admin** |
+| **Site** | **http://localhost/multifuturo** |
+| **Backoffice** | **http://localhost/multifuturo/admin** |
 | Emails de teste (Mailpit) | http://localhost:8025 |
 | PostgreSQL | `localhost:54320` |
 | Redis | `localhost:63790` |
+
+`http://localhost/` reencaminha para `/multifuturo/`.
+
+<details>
+<summary><b>Como funciona a subpasta /multifuturo</b></summary>
+
+<br>
+
+O Sail serve a aplicação com `php artisan serve`, que só sabe responder na raiz. Por isso
+há um **nginx à frente** (serviço `proxy` no `compose.yaml`), que fica com a porta 80 do
+host e retira o prefixo antes de entregar o pedido à aplicação:
+
+```
+browser → localhost/multifuturo/comprar → nginx → app: /comprar
+```
+
+Do lado do Laravel são precisas duas coisas, ambas já feitas:
+
+| Onde | O quê |
+|---|---|
+| `APP_URL=http://localhost/multifuturo` | [`AppUrl`](app/Support/AppUrl.php) força a raiz dos URLs, para os links e assets saírem com o prefixo |
+| `X-Forwarded-Prefix` em [`bootstrap/app.php`](bootstrap/app.php) | faz `$request->url()` incluir o prefixo — sem isto os **URLs assinados** (upload de ficheiros do Livewire) falhavam a validação |
+
+O Livewire pede alguns endereços a partir da raiz (`/livewire/update`), porque os constrói
+como caminhos relativos; o nginx encaminha-os tal e qual.
+
+**Para mudar de subpasta** — três sítios: `APP_URL` no `.env`, e o prefixo em
+[`docker/nginx/default.conf`](docker/nginx/default.conf) e
+[`docker/nginx/proxy-headers.inc`](docker/nginx/proxy-headers.inc).
+Os **testes correm sempre na raiz** (`APP_URL` fixo no `phpunit.xml`).
+
+</details>
 
 <details>
 <summary><b>Portas, domínio local e atalhos do wrapper</b></summary>
@@ -108,7 +139,8 @@ Tudo corre em **Docker, na sua máquina** — não há nada online. O container
 
 | Serviço | Porta no host |
 |---|---|
-| Aplicação | `80` |
+| nginx (serve o site) | `80` |
+| Aplicação | interna, sem porta no host |
 | Vite (HMR) | `5173` |
 | PostgreSQL | `54320` † |
 | Redis | `63790` † |
@@ -116,11 +148,6 @@ Tudo corre em **Docker, na sua máquina** — não há nada online. O container
 
 † 5432/6379 estavam ocupadas por outros serviços nesta máquina.
 
-**`http://multifuturo.test/`** requer uma linha no `hosts` (terminal Administrador):
-
-```
-127.0.0.1   multifuturo.test
-```
 
 > **Desempenho em Windows:** o Sail serve o site com `php artisan serve`, ou seja pelo
 > SAPI de linha de comandos — onde o **OPcache vem desligado**. Com o projeto no disco do

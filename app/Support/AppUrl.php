@@ -25,4 +25,14 @@ final class AppUrl
             URL::forceScheme($scheme);
         }
     }
+
+    /**
+     * Subpasta em que o site é servido, sem barra final ('' quando está na raiz).
+     *
+     * Ex.: APP_URL=http://localhost/multifuturo → '/multifuturo'.
+     */
+    public static function pathPrefix(): string
+    {
+        return rtrim((string) parse_url((string) config('app.url'), PHP_URL_PATH), '/');
+    }
 }

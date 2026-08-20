@@ -25,7 +25,9 @@ class AppServiceProvider extends ServiceProvider
         // URLs absolutos sempre a partir de config('app.url'), nunca do Host do pedido.
         // Exceção: em desenvolvimento local seguem o host usado (localhost ou multifuturo.test),
         // senão os assets/links partem quando não há entrada no ficheiro hosts.
-        if (! $this->app->environment('local')) {
+        // Mas se o APP_URL indicar uma subpasta (http://localhost/multifuturo), é preciso
+        // forçar sempre — senão os links saíam sem o prefixo e davam 404.
+        if (! $this->app->environment('local') || AppUrl::pathPrefix() !== '') {
             AppUrl::forceFromConfig();
         }
 
