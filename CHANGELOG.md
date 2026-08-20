@@ -9,6 +9,42 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Desempenho do ambiente de desenvolvimento
+
+$${\color{#6B7248}\textsf{2026-08-20 · 16:12}}$$
+
+**Commit:** `ac28ec7` — `Dev: ligar o OPcache no container — páginas de 3s para 0,15s`
+
+As páginas demoravam **2 a 3 segundos** a abrir em `http://localhost`.
+
+### Causa
+O Sail serve o site com `php artisan serve`, ou seja pelo **SAPI de linha de comandos**,
+onde o **OPcache vem desligado por omissão**. Como o projeto está no disco do Windows e é
+montado no container, cada pedido tinha de voltar a ler e a compilar centenas de ficheiros
+PHP através dessa ponte de ficheiros. (Um ficheiro estático servia em 11 ms — a rede e o
+Docker não eram o problema.)
+
+### Correção
+- `docker/php-dev.ini`, montado pelo `compose.yaml` em
+  `/etc/php/8.3/cli/conf.d/`: liga o OPcache no CLI, com 256 MB e 20 000 ficheiros, e
+  aumenta a *realpath cache* para 8 MB.
+- `opcache.revalidate_freq = 10` — escolhido por medição: com o valor por omissão (2 s) as
+  páginas eram rápidas mas com picos de 1,5 a 2,6 s de dez em dez pedidos, porque
+  revalidava todos os ficheiros através da montagem lenta. Com 10 s o tempo fica estável e
+  **as alterações ao código continuam a aplicar-se sem reiniciar** (até 10 s; para as ver
+  de imediato, `.\sail.ps1 restart`).
+
+**Resultado:** `/` e `/comprar` passam de ~3 s para **~0,15 s**.
+
+### Também
+- `APP_URL` passa de `http://multifuturo.test` para `http://localhost` — o domínio local
+  não estava no ficheiro `hosts`, pelo que os URLs gerados fora do pedido (sitemap,
+  emails, JSON-LD) apontavam para um endereço que não resolvia.
+- README: secção **"Onde corre, e em que endereços"** com site, backoffice, Mailpit,
+  PostgreSQL e Redis, mais a nota de desempenho.
+
+---
+
 ## Calendário da agenda e limpeza dos dados fictícios
 
 $${\color{#6B7248}\textsf{2026-08-20 · 15:28}}$$
