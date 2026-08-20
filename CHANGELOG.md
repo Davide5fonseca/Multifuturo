@@ -9,6 +9,57 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Site servido em `http://localhost/multifuturo`
+
+$${\color{#6B7248}\textsf{2026-08-20 · 16:44}}$$
+
+**Commit:** `c3ca041` — `Dev: servir o site em http://localhost/multifuturo`
+
+A pedido do cliente, o site deixa de estar na raiz e passa a viver numa subpasta.
+
+| | Endereço |
+|---|---|
+| **Site** | **http://localhost/multifuturo** |
+| **Backoffice** | **http://localhost/multifuturo/admin** |
+
+`http://localhost/` reencaminha para `/multifuturo/`.
+
+### Como
+
+O Sail serve a aplicação com `php artisan serve`, que **só sabe responder na raiz** — não
+tem forma de servir numa subpasta. Foi preciso pôr um **nginx à frente**:
+
+- `docker/nginx/default.conf` + `docker/nginx/proxy-headers.inc`, e um serviço `proxy`
+  novo no `compose.yaml`. O nginx fica com a porta 80 do host (a aplicação deixa de a
+  publicar) e **retira o prefixo** antes de entregar o pedido:
+  `localhost/multifuturo/comprar` → aplicação: `/comprar`.
+- `APP_URL=http://localhost/multifuturo`, e o `AppUrl::forceFromConfig()` passa a ser
+  aplicado também em desenvolvimento quando o `APP_URL` indica uma subpasta — é o que faz
+  os links, os assets, o canonical e os formulários saírem já com o prefixo.
+- **`X-Forwarded-Prefix` confiado** em `bootstrap/app.php`, só a partir de endereços de
+  rede privada. Sem isto o `$request->url()` chegava sem o prefixo e os **URLs assinados**
+  do Livewire — o upload de fotografias e documentos no backoffice — falhavam a validação
+  da assinatura. Foi verificado: o endereço assinado responde `419` (falta o CSRF) e não
+  `403` (assinatura inválida).
+- O Livewire constrói alguns endereços a partir da raiz (`/livewire/update`,
+  `/livewire/livewire.js`); o nginx encaminha-os tal e qual, sem mexer no prefixo.
+
+### Verificado
+- Todas as páginas do site e do backoffice respondem `200` na subpasta.
+- Os links, o canonical, o Open Graph, as fontes e os assets do Vite e do Filament saem
+  todos com `/multifuturo` — e todos respondem `200`.
+- Uma ida e volta real ao `/livewire/update` a partir da página de login do backoffice
+  devolve `200` com o estado correcto: o Livewire funciona na subpasta.
+- Velocidade inalterada: ~**0,15 s** por página através do nginx.
+- **Os testes continuam a correr na raiz** — `APP_URL` fixo no `phpunit.xml`, para não
+  ficarem presos à subpasta escolhida. 139 testes a passar, Pint limpo.
+
+### Para mudar de subpasta
+Três sítios: `APP_URL` no `.env`, e o prefixo em `docker/nginx/default.conf` e
+`docker/nginx/proxy-headers.inc`.
+
+---
+
 ## Desempenho do ambiente de desenvolvimento
 
 $${\color{#6B7248}\textsf{2026-08-20 · 16:12}}$$
