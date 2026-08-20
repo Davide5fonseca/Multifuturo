@@ -9,6 +9,91 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Backoffice — o painel que substitui o CRM
+
+$${\color{#6B7248}\textsf{2026-08-20 · 14:32}}$$
+
+**Commit:** `90f1f4d` — `Backoffice: painel de gestão em /admin (Filament 4) substitui o CRM`
+
+**Mudança de arquitetura (decisão do cliente):** deixa de haver CRM externo. A equipa
+passa a introduzir os imóveis num backoffice próprio, que escreve na **mesma base de
+dados** que o site já lia — sem sincronização, sem feed, sem API de leads.
+
+```
+ANTES:  CRM CASAFARI ──feed XML──► PostgreSQL ──► Website ──API──► CRM (leads)
+AGORA:  Backoffice /admin ────────► PostgreSQL ──► Website
+                                         └──► email à agência (leads)
+```
+
+### Dependência
+- `filament/filament:^4.0` (aprovado pelo cliente) — painel de administração
+  open-source do ecossistema Laravel, já em português.
+
+### Painel
+- `app/Providers/Filament/AdminPanelProvider.php` — painel em `/admin`, marca
+  "Multifuturo.", favicon do site, widget de informação do Filament removido, e
+  **escala de cor azeitona definida à mão** (50–950 com `600 = #6B7248` e
+  `700 = #565C39`): o gerador automático do Filament produzia verdes fluorescentes
+  a partir do nosso hex.
+- `app/Models/User.php` — implementa `FilamentUser`; `canAccessPanel()` devolve true
+  para qualquer conta existente (não há registo público: criar a conta **é** a
+  autorização). Sem isto o Filament devolvia 403 fora do ambiente local.
+
+### Imóveis (substitui a ficha do CRM)
+- `PropertyForm` — formulário por secções: **Identificação** (referência única,
+  finalidade, tipo), **Conteúdo** (título, descrição, **upload de fotografias**
+  múltiplas com reordenação e editor de imagem — a 1.ª é a capa, guardadas em
+  `storage/app/public/imoveis`; características com sugestões), **Preço e áreas**,
+  **Localização** (com o interruptor `gmap_visible` explicado), **Edifício**
+  (certificado energético **obrigatório**), **Ligações externas** (colapsada) e
+  **Publicação** (publicado/destaque/exclusivo, consultor, data do anúncio).
+- `PropertiesTable` — capa, referência, título, finalidade (badge), concelho, preço
+  formatado, **toggles rápidos** de publicado/destaque, filtros por finalidade,
+  estado e concelho, pesquisa por referência/título/concelho.
+- `CreateProperty` / `EditProperty` — geram `internal_id` (`BO-` + ULID),
+  `slug` (tipo-concelho-referência, **gerado uma vez e nunca recalculado** ao editar,
+  para não partir URLs indexados) e `payload_hash`; **invalidam a cache do site** em
+  cada gravação; a edição **preserva fotografias externas** (importadas do CRM, no CDN
+  deles) que o componente de upload não gere.
+- Os selects de tipo/estado/certificado **juntam os valores já existentes na base**
+  às opções sugeridas — sem isto, editar um imóvel importado do CRM (com "usado" ou
+  "B-") falhava com "valor inválido".
+
+### Pedidos do site (leads)
+- `LeadResource` — caixa de entrada **só de leitura** (não se criam pedidos à mão),
+  badge com a contagem dos últimos 7 dias, detalhe com mensagem, dados de avaliação,
+  **consentimentos RGPD e versão da política**; ação de apagar para spam.
+- `app/Notifications/NewLeadReceived.php` — **email imediato à agência**
+  (`AGENCY_EMAIL`) por cada pedido, com nome, contactos, imóvel, mensagem e
+  consentimentos; enviado pela queue.
+- **Removidos:** `SendLeadToCasafari` (job), `LeadDeliveryFailed` (notificação),
+  `leads:retry` (comando) e o agendamento do sync em `routes/console.php` — deixaram
+  de fazer sentido sem CRM.
+
+### Zonas
+- `ZoneResource` — o conteúdo editorial das páginas de zona passa a editar-se no
+  browser (o comando `zones:import` mantém-se para carregamentos em lote).
+
+### Importação do antigo CRM
+- `app/Services/Casafari/` e `casafari:sync --file=` ficam disponíveis para uma
+  **importação pontual** da exportação XML do CRM — sem agendamento.
+
+### Testes
+- `tests/Feature/AdminPanelTest.php` (6) — login acessível; `/admin`, `/admin/properties`,
+  `/admin/leads` e `/admin/zones` exigem autenticação; utilizador autenticado vê as
+  listagens; não há rota de criação de pedidos; `/admin` fora do sitemap.
+- `tests/Feature/BackofficePropertyTest.php` (6) — criação com campos técnicos gerados;
+  **imóvel criado aparece imediatamente no site** (e na listagem certa); edição não
+  recalcula o slug; fotografias externas preservadas; referência única; cache invalidada.
+- `tests/Feature/LeadsTest.php` reescrito para o email à agência (sem CRM).
+- Total: **122 testes a passar**, Pint limpo.
+
+### Notas
+- Requer `php artisan storage:link` (fotografias) e um worker `queue:work` (emails).
+- O formulário será afinado quando o cliente enviar os prints dos campos que quer.
+
+---
+
 ## Demo — remoção das imagens do template de referência
 
 $${\color{#6B7248}\textsf{2026-08-19 · 17:55}}$$
