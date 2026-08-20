@@ -3,7 +3,10 @@
 namespace App\Models;
 
 use App\Enums\BusinessType;
+use App\Enums\LeadKind;
+use App\Enums\LeadPriority;
 use App\Enums\LeadSource;
+use App\Enums\LeadStage;
 use App\Enums\LeadStatus;
 use Database\Factories\LeadFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -47,6 +50,9 @@ class Lead extends Model
         return [
             'business_type' => BusinessType::class,
             'source' => LeadSource::class,
+            'kind' => LeadKind::class,
+            'status' => LeadStage::class,
+            'priority' => LeadPriority::class,
             'crm_status' => LeadStatus::class,
             'payload' => 'array',
             'crm_response' => 'array',
@@ -61,6 +67,18 @@ class Lead extends Model
     public function property(): BelongsTo
     {
         return $this->belongsTo(Property::class);
+    }
+
+    /** @return BelongsTo<Contact, $this> */
+    public function contact(): BelongsTo
+    {
+        return $this->belongsTo(Contact::class);
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function assignee(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
     }
 
     /** Hash do IP com a APP_KEY como sal — permite rate limiting e auditoria sem guardar o IP. */

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Property;
+use App\Models\PropertyView;
 use App\Support\Format;
 use App\Support\PropertyCache;
 use Illuminate\Contracts\View\View;
@@ -30,6 +31,9 @@ class PropertyController extends Controller
         if (! $property->isPublishable()) {
             return response()->view('pages.property-gone', ['property' => $property, 'similar' => $similar], 410);
         }
+
+        // Métrica agregada por dia (sem IP nem cookies) para o gráfico do backoffice.
+        PropertyView::record($property->getKey());
 
         return view('pages.property', [
             'property' => $property,

@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Enums\LeadKind;
 use App\Enums\LeadSource;
+use App\Enums\LeadStage;
 use App\Enums\LeadStatus;
 use App\Models\Lead;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -26,6 +28,9 @@ class LeadFactory extends Factory
             'property_id' => null,
             'business_type' => null,
             'source' => LeadSource::Contact,
+            'kind' => LeadKind::Buyer,
+            'status' => LeadStage::Received,
+            'priority' => 'normal',
             'payload' => null,
             'consent_contact' => false,
             'consent_marketing' => false,

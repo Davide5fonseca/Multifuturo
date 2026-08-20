@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\Lead;
+use App\Models\Property;
+use App\Observers\PropertyObserver;
 use App\Support\AgencyCompliance;
 use App\Support\AppUrl;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -29,6 +31,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Em produção, arrancar sem AMI é proibido (ver AgencyCompliance).
         AgencyCompliance::assertAmi($this->app->environment());
+
+        // Histórico de alterações dos imóveis (dashboard do backoffice).
+        Property::observe(PropertyObserver::class);
 
         // Preload dos assets do Vite com prioridade agressiva (fontes já vão no layout).
         Vite::usePrefetchStrategy('aggressive');

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
@@ -125,6 +126,18 @@ class Property extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    /** @return HasMany<PropertyActivity, $this> */
+    public function activities(): HasMany
+    {
+        return $this->hasMany(PropertyActivity::class);
+    }
+
+    /** @return HasMany<PropertyView, $this> */
+    public function views(): HasMany
+    {
+        return $this->hasMany(PropertyView::class);
     }
 
     /*
