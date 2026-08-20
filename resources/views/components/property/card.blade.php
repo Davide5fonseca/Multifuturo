@@ -44,7 +44,7 @@
             <a href="{{ $url }}" class="after:absolute after:inset-0 after:content-[''] focus:outline-none focus-visible:underline">{{ $title }}</a>
         </h3>
         <p class="mt-1 text-sm text-ink-muted">{{ Format::location($p->locality, $p->city, $p->district) }}</p>
-        <p class="price mt-4 text-2xl">{{ Format::price($p->price, $p->currency, $p->business_type) }}</p>
+        <p class="price mt-4 text-2xl">{{ Format::price($p->price, $p->currency, $p->business_type, $p->price_visible) }}</p>
         @if ($specs)
             <ul class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted">
                 @foreach ($specs as $spec)

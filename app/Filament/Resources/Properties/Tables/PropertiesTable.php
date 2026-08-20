@@ -53,7 +53,7 @@ class PropertiesTable
                     ->sortable(),
                 TextColumn::make('price')
                     ->label('Preço')
-                    ->state(fn ($record) => Format::price($record->price, $record->currency, $record->business_type))
+                    ->state(fn ($record) => Format::price($record->price, $record->currency, $record->business_type, $record->price_visible))
                     ->sortable(),
                 ToggleColumn::make('is_active')
                     ->label('Publicado')

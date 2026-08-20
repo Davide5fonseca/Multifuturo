@@ -11,9 +11,9 @@ use App\Enums\BusinessType;
 final class Format
 {
     /** "785 000 €" — separador de milhares com espaço fino, sem decimais quando são zero. */
-    public static function price(int|float|string|null $value, string $currency = 'EUR', ?BusinessType $businessType = null): string
+    public static function price(int|float|string|null $value, string $currency = 'EUR', ?BusinessType $businessType = null, bool $visible = true): string
     {
-        if ($value === null || $value === '') {
+        if (! $visible || $value === null || $value === '') {
             return __('ui.property.price_on_request');
         }
 

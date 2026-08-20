@@ -38,6 +38,17 @@ use Illuminate\Support\Str;
  * @property ?string $lat
  * @property ?string $lon
  * @property bool $gmap_visible
+ * @property bool $price_visible
+ * @property bool $is_sold
+ * @property bool $off_market
+ * @property ?string $internal_name
+ * @property ?string $typology
+ * @property ?string $building_name
+ * @property ?string $status_reason
+ * @property ?string $address
+ * @property ?string $street_number
+ * @property array<string, mixed> $admin
+ * @property array<int, array<string, mixed>> $documents
  * @property ?int $floor_number
  * @property ?int $build_year
  * @property ?string $energy_rating
@@ -84,16 +95,30 @@ class Property extends Model
             'floor_number' => 'integer',
             'build_year' => 'integer',
             'gmap_visible' => 'boolean',
+            'price_visible' => 'boolean',
             'is_active' => 'boolean',
+            'is_sold' => 'boolean',
+            'off_market' => 'boolean',
             'is_exclusive' => 'boolean',
             'is_featured' => 'boolean',
             'translations' => 'array',
             'photos' => 'array',
             'features' => 'array',
             'broker' => 'array',
+            'admin' => 'array',
+            'documents' => 'array',
             'crm_updated_at' => 'datetime',
             'synced_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Pode ser mostrado no site? Publicado, não vendido e não retirado do
+     * mercado — a mesma regra do scope active(), para uma linha isolada.
+     */
+    public function isPublishable(): bool
+    {
+        return $this->is_active && ! $this->is_sold && ! $this->off_market;
     }
 
     /** As fichas resolvem-se pelo slug, nunca pelo id. */
@@ -108,10 +133,17 @@ class Property extends Model
     |--------------------------------------------------------------------------
     */
 
-    /** @param  Builder<Property>  $query */
+    /**
+     * O que o site pode mostrar: publicado, não vendido e não retirado do mercado.
+     * (Os três estados vêm do registo do imóvel no backoffice.)
+     *
+     * @param  Builder<Property>  $query
+     */
     public function scopeActive(Builder $query): Builder
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', true)
+            ->where('is_sold', false)
+            ->where('off_market', false);
     }
 
     /** @param  Builder<Property>  $query */

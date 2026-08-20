@@ -27,7 +27,7 @@ class PropertyController extends Controller
             ->limit(3)
             ->get());
 
-        if (! $property->is_active) {
+        if (! $property->isPublishable()) {
             return response()->view('pages.property-gone', ['property' => $property, 'similar' => $similar], 410);
         }
 
@@ -51,7 +51,8 @@ class PropertyController extends Controller
             'availability' => 'https://schema.org/InStock',
             'businessFunction' => $p->business_type->value === 'rent' ? 'http://purl.org/goodrelations/v1#LeaseOut' : 'http://purl.org/goodrelations/v1#Sell',
         ];
-        if ($p->price !== null) {
+        // Preço escondido no backoffice não entra no JSON-LD (seria contraditório com a ficha).
+        if ($p->price !== null && $p->price_visible) {
             $offer['price'] = (string) $p->price;
             $offer['priceCurrency'] = $p->currency;
         }

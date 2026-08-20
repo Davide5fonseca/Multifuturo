@@ -4,7 +4,7 @@
     $title = $p->title ?: trim(($p->property_type ?? '').' '.(Format::typology($p->bedrooms) ?? ''));
     $location = Format::location($p->locality, $p->city, $p->district);
     $metaTitle = $title.($location ? " — {$location}" : '').' · '.($p->reference ?? $p->internal_id);
-    $metaDescription = $p->description ? mb_substr(preg_replace('/\s+/', ' ', strip_tags($p->description)), 0, 155) : ($title.', '.$location.'. '.Format::price($p->price, $p->currency, $p->business_type));
+    $metaDescription = $p->description ? mb_substr(preg_replace('/\s+/', ' ', strip_tags($p->description)), 0, 155) : ($title.', '.$location.'. '.Format::price($p->price, $p->currency, $p->business_type, $p->price_visible));
     $details = array_filter([
         __('ui.property.type') => $p->property_type,
         __('ui.property.bedrooms') => Format::typology($p->bedrooms),
@@ -55,7 +55,7 @@
                     </p>
                     <h1 class="mt-3 text-3xl leading-tight sm:text-5xl">{{ $title }}</h1>
                     <p class="mt-3 text-ink-muted">{{ $location }}</p>
-                    <p class="price mt-6 text-3xl sm:text-4xl">{{ Format::price($p->price, $p->currency, $p->business_type) }}</p>
+                    <p class="price mt-6 text-3xl sm:text-4xl">{{ Format::price($p->price, $p->currency, $p->business_type, $p->price_visible) }}</p>
 
                     <div class="mt-6 flex flex-wrap gap-3">
                         <button type="button" x-cloak x-data @click="$store.favorites.toggle(@js($p->slug))" class="btn-secondary py-2 text-xs"
