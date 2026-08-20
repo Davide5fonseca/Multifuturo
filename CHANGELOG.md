@@ -9,6 +9,44 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Calendário da agenda e limpeza dos dados fictícios
+
+$${\color{#6B7248}\textsf{2026-08-20 · 15:28}}$$
+
+**Commit:** `5d06032` — `Backoffice: calendário da agenda e remoção de todos os dados fictícios`
+
+### Calendário
+- `app/Filament/Pages/Calendario.php` + `resources/views/filament/pages/calendario.blade.php`
+  — página `/admin/calendario` **feita à medida, sem package novo** (evita mais uma
+  dependência e permite usar as cores da marca):
+  - vistas **mês / semana / dia**, navegação anterior/seguinte e botão "Hoje";
+  - **filtros** por utilizador e tipo de evento, e "mostrar concluídos";
+  - eventos coloridos por tipo (telefonema, visita, reunião, tarefa, lembrete) com hora e
+    título, que **abrem o registo** ao clicar; concluídos aparecem riscados;
+  - dia de hoje destacado, dias de outros meses esbatidos, "+N mais" salta para a vista
+    diária, e **legenda** das cores.
+- `resources/css/filament/admin/theme.css` + `->viteTheme(...)` — tema próprio do painel:
+  sem ele, as classes Tailwind usadas nas views à medida não eram compiladas (o painel
+  aparecia sem grelha nem cores).
+
+### Remoção dos dados fictícios
+A pedido do cliente, **todo o conteúdo de demonstração foi eliminado**:
+- Seeders `DemoContentSeeder` e `DemoCrmSeeder` **apagados** do repositório.
+- Base de dados local limpa: 10 imóveis, 6 leads, 5 clientes, 5 eventos, 2 zonas
+  editoriais e as visualizações/histórico de demonstração.
+- O site e o backoffice ficam vazios, à espera dos dados reais introduzidos no `/admin`.
+- As *factories* (usadas só pelos testes) e a fixture XML de testes mantêm-se — não são
+  conteúdo do site.
+
+### Nota de ambiente
+O `make:filament-theme` correu `npm install` dentro do container, o que substituiu os
+binários nativos do Windows; a partir de agora **os assets compilam-se no container**
+(`.\sail.ps1 npm run build`). Documentado no README.
+
+- 139 testes a passar, Pint limpo.
+
+---
+
 ## Backoffice — módulos de CRM e dashboard
 
 $${\color{#6B7248}\textsf{2026-08-20 · 15:16}}$$
