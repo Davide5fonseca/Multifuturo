@@ -2,13 +2,19 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+/**
+ * Utilizador da equipa da agência — só existe para entrar no backoffice (/admin).
+ * O site público não tem registo nem login; estas contas são criadas por um
+ * administrador (ver README).
+ */
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -45,5 +51,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Quem pode entrar no backoffice: qualquer conta existente. Como não há
+     * registo público, criar a conta É a autorização. (O Filament exige esta
+     * decisão explícita fora do ambiente local.)
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return true;
     }
 }

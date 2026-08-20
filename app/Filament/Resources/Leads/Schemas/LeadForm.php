@@ -1,0 +1,75 @@
+<?php
+
+namespace App\Filament\Resources\Leads\Schemas;
+
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+
+/**
+ * Detalhe de um pedido do site — só leitura: os dados vêm do formulário público
+ * e não devem ser editados (são o registo do que a pessoa realmente enviou).
+ */
+class LeadForm
+{
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Section::make('Contacto')
+                    ->columns(3)
+                    ->components([
+                        TextInput::make('name')->label('Nome')->disabled(),
+                        TextInput::make('email')->label('Email')->disabled(),
+                        TextInput::make('phone')->label('Telefone')->disabled(),
+                    ]),
+                Section::make('Pedido')
+                    ->columns(2)
+                    ->components([
+                        TextInput::make('source')
+                            ->label('Origem')
+                            ->formatStateUsing(fn ($state) => match ($state?->value ?? $state) {
+                                'property' => 'Ficha de imóvel',
+                                'valuation' => 'Avaliação (Quanto vale a minha casa?)',
+                                default => 'Contacto geral',
+                            })
+                            ->disabled(),
+                        TextInput::make('property.reference')
+                            ->label('Imóvel')
+                            ->disabled(),
+                        Textarea::make('message')
+                            ->label('Mensagem')
+                            ->rows(5)
+                            ->disabled()
+                            ->columnSpanFull(),
+                        Textarea::make('payload')
+                            ->label('Dados do imóvel a avaliar')
+                            ->formatStateUsing(fn ($state) => is_array($state) ? collect($state)->map(fn ($v, $k) => ucfirst(str_replace('_', ' ', $k)).': '.$v)->implode("\n") : (string) $state)
+                            ->rows(4)
+                            ->disabled()
+                            ->columnSpanFull()
+                            ->visible(fn ($record) => filled($record?->payload)),
+                    ]),
+                Section::make('RGPD')
+                    ->columns(3)
+                    ->components([
+                        TextInput::make('consent_contact')
+                            ->label('Consentiu contacto')
+                            ->formatStateUsing(fn ($state) => $state ? 'Sim' : 'Não')
+                            ->disabled(),
+                        TextInput::make('consent_marketing')
+                            ->label('Consentiu comunicações')
+                            ->formatStateUsing(fn ($state) => $state ? 'Sim' : 'Não')
+                            ->disabled(),
+                        TextInput::make('policy_version')
+                            ->label('Versão da política aceite')
+                            ->disabled(),
+                        TextInput::make('created_at')
+                            ->label('Recebido em')
+                            ->formatStateUsing(fn ($state) => $state?->format('d/m/Y H:i'))
+                            ->disabled(),
+                    ]),
+            ]);
+    }
+}

@@ -1,73 +1,13 @@
 <?php
 
 /*
- * Comandos de manutenção: leads:retry e zones:import.
+ * Comandos de manutenção: zones:import (conteúdo editorial das zonas por
+ * ficheiros Markdown). O leads:retry foi removido com o fim da ligação ao CRM.
  */
 
-use App\Enums\LeadStatus;
-use App\Jobs\SendLeadToCasafari;
-use App\Models\Lead;
 use App\Models\Property;
 use App\Models\Zone;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Queue;
-
-/*
-|--------------------------------------------------------------------------
-| leads:retry
-|--------------------------------------------------------------------------
-*/
-
-it('reenvia as leads failed e volta a marcá-las pending', function () {
-    Queue::fake();
-    $failed = Lead::factory()->create(['crm_status' => LeadStatus::Failed, 'last_error' => 'CRM em baixo', 'attempts' => 5]);
-    $sent = Lead::factory()->create(['crm_status' => LeadStatus::Sent]);
-    $freshPending = Lead::factory()->create(['crm_status' => LeadStatus::Pending]);
-
-    $this->artisan('leads:retry')->assertSuccessful();
-
-    Queue::assertPushed(SendLeadToCasafari::class, 1);
-    Queue::assertPushed(SendLeadToCasafari::class, fn ($job) => $job->leadId === $failed->id);
-
-    expect($failed->fresh()->crm_status)->toBe(LeadStatus::Pending)
-        ->and($failed->fresh()->last_error)->toBeNull()
-        ->and($sent->fresh()->crm_status)->toBe(LeadStatus::Sent)
-        ->and($freshPending->fresh()->crm_status)->toBe(LeadStatus::Pending);
-});
-
-it('--pending inclui as pending paradas há mais de 1 hora, mas não as recentes', function () {
-    Queue::fake();
-    $stale = Lead::factory()->create(['crm_status' => LeadStatus::Pending, 'created_at' => now()->subHours(3)]);
-    $fresh = Lead::factory()->create(['crm_status' => LeadStatus::Pending, 'created_at' => now()->subMinutes(5)]);
-
-    $this->artisan('leads:retry', ['--pending' => true])->assertSuccessful();
-
-    Queue::assertPushed(SendLeadToCasafari::class, fn ($job) => $job->leadId === $stale->id);
-    Queue::assertNotPushed(SendLeadToCasafari::class, fn ($job) => $job->leadId === $fresh->id);
-});
-
-it('--id reenvia leads específicas e --dry-run não despacha nada', function () {
-    Queue::fake();
-    $a = Lead::factory()->create(['crm_status' => LeadStatus::Failed]);
-    $b = Lead::factory()->create(['crm_status' => LeadStatus::Failed]);
-
-    $this->artisan('leads:retry', ['--id' => [$a->id]])->assertSuccessful();
-    Queue::assertPushed(SendLeadToCasafari::class, 1);
-
-    $this->artisan('leads:retry', ['--dry-run' => true])->assertSuccessful();
-    Queue::assertPushed(SendLeadToCasafari::class, 1); // continua 1: dry-run não somou
-    expect($b->fresh()->crm_status)->toBe(LeadStatus::Failed);
-});
-
-it('sem nada para reenviar informa e sai com sucesso', function () {
-    $this->artisan('leads:retry')->expectsOutputToContain('Nada para reenviar')->assertSuccessful();
-});
-
-/*
-|--------------------------------------------------------------------------
-| zones:import
-|--------------------------------------------------------------------------
-*/
 
 function zonesDir(array $files): string
 {

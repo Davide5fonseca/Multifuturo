@@ -1,6 +1,6 @@
 # Multifuturo Imóveis — o que falta para pôr o site online
 
-Estado em 2026-08-19: Passo 0 (parcial) e Fases 1 a 7 concluídas + adiantamentos da secção B. 117 testes a passar, CI verde.
+Estado em 2026-08-20: PIVOT — **sem CRM externo**; backoffice próprio (/admin, Filament) construído e a funcionar. 113 testes a passar.
 Este documento lista **tudo** o que ainda é preciso, quem o faz, e o que desbloqueia.
 
 ---

@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Enums\LeadSource;
 use App\Enums\LeadStatus;
 use App\Http\Requests\StoreLeadRequest;
-use App\Jobs\SendLeadToCasafari;
 use App\Models\Lead;
 use App\Models\Property;
+use App\Notifications\NewLeadReceived;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Notification;
 
 /**
  * Receção de leads. Fluxo: FormRequest valida → grava local PRIMEIRO →
@@ -47,8 +48,11 @@ class LeadController extends Controller
             'crm_status' => LeadStatus::Pending,
         ]);
 
-        // Só depois de gravada: se a queue/CRM falharem, o contacto já existe.
-        SendLeadToCasafari::dispatch($lead->id)->afterCommit();
+        // Aviso à agência (sem CRM: a lead vive na nossa BD e no backoffice).
+        // Só depois de gravada: se a queue/email falharem, o contacto já existe.
+        if ($email = config('agency.email')) {
+            Notification::route('mail', $email)->notify(new NewLeadReceived($lead));
+        }
 
         return $this->accepted($request);
     }

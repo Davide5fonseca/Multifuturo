@@ -4,7 +4,7 @@
 
 **Website da Multifuturo Imóveis Lda** — mediação imobiliária
 
-*A carteira de imóveis do CASAFARI CRM, replicada localmente e servida com calma.*
+*Backoffice próprio + site público sobre a mesma base de dados — sem CRM externo.*
 
 [![Testes](https://github.com/Davide5fonseca/Multifuturo/actions/workflows/tests.yml/badge.svg)](https://github.com/Davide5fonseca/Multifuturo/actions/workflows/tests.yml)
 ![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?logo=php&logoColor=white)
@@ -13,7 +13,8 @@
 ![Tailwind](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
 ![Redis](https://img.shields.io/badge/Redis-cache%20%2B%20queue-DC382D?logo=redis&logoColor=white)
-![Pest](https://img.shields.io/badge/Pest-117%20testes-38B2AC)
+![Filament](https://img.shields.io/badge/Filament-4-FDAE4B)
+![Pest](https://img.shields.io/badge/Pest-122%20testes-38B2AC)
 
 ![sand](https://img.shields.io/badge/%20-F5F1E8?style=flat-square)
 ![sand-100](https://img.shields.io/badge/%20-F2EDE1?style=flat-square)
@@ -35,42 +36,41 @@
 
 ## 🧭 Arquitetura
 
-> **Princípio inegociável:** o site **nunca** fala com o CRM em runtime para leitura.
-> Réplica local sincronizada por cron; o CRM só é contactado para escrita (leads), sempre via queue.
+> **Desde 2026-08-19 não há CRM externo:** a equipa gere a carteira no **backoffice
+> próprio (`/admin`, Filament)**, que escreve na mesma base de dados que o site lê.
+> O código CASAFARI mantém-se apenas para importações pontuais de ficheiro.
 
 ```mermaid
 flowchart LR
-    subgraph CRM["☁️ CASAFARI CRM"]
-        FEED[/"feed XML<br>(Feedcruncher)"/]
-        API[/"API de leads"/]
-    end
-
     subgraph APP["🏠 multifuturo.test"]
-        SYNC["casafari:sync<br><sub>cron · hora a hora</sub>"]
-        DB[("PostgreSQL<br><sub>properties · leads</sub>")]
+        BO["Backoffice /admin<br><sub>Filament · equipa da agência</sub>"]
+        DB[("PostgreSQL<br><sub>properties · leads · zones</sub>")]
         CACHE[("Redis<br><sub>cache · queue</sub>")]
         SITE["Site público<br><sub>Livewire · server-rendered</sub>"]
-        JOB["SendLeadToCasafari<br><sub>tries 5 · backoff 1min→1h</sub>"]
+        MAIL["NewLeadReceived<br><sub>email à agência (queue)</sub>"]
     end
 
+    E(("👩‍💼 equipa"))
     V(("👤 visitante"))
+    X[/"exportação XML do CRM<br><sub>casafari:sync --file (pontual)</sub>"/]
 
-    FEED -->|"download em streaming"| SYNC
-    SYNC -->|"upsert por internal_id"| DB
+    E --> BO
+    BO -->|"CRUD imóveis · zonas<br>upload de fotos"| DB
+    X -.-> DB
     DB --> SITE
     CACHE <--> SITE
     V --> SITE
     V -->|"formulário"| DB
-    DB -->|"grava local PRIMEIRO"| JOB
-    JOB -->|"status === true?"| API
+    DB -->|"lead gravada PRIMEIRO"| MAIL
+
 ```
 
 | Decisão | Porquê |
 |---|---|
-| Réplica local, nunca leitura em runtime | o site sobrevive a qualquer indisponibilidade do CRM |
-| Lead gravada localmente **antes** do envio | CRM em baixo ⇒ contacto não se perde; job em retry |
+| Backoffice e site sobre a mesma BD | zero sincronização; o que se grava aparece no site (cache invalidada na hora) |
+| Lead gravada localmente antes do email | email falha ⇒ contacto não se perde; fica na caixa de entrada do /admin |
 | Server-rendered, sem SPA | SEO — cada listagem, ficha e zona é indexável |
-| Cache Redis com tag, invalidada pelo sync | páginas rápidas sem servir dados obsoletos |
+| Cache Redis com tag | limpa automaticamente ao gravar no backoffice |
 
 ## 🚀 Começar
 
@@ -122,9 +122,7 @@ Copiar `.env.example` → `.env` e preencher por grupo:
 
 | Grupo | Variáveis | Config |
 |---|---|---|
-| 📥 CASAFARI · leitura | `CASAFARI_FEED_URL` · `CASAFARI_FEED_TIMEOUT/RETRIES/RETRY_DELAY_MS` · `CASAFARI_MIN_ITEMS` | `config/casafari.php` |
-| 📤 CASAFARI · leads | `CASAFARI_LEAD_URL` · `CASAFARI_TOKEN` · `CASAFARI_CUSTOMER_ORIGIN_ID` · `CASAFARI_LEAD_ENTITY_TYPE` | `config/casafari.php` |
-| 🔔 Alertas | `CASAFARI_ALERT_EMAIL` — falhas do sync e leads não entregues | `config/casafari.php` |
+| 📦 Importação pontual | `CASAFARI_*` — só para `casafari:sync --file=` (exportações XML do antigo CRM) | `config/casafari.php` |
 | 🏢 Agência | `AGENCY_NAME` · **`AGENCY_AMI`** · `AGENCY_PHONE/EMAIL/ADDRESS` · redes sociais · `AGENCY_COMPLAINTS_BOOK_URL` · `AGENCY_PRIVACY_POLICY_VERSION` · `AGENCY_HERO_IMAGE` | `config/agency.php` |
 | 🍪 Cookies | `CONSENT_COOKIE` · `CONSENT_DAYS` · `CONSENT_VERSION` | `config/consent.php` |
 
@@ -134,17 +132,37 @@ Copiar `.env.example` → `.env` e preencher por grupo:
 > - O domínio **nunca** é hardcoded: canonical, sitemap, OG e emails derivam de `APP_URL`.
 > - Ao alterar o texto da política de privacidade, atualizar `AGENCY_PRIVACY_POLICY_VERSION` — cada lead guarda a versão que lhe foi apresentada.
 
-## 🔄 Sincronização com o CASAFARI
+## 🗂️ Backoffice (/admin)
+
+O painel de gestão da agência — substitui o CRM. Filament 4, cor da marca, pt-PT.
+
+| Módulo | O que faz |
+|---|---|
+| **Imóveis** | criar/editar com formulário por secções (identificação, conteúdo, preço/áreas, localização, edifício, publicação); **upload de fotografias** com reordenação (a 1.ª é a capa, guardadas em `storage/app/public/imoveis`); características com sugestões; interruptores rápidos publicado/destaque na listagem; filtros por finalidade/estado/concelho |
+| **Pedidos do site** | caixa de entrada das leads (só leitura — não se criam à mão), badge com a contagem dos últimos 7 dias, detalhe com consentimentos RGPD |
+| **Zonas (editorial)** | editar os textos das páginas de zona no browser |
+
+Automatismos: `internal_id` (`BO-…`), `slug` (estável — nunca recalculado ao editar) e
+`payload_hash` são gerados na criação; a **cache do site é invalidada** em cada gravação.
+**Criar um utilizador** (não há registo público):
 
 ```powershell
-.\sail.ps1 artisan casafari:inspect        # Passo 0 — descreve o feed: hierarquia, contagem, lang
-.\sail.ps1 artisan casafari:sync           # descarrega e sincroniza
-.\sail.ps1 artisan casafari:sync --dry-run # só conta, não escreve
-.\sail.ps1 artisan casafari:sync --force   # ignora o hash, reescreve tudo
-.\sail.ps1 artisan schedule:work           # agendamento em local (hourlyAt 7)
+.\sail.ps1 artisan tinker --execute="App\Models\User::create(['name'=>'Nome','email'=>'pessoa@multifuturo.pt','password'=>bcrypt('palavra-passe')]);"
 ```
 
-O motor vive em `app/Services/Casafari/` e segue estas regras:
+Cada lead nova dispara um **email à agência** (`NewLeadReceived` → `AGENCY_EMAIL`, via
+queue) e fica na caixa de entrada. Requer `php artisan storage:link` (fotos) e
+`queue:work` (emails).
+
+## 📦 Importação pontual do antigo CRM
+
+```powershell
+.\sail.ps1 artisan casafari:inspect --file=storage/app/casafari/export.xml   # descreve o XML
+.\sail.ps1 artisan casafari:sync --file=…                                    # importa (upsert)
+```
+
+O motor (`app/Services/Casafari/`) fica disponível apenas para estas importações — não
+há agendamento. Regras que continuam a valer:
 
 |  | Regra |
 |---|---|
@@ -156,16 +174,14 @@ O motor vive em `app/Services/Casafari/` e segue estas regras:
 | 🔒 | **`Owner` nunca é lido** — removido do DOM antes de qualquer mapeamento |
 
 > [!NOTE]
-> A nomenclatura dos nós em `config/casafari.php` (blocos `feed`/`mapping`) é **provisória**
-> até o `casafari:inspect` correr sobre o feed real — e só esse bloco mudará.
-> Os ficheiros em `storage/app/casafari/` contêm dados reais (incluindo de proprietários) e estão fora do git.
+> O mapeamento em `config/casafari.php` ajusta-se ao XML de cada exportação (blocos
+> `feed`/`mapping`). Os ficheiros em `storage/app/casafari/` contêm dados reais
+> (incluindo de proprietários) e estão fora do git.
 
 ## ✉️ Leads
 
-**Fluxo:** formulário → `StoreLeadRequest` valida → **grava local primeiro** → job na queue.
+**Fluxo:** formulário → `StoreLeadRequest` valida → **grava local primeiro** → email à agência (queue) → caixa de entrada no `/admin`.
 
-- ⚠️ **Armadilha tratada:** a API devolve HTTP 200 mesmo em falha — só `json.status === true`
-  é sucesso; caso contrário retry (backoff 1 min → 1 h) e, esgotado, `failed` + email. A lead nunca se perde.
 - 🕵️ **Anti-spam sem CAPTCHA:** honeypot (aceite em silêncio, sem gravar) · timestamp
   assinado com a `APP_KEY` (rejeita < 3 s ou forjado) · rate limiting por IP (5/min, 20/h, chave = hash do IP).
 - 🇪🇺 **RGPD:** dois consentimentos separados (`IncludeOptIn`/`IncludeMailing`), desmarcados,
