@@ -85,7 +85,7 @@ macOS/Linux/WSL2 — **no Windows** usa o wrapper `sail.ps1`:
 ```powershell
 .\sail.ps1 up -d              # arranca app + PostgreSQL + Redis + Mailpit
 .\sail.ps1 artisan migrate    # cria as tabelas
-npm install; npm run build    # assets
+npm install; npm run build    # assets (ver nota abaixo)
 ```
 
 Abrir **http://localhost/** ✅
@@ -110,6 +110,10 @@ Abrir **http://localhost/** ✅
 ```
 127.0.0.1   multifuturo.test
 ```
+
+> **Assets:** o tema do Filament instalou dependências dentro do container, por isso
+> compile lá — `.\sail.ps1 npm run build`. Correr `npm install` no Windows volta a
+> partir os binários nativos do container (e vice-versa).
 
 **Atalhos do `sail.ps1`:** `artisan` · `composer` · `npm` · `pest` · `pint` · `tinker` ·
 `shell` (bash no container) · `psql` · `redis` · `logs` · `ps`
@@ -141,6 +145,13 @@ O painel de gestão da agência — substitui o CRM. Filament 4, cor da marca, p
 | **Imóveis** | criar/editar com formulário por secções (identificação, conteúdo, preço/áreas, localização, edifício, publicação); **upload de fotografias** com reordenação (a 1.ª é a capa, guardadas em `storage/app/public/imoveis`); características com sugestões; interruptores rápidos publicado/destaque na listagem; filtros por finalidade/estado/concelho |
 | **Pedidos do site** | caixa de entrada das leads (só leitura — não se criam à mão), badge com a contagem dos últimos 7 dias, detalhe com consentimentos RGPD |
 | **Zonas (editorial)** | editar os textos das páginas de zona no browser |
+| **Clientes** | compradores, proprietários ou ambos; agrega leads e eventos de cada pessoa |
+| **Agenda** | telefonemas, visitas, reuniões, tarefas e lembretes |
+| **Calendário** | vista mensal/semanal/diária dos eventos, com filtros por utilizador e tipo |
+
+A **dashboard** repete os quadros do antigo CRM: leads de angariação e de compradores
+(com pipeline e prioridade), actualizações (histórico automático dos imóveis), agenda e
+gráfico de visualizações dos últimos 30 dias.
 
 Automatismos: `internal_id` (`BO-…`), `slug` (estável — nunca recalculado ao editar) e
 `payload_hash` são gerados na criação; a **cache do site é invalidada** em cada gravação.
