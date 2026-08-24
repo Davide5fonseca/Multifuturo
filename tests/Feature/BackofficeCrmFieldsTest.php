@@ -25,7 +25,6 @@ it('guarda os dados internos (contrato, chaves, finanças, licenças, comissão)
             'typology' => 'T3',
             'city' => 'Águeda',
             'energy_rating' => 'B',
-            'translations' => ['pt' => ['title' => 'T3 em Águeda']],
             'internal_name' => 'Casa da esquina (Sr. Silva)',
             'admin' => [
                 'contract' => ['number' => 'C-2026/14', 'start' => '2026-01-10', 'auto_renew' => true],
@@ -199,7 +198,6 @@ it('o estado interno "Actual", o motivo e os monitores ficam guardados e fora do
             'property_type' => 'Apartamento',
             'city' => 'Espinho',
             'energy_rating' => 'C',
-            'translations' => ['pt' => ['title' => 'T2 em Espinho']],
             'admin' => ['status' => Property::STATUS_ACTIVE, 'monitors' => ['Montra da rua']],
             'status_reason' => 'Em avaliação',
             'is_active' => true,
@@ -276,7 +274,6 @@ it('os documentos guardam nome, visível, categoria e os campos herdados do CRM'
             'property_type' => 'Apartamento',
             'city' => 'Espinho',
             'energy_rating' => 'C',
-            'translations' => ['pt' => ['title' => 'T2 com documentos']],
             'documents' => [[
                 'file' => ['documentos/caderneta.pdf'],
                 'name' => 'Caderneta predial',
@@ -344,7 +341,6 @@ it('a criação tem o mesmo cabeçalho, com Ver e Ações à espera da gravaçã
             'property_type' => 'Apartamento',
             'city' => 'Espinho',
             'energy_rating' => 'C',
-            'translations' => ['pt' => ['title' => 'Criado pelo cabeçalho']],
         ])
         ->callAction('gravar');
 
@@ -359,7 +355,6 @@ it('as comodidades do Detalhes caem no array features e os campos com valor em d
             'property_type' => 'Moradia',
             'city' => 'Espinho',
             'energy_rating' => 'B',
-            'translations' => ['pt' => ['title' => 'Moradia com vista mar']],
             'det_features_a' => ['terraço', 'garagem'],
             'det_views' => ['vista mar', 'vista jardim'],
             'det_features_c' => ['licença turística'],
@@ -412,7 +407,6 @@ it('o Interior e o Exterior também alimentam o array features', function () {
             'property_type' => 'Moradia',
             'city' => 'Espinho',
             'energy_rating' => 'A',
-            'translations' => ['pt' => ['title' => 'Moradia equipada']],
             'det_interior' => ['cozinha equipada', 'lareira'],
             'det_exterior' => ['piscina'],
             'det_proximity' => ['proximidade: praia', 'proximidade: escolas'],
@@ -433,4 +427,37 @@ it('o Interior e o Exterior também alimentam o array features', function () {
             'det_proximity' => ['proximidade: praia', 'proximidade: escolas'],
             'det_features_extra' => [],
         ]);
+});
+
+it('sem separador de descrições, o título é gerado a partir do tipo, tipologia e concelho', function () {
+    Livewire::test(CreateProperty::class)
+        ->fillForm([
+            'reference' => 'MF-9300',
+            'business_type' => 'sale',
+            'property_type' => 'Moradia',
+            'typology' => 'T3',
+            'city' => 'Espinho',
+            'energy_rating' => 'B',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Property::where('reference', 'MF-9300')->firstOrFail()->title)->toBe('Moradia T3 em Espinho');
+});
+
+it('editar não apaga o título nem a descrição que já existiam', function () {
+    $p = Property::factory()->create([
+        'translations' => ['pt' => ['title' => 'Título escrito à mão', 'description' => 'Descrição antiga.']],
+    ]);
+
+    Livewire::test(EditProperty::class, ['record' => $p->slug])
+        ->fillForm(['bedrooms' => 5])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $p->refresh();
+
+    expect($p->title)->toBe('Título escrito à mão')
+        ->and($p->translations['pt']['description'])->toBe('Descrição antiga.')
+        ->and($p->bedrooms)->toBe(5);
 });

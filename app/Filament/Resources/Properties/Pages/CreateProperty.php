@@ -60,6 +60,7 @@ class CreateProperty extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data = Schemas\PropertyForm::foldDetailFeatures($data);
+        $data['translations'] = self::withGeneratedTitle($data);
         $data['internal_id'] = 'BO-'.strtolower((string) Str::ulid());
         $data['photos'] = self::photosFromUploads($data['photos'] ?? []);
         $data['slug'] = Property::generateSlug(
@@ -77,6 +78,34 @@ class CreateProperty extends CreateRecord
     protected function afterCreate(): void
     {
         PropertyCache::flush();
+    }
+
+    /**
+     * Título do anúncio. O separador "Descrições" do CRM ainda não foi
+     * trabalhado e o formulário não tem onde o escrever, mas o site precisa de
+     * um nome para a ficha — gera-se a partir do tipo, tipologia e concelho
+     * ("Moradia T3 em Espinho"). Um título já existente nunca é substituído.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    public static function withGeneratedTitle(array $data): array
+    {
+        $translations = $data['translations'] ?? [];
+
+        if (filled($translations['pt']['title'] ?? null)) {
+            return $translations;
+        }
+
+        $parts = array_filter([
+            $data['property_type'] ?? null,
+            ($data['typology'] ?? null) !== 'Não aplicável' ? ($data['typology'] ?? null) : null,
+            filled($data['city'] ?? null) ? 'em '.$data['city'] : null,
+        ]);
+
+        $translations['pt']['title'] = implode(' ', $parts) ?: (string) ($data['reference'] ?? 'Imóvel');
+
+        return $translations;
     }
 
     /**

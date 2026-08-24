@@ -12,7 +12,6 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\FusedGroup;
@@ -845,21 +844,6 @@ class PropertyForm
                     ]),
                 ]),
 
-            Section::make('Anúncio')
-                ->description('Título e descrição públicos da ficha (no CRM vivem no separador "Descrições", ainda por trabalhar).')
-                ->components([
-                    TextInput::make('translations.pt.title')
-                        ->label('Título do anúncio')
-                        ->placeholder('Apartamento T3 com terraço e vista de mar')
-                        ->required()
-                        ->maxLength(255)
-                        ->columnSpanFull(),
-                    Textarea::make('translations.pt.description')
-                        ->label('Descrição')
-                        ->rows(10)
-                        ->helperText('Parágrafos separados por uma linha em branco.')
-                        ->columnSpanFull(),
-                ]),
         ]);
     }
 }

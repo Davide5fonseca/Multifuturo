@@ -21,7 +21,6 @@ it('cria um imóvel com os campos do formulário e gera os campos técnicos', fu
             'reference' => 'MF-3001',
             'business_type' => 'sale',
             'property_type' => 'Moradia',
-            'translations' => ['pt' => ['title' => 'Moradia V4 com jardim', 'description' => "Primeiro parágrafo.\n\nSegundo."]],
             'det_features_a' => ['garagem'],
             'det_features_extra' => ['jardim'],
             'price' => 750000,
@@ -41,7 +40,7 @@ it('cria um imóvel com os campos do formulário e gera os campos técnicos', fu
     expect($p->internal_id)->toStartWith('BO-')
         ->and($p->slug)->toBe('moradia-cascais-mf-3001')
         ->and($p->payload_hash)->toHaveLength(64)
-        ->and($p->title)->toBe('Moradia V4 com jardim')
+        ->and($p->title)->toBe('Moradia em Cascais')   // gerado: o CRM trata os textos em "Descrições"
         ->and($p->features)->toBe(['garagem', 'jardim'])
         ->and((float) $p->price)->toBe(750000.0)
         ->and($p->is_active)->toBeTrue()
@@ -55,8 +54,8 @@ it('o imóvel criado no backoffice aparece imediatamente no site', function () {
             'reference' => 'MF-3002',
             'business_type' => 'rent',
             'property_type' => 'Apartamento',
-            'translations' => ['pt' => ['title' => 'T2 para arrendar em Oeiras']],
             'city' => 'Oeiras',
+            'typology' => 'T2',
             'energy_rating' => 'C',
             'price' => 1100,
             'is_active' => true,
@@ -64,17 +63,17 @@ it('o imóvel criado no backoffice aparece imediatamente no site', function () {
         ->call('create')
         ->assertHasNoFormErrors();
 
-    $this->get(route('rent'))->assertOk()->assertSee('T2 para arrendar em Oeiras');
-    $this->get(route('buy'))->assertOk()->assertDontSee('T2 para arrendar em Oeiras');
+    // O título é gerado a partir do tipo, tipologia e concelho.
+    $this->get(route('rent'))->assertOk()->assertSee('Apartamento T2 em Oeiras');
+    $this->get(route('buy'))->assertOk()->assertDontSee('Apartamento T2 em Oeiras');
 });
 
-it('editar não recalcula o slug, mesmo mudando título e concelho', function () {
+it('editar não recalcula o slug, mesmo mudando o concelho', function () {
     $p = Property::factory()->create(['reference' => 'MF-3003', 'city' => 'Cascais', 'property_type' => 'Apartamento']);
     $slug = $p->slug;
 
     Livewire::test(EditProperty::class, ['record' => $p->slug])
         ->fillForm([
-            'translations' => ['pt' => ['title' => 'Título completamente novo']],
             'city' => 'Oeiras',
         ])
         ->call('save')
@@ -82,7 +81,6 @@ it('editar não recalcula o slug, mesmo mudando título e concelho', function ()
 
     $p->refresh();
     expect($p->slug)->toBe($slug)
-        ->and($p->title)->toBe('Título completamente novo')
         ->and($p->city)->toBe('Oeiras');
 });
 
@@ -111,7 +109,6 @@ it('a referência não pode repetir-se', function () {
             'reference' => 'MF-3004',
             'business_type' => 'sale',
             'property_type' => 'Apartamento',
-            'translations' => ['pt' => ['title' => 'Duplicado']],
             'city' => 'Lisboa',
             'energy_rating' => 'C',
         ])
@@ -128,7 +125,6 @@ it('gravar no backoffice invalida a cache do site', function () {
             'reference' => 'MF-3005',
             'business_type' => 'sale',
             'property_type' => 'Loja / comércio',
-            'translations' => ['pt' => ['title' => 'Loja nova']],
             'city' => 'Lisboa',
             'energy_rating' => 'D',
         ])
