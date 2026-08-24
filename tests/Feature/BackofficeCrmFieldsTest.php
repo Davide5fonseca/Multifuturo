@@ -402,3 +402,34 @@ it('editar divide as features pelos grupos e preserva as que não pertencem a ne
 
     expect($p->fresh()->features)->toContain('garagem', 'cave', 'vista rio', 'cozinha equipada');
 });
+
+it('o Interior e o Exterior também alimentam o array features', function () {
+    Livewire::test(CreateProperty::class)
+        ->fillForm([
+            'reference' => 'MF-9200',
+            'business_type' => 'sale',
+            'property_type' => 'Moradia',
+            'city' => 'Espinho',
+            'energy_rating' => 'A',
+            'translations' => ['pt' => ['title' => 'Moradia equipada']],
+            'det_interior' => ['cozinha equipada', 'lareira'],
+            'det_exterior' => ['piscina'],
+            'det_proximity' => ['proximidade: praia', 'proximidade: escolas'],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $p = Property::where('reference', 'MF-9200')->firstOrFail();
+
+    expect($p->features)->toBe(['cozinha equipada', 'lareira', 'piscina', 'proximidade: praia', 'proximidade: escolas'])
+        ->and(Property::query()->withFeatures(['piscina'])->count())->toBe(1);
+
+    // E ao editar, voltam aos sub-separadores certos.
+    Livewire::test(EditProperty::class, ['record' => $p->slug])
+        ->assertFormSet([
+            'det_interior' => ['cozinha equipada', 'lareira'],
+            'det_exterior' => ['piscina'],
+            'det_proximity' => ['proximidade: praia', 'proximidade: escolas'],
+            'det_features_extra' => [],
+        ]);
+});

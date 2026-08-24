@@ -20,7 +20,6 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
 
 /**
@@ -663,6 +662,34 @@ class PropertyForm
         'det_features_e' => [
             'com estacionamento' => 'Com estacionamento', 'mobilado' => 'Mobilado',
         ],
+        'det_interior' => [
+            'aquecimento' => 'Aquecimento', 'máquina lavar roupa' => 'Máquina lavar roupa',
+            'máquina lavar loiça' => 'Máquina lavar loiça', 'ar condicionado' => 'Ar condicionado',
+            'chão aquecido' => 'Chão aquecido', 'salamandra' => 'Salamandra', 'lareira' => 'Lareira',
+            'aspiração central' => 'Aspiração central', 'roupeiros' => 'Roupeiros',
+            'cozinha equipada' => 'Cozinha equipada', 'closet' => 'Closet',
+            'chão radiante' => 'Chão radiante', 'aquecimento central a gás' => 'Aquecimento central a gás',
+            'cofre' => 'Cofre', 'domótica pré instalação' => 'Domótica pré instalação',
+            'alarme pré instalação' => 'Alarme pré instalação',
+            'painéis solares pré instalação' => 'Painéis solares pré instalação',
+            'chão flutuante' => 'Chão flutuante', 'termo acumulador' => 'Termo acumulador',
+            'pré-instalação ar condicionado' => 'Pré-instalação ar condicionado',
+        ],
+        'det_exterior' => [
+            'jardim' => 'Jardim', 'court de ténis' => 'Court de Ténis',
+            'jacuzzi' => 'Jacuzzi', 'piscina' => 'Piscina',
+        ],
+        'det_proximity' => [
+            'proximidade: aeroporto' => 'Aeroporto', 'proximidade: serra' => 'Serra',
+            'proximidade: praia' => 'Praia', 'proximidade: campo golfe' => 'Campo golfe',
+            'proximidade: zona comercial' => 'Zona comercial',
+            'proximidade: parque infantil' => 'Parque infantil',
+            'proximidade: restaurantes' => 'Restaurantes', 'proximidade: cidade' => 'Cidade',
+            'proximidade: campo' => 'Campo', 'proximidade: hospital' => 'Hospital',
+            'proximidade: farmácia' => 'Farmácia',
+            'proximidade: transportes públicos' => 'Transportes Públicos',
+            'proximidade: escolas' => 'Escolas', 'proximidade: piscinas públicas' => 'Piscinas Públicas',
+        ],
     ];
 
     /**
@@ -798,13 +825,23 @@ class PropertyForm
                     ])->columns(12),
 
                     Tab::make('Interior')->schema([
-                        Text::make('Por preencher — aguarda os ecrãs do CRM.'),
+                        CheckboxList::make('det_interior')
+                            ->hiddenLabel()
+                            ->options(self::DETAIL_FEATURE_GROUPS['det_interior'])
+                            ->columns(['default' => 1, 'md' => 3])
+                            ->columnSpanFull(),
                     ]),
                     Tab::make('Exterior')->schema([
-                        Text::make('Por preencher — aguarda os ecrãs do CRM.'),
-                    ]),
-                    Tab::make('Dados internos')->schema([
-                        Text::make('Por preencher — aguarda os ecrãs do CRM.'),
+                        CheckboxList::make('det_exterior')
+                            ->hiddenLabel()
+                            ->options(self::DETAIL_FEATURE_GROUPS['det_exterior'])
+                            ->columns(['default' => 1, 'md' => 3])
+                            ->columnSpanFull(),
+                        CheckboxList::make('det_proximity')
+                            ->label('Proximidade')
+                            ->options(self::DETAIL_FEATURE_GROUPS['det_proximity'])
+                            ->columns(['default' => 2, 'md' => 4])
+                            ->columnSpanFull(),
                     ]),
                 ]),
 
