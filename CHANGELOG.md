@@ -9,6 +9,61 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Separador "Geral" com as listas do CRM
+
+$${\color{#6B7248}\textsf{2026-08-24 · 11:34}}$$
+
+**Commit:** `e2047c4` — `Backoffice: listas do separador Geral iguais às do CRM`
+
+As quatro listas do separador *Geral* passam a ter **exactamente as opções do CRM da
+CASAFARI, pela mesma ordem** — a equipa não tem de reaprender nada ao mudar de sistema.
+
+| Campo | Opções |
+|---|---|
+| **Conservação** | Em construção · Não aplicável · Novo · Projecto · Ruína · Usado |
+| **Tipo de propriedade** | Apartamento · Casa de campo · Chalet · Empreendimento · Loja / comércio · Moradia · Moradia em Banda · Penthouse · Prédio · Quinta · Ruína · Terreno · Terreno rústico · Terreno urbano |
+| **Tipologia** | Não aplicável · T0 a T10 |
+| **Tipo de negócio** | Venda · Arrendamento ao ano · Trespasse · Permuta · Arrendamento curto prazo / férias · Arrendamento / venda |
+
+O tipo de propriedade e a tipologia ficam **pesquisáveis** (listas longas). As listas
+continuam a juntar valores que já existam na base de dados, para nenhuma ficha importada
+ficar com "valor inválido".
+
+### O que o tipo de negócio arrastou
+O site só tem **duas listagens** — *Comprar* e *Arrendar* — e o enum `BusinessType` só
+tinha duas finalidades. Passou a ter as seis, e **cada uma declara em que listagem entra**:
+
+| Finalidade | Onde aparece | Preço |
+|---|---|---|
+| Venda | Comprar | valor |
+| Trespasse | Comprar | valor |
+| Permuta | Comprar | valor |
+| Arrendamento ao ano | Arrendar | **/mês** |
+| Arrendamento curto prazo / férias | Arrendar | **/mês** |
+| Arrendamento / venda | **nas duas** | valor |
+
+Trespasse e permuta ficam em *Comprar* porque é aí que quem procura os vai encontrar. O
+"arrendamento / venda" aparece nas duas listagens, e o rasto da ficha aponta para
+*Comprar*. **Se preferir outro critério, diga — é uma linha a mudar** no
+`BusinessType::listings()`.
+
+Mudou em consequência: os scopes `forSale`/`forRent`, o filtro e as opções da listagem, o
+`Format::price` (o "/mês" fica só para os arrendamentos puros), o rasto da ficha e os
+rótulos em `lang/pt`.
+
+### Testes
+Quatro novos em `tests/Feature/BusinessTypeTest.php` — o mapeamento das seis finalidades,
+o que cada listagem pública mostra, o preço mensal e os rótulos. **145 a passar**, Pint
+limpo.
+
+### Por confirmar
+- A **tipologia** vai até **T10** (o menu do CRM tinha barra de deslocamento e só se viam
+  até T4). Se for mais alto, é um número a mudar.
+- No **tipo de propriedade**, entre *Penthouse* e *Prédio* não se via o menu completo. Se
+  faltar algum, acrescenta-se.
+
+---
+
 ## Correcção: apagar um imóvel rebentava
 
 $${\color{#6B7248}\textsf{2026-08-24 · 10:58}}$$
