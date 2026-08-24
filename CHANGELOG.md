@@ -9,6 +9,54 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Separador "Geral" igual aos prints do CRM
+
+$${\color{#6B7248}\textsf{2026-08-24 · 12:11}}$$
+
+**Commit:** `09fab64` — `Backoffice: separador Geral igual aos prints do CRM`
+
+Secções pela ordem do CRM: `Estado` → `Geral` → `Preço` → `Visibilidade e destaques`.
+
+### O que mudou
+- **Estado** passa a ser `Actual` · `Motivo` · `Vendida`, como no print. O
+  "Visível no website" e o "Destaque" **saíram do topo** e foram para a secção
+  *Visibilidade e destaques*, no fim.
+- **`Actual`** — campo novo (`admin.status`: Ativa / Inativa). É o **estado interno da
+  angariação**.
+- **`Motivo`** deixa de ser campo de texto e passa a **lista de opções**.
+- **Referência** ganhou a **engrenagem do CRM**: sugere a referência seguinte da série
+  (`MF-0001`, `MF-0002`, …).
+- **`Prédio \ Empreendimento`** sugere os empreendimentos já registados, sem impedir
+  escrever um novo.
+- **`Exclusiva`** e **`Propriedade fora de mercado`** passam para junto da Placa.
+- **Placa** numa linha só: caixa de selecção, data e notas.
+- **`Monitores`** — campo novo, herdado do CRM.
+- Rótulos iguais aos prints: *Tipo negócio*, *Área útil (m2)*, *Nº andar*, *Destaque*.
+- **Angariador** e **Data do anúncio** ficaram no fim, para o topo do separador começar
+  exactamente como no print.
+
+### Uma coisa importante sobre o "Actual"
+O CRM tem **dois campos independentes**: o `Actual` (Ativa / Inativa) e o
+`Visível no website`. Fiz o mesmo — mas convém saber que **o `Actual` não publica nem
+retira a ficha do site**. Quem controla o site é o `Visível no website`, como sempre foi;
+o `Actual` é registo interno.
+
+Se preferir que "Actual: Inativa" retire automaticamente do site, é uma regra a
+acrescentar — diga.
+
+### Também
+- Os **motivos** são uma lista provisória (*Angariação terminada, Contrato terminado, Em
+  avaliação, Proprietário desistiu, Retirada pelo proprietário, Vendida por terceiros,
+  Outro*) — falta a lista real do CRM.
+- **`Ano de construção`** não estava no print; ficou ao lado do `Nº andar` para não se
+  perder o campo.
+- **`Monitores`** fica registado na ficha mas não faz nada: não há montras ligadas ao
+  sistema. Está escrito no próprio campo.
+
+150 testes a passar, Pint limpo.
+
+---
+
 ## Separador "Interna" igual aos prints do CRM
 
 $${\color{#6B7248}\textsf{2026-08-24 · 12:03}}$$
