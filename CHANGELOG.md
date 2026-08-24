@@ -9,6 +9,62 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Site multilingue: português e inglês
+
+$${\color{#6B7248}\textsf{2026-08-24 · 16:16}}$$
+
+**Commits:** `d272f8c` (backoffice em português) · `9bf44f2` (multilingue)
+
+### Backoffice todo em português
+As secções **Clientes** e **Agenda** tinham ficado como o gerador as criou — em inglês e
+com campos crus. Passam a estar traduzidas e utilizáveis:
+- **Clientes**: formulário com *Cliente*, *Preferências* (zonas, tipos e orçamento, em vez
+  de uma caixa de texto com JSON) e *Notas*; o responsável passa de número a lista de
+  utilizadores; tabela com contactos, concelho, responsável e nº de pedidos.
+- **Agenda**: formulário com *Evento*, *Ligações* e *Notas* — o imóvel passa a mostrar a
+  referência em vez do id; tabela com tipo colorido, atrasados a vermelho e acção rápida
+  *Concluir*.
+- `config/app.php` passa a ter `pt` por omissão, para uma instalação nova não arrancar em
+  inglês se faltar o `.env`.
+
+### Multilingue
+O idioma vive no **primeiro segmento do endereço**: `/pt/comprar`, `/en/comprar`. A raiz
+reencaminha para o idioma por omissão.
+
+| | |
+|---|---|
+| **Ligados agora** | Português (por omissão) e Inglês |
+| **Preparados** | Francês e Alemão — falta só traduzir |
+| **Ligar/desligar** | uma linha no `.env` (`APP_LOCALES=pt,en`) |
+
+**Como está feito:** o idioma é um *parâmetro de rota com valor por omissão*. Isso faz com
+que os `route('buy')` espalhados pelo projeto continuem a funcionar sem saber que o site é
+multilingue — geram sozinhos o endereço do idioma que está a ser servido. **Nenhuma view
+teve de mudar.**
+
+- **Seletor PT/EN** no cabeçalho, que mantém a página, o imóvel e os **filtros** ao trocar.
+- **`html lang`, `og:locale`, `hreflang`** de cada versão e **`x-default`**. As
+  alternativas ignoram a query string, como o canonical.
+- **Sitemap** lista as duas versões de cada página.
+- **Banner de cookies traduzido**.
+
+### Duas coisas deliberadamente por traduzir
+- **Páginas legais** (privacidade, termos, cookies) continuam em português. Uma tradução
+  aproximada de um texto vinculativo é pior do que nenhuma — a versão inglesa também
+  obriga. Ficam em português até haver tradução profissional revista.
+- **Textos dos imóveis** (título e descrição) recorrem ao português enquanto não houver
+  versão no idioma. Os campos por idioma pertencem ao separador **"Descrições"** do CRM,
+  que ainda não foi feito.
+
+### Nota técnica
+O `{locale}` tem de sair dos parâmetros da rota depois de aplicado: o Laravel passa os
+parâmetros aos controladores **por ordem**, e sem isso o idioma entrava como primeiro
+argumento de cada método (o `PropertyController::show` recebia `"pt"` em vez do imóvel).
+
+Doze testes novos, **183 a passar**, Pint limpo.
+
+---
+
 ## Listas confirmadas com os menus do CRM
 
 $${\color{#6B7248}\textsf{2026-08-24 · 15:41}}$$
