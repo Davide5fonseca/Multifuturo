@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Properties\Schemas;
 
 use App\Enums\BusinessType;
 use App\Models\Property;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -12,6 +13,8 @@ use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\FusedGroup;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -257,97 +260,156 @@ class PropertyForm
         return Tab::make('Interna')
             ->badge('privado')
             ->schema([
+                Section::make('Contrato e chaves')
+                    ->columns(4)
+                    ->components([
+                        TextInput::make('admin.contract.number')->label('Número contrato')->maxLength(64),
+                        DatePicker::make('admin.contract.start')->label('Data início')->displayFormat('d/m/Y')->placeholder('DD/MM/YYYY'),
+                        DatePicker::make('admin.contract.end')->label('Data fim')->displayFormat('d/m/Y')->placeholder('DD/MM/YYYY'),
+                        Checkbox::make('admin.contract.auto_renew')->label('Renova automaticamente'),
+
+                        Grid::make(['default' => 1, 'sm' => 12])
+                            ->schema([
+                                Checkbox::make('admin.keys.has')->label('Chaves')->inline(false)->columnSpan(1),
+                                TextInput::make('admin.keys.notes')
+                                    ->hiddenLabel()
+                                    ->placeholder('Notas')
+                                    ->maxLength(255)
+                                    ->columnSpan(['default' => 1, 'sm' => 11]),
+                            ])
+                            ->columnSpanFull(),
+                    ]),
+
+                Section::make('Certificado energético')
+                    ->columns(8)
+                    ->components([
+                        FusedGroup::make([
+                            TextInput::make('admin.energy.number')->hiddenLabel()->maxLength(64)->columnSpan(3),
+                            Select::make('energy_rating')
+                                ->hiddenLabel()
+                                ->options(fn () => self::optionsWithExisting('energy_rating', self::ENERGY_CLASSES))
+                                ->required()
+                                ->native(false)
+                                ->placeholder('-'),
+                        ])
+                            ->label('Certificado energético')
+                            ->columns(4)
+                            ->columnSpan(4)
+                            ->helperText('A classe energética é obrigatória na publicitação (Decreto-Lei n.º 118/2013).'),
+                        DatePicker::make('admin.energy.valid_from')->label('Data início')->displayFormat('d/m/Y')->placeholder('DD/MM/YYYY')->columnSpan(2),
+                        DatePicker::make('admin.energy.valid_to')->label('Data fim')->displayFormat('d/m/Y')->placeholder('DD/MM/YYYY')->columnSpan(2),
+
+                        TextInput::make('admin.energy.exemption')->label('Nível de isenção')->maxLength(64)->columnSpan(4),
+                        TextInput::make('admin.energy.consumption')->label('Consumo (KW h/m² ano)')->numeric()->columnSpan(4),
+
+                        FusedGroup::make([
+                            TextInput::make('admin.energy.emissions_level')->hiddenLabel()->maxLength(64)->columnSpan(3),
+                            Select::make('admin.energy.emissions_class')
+                                ->hiddenLabel()
+                                ->options(self::list(self::ENERGY_CLASSES))
+                                ->native(false)
+                                ->placeholder('-'),
+                        ])
+                            ->label('Nível de emissões')
+                            ->columns(4)
+                            ->columnSpan(4),
+                        TextInput::make('admin.energy.emissions')->label('Emissões (Kg CO2 / m² ano)')->numeric()->columnSpan(4),
+                    ]),
+
+                Section::make('Finanças')
+                    ->columns(12)
+                    ->components([
+                        TextInput::make('admin.tax.matrix_number')->label('Nº de inscrição na matriz')->maxLength(64)->columnSpan(3),
+                        TextInput::make('admin.tax.matrix_year')->label('Ano de inscrição')->numeric()->minValue(1800)->maxValue((int) date('Y'))->columnSpan(3),
+                        TextInput::make('admin.tax.fraction')->label('Fração')->maxLength(32)->columnSpan(2),
+                        FusedGroup::make([
+                            TextInput::make('admin.tax.office_code')->hiddenLabel()->maxLength(16)->columnSpan(2),
+                            TextInput::make('admin.tax.office')->hiddenLabel()->maxLength(96)->columnSpan(3),
+                        ])
+                            ->label('Código\Repartição')
+                            ->columns(5)
+                            ->columnSpan(4),
+                    ]),
+
+                Section::make('Conservatória')
+                    ->columns(4)
+                    ->components([
+                        TextInput::make('admin.registry.number')->label('Número')->maxLength(64),
+                        TextInput::make('admin.registry.name')->label('Nome')->maxLength(191)->columnSpan(3),
+                    ]),
+
+                Section::make('Licença de utilização')
+                    ->columns(4)
+                    ->components([
+                        TextInput::make('admin.use_licence.number')->label('Número')->maxLength(64),
+                        DatePicker::make('admin.use_licence.date')->label('Data')->displayFormat('d/m/Y')->placeholder('DD/MM/YYYY'),
+                        TextInput::make('admin.use_licence.issuer')->label('Emissor')->maxLength(191)->columnSpan(2),
+                    ]),
+
+                Section::make('Licença de construção')
+                    ->columns(4)
+                    ->components([
+                        TextInput::make('admin.build_licence.number')->label('Número')->maxLength(64),
+                        DatePicker::make('admin.build_licence.date')->label('Data')->displayFormat('d/m/Y')->placeholder('DD/MM/YYYY'),
+                        TextInput::make('admin.build_licence.issuer')->label('Emissor')->maxLength(191)->columnSpan(2),
+                    ]),
+
+                Section::make('Comissão')
+                    ->columns(12)
+                    ->components([
+                        FusedGroup::make([
+                            TextInput::make('admin.commission.percent')
+                                ->hiddenLabel()
+                                ->numeric()
+                                ->prefix('%')
+                                ->placeholder('0')
+                                // A seta do CRM: calcula o valor a partir do preço do imóvel.
+                                ->suffixAction(
+                                    Action::make('comissaoEmEuros')
+                                        ->label('Calcular a partir do preço')
+                                        ->icon('heroicon-m-arrow-right')
+                                        ->action(function ($state, callable $get, callable $set) {
+                                            $price = (float) $get('price');
+                                            $percent = (float) $state;
+
+                                            if ($price > 0 && $percent > 0) {
+                                                $set('admin.commission.amount', round($price * $percent / 100, 2));
+                                            }
+                                        }),
+                                ),
+                            TextInput::make('admin.commission.amount')->hiddenLabel()->numeric()->prefix('€')->placeholder('0,00'),
+                        ])
+                            ->hiddenLabel()
+                            ->columns(2)
+                            ->columnSpan(5),
+                    ]),
+
+                Section::make('Import / Export')
+                    ->description('Herdados do CRM. Ficam registados na ficha, mas hoje não há importação nem exportação automática — os imóveis são geridos aqui.')
+                    ->columns(1)
+                    ->components([
+                        Checkbox::make('admin.sync.block_import')->label('Bloquear importação'),
+                        Checkbox::make('admin.sync.block_export')->label('Bloquear exportação'),
+                    ]),
+
+                Section::make('Encargo')
+                    ->columns(12)
+                    ->components([
+                        Select::make('admin.charge.type')
+                            ->label('Tipo')
+                            ->options(self::list(['Nenhum', 'Hipoteca', 'Penhora', 'Usufruto', 'Outro']))
+                            ->default('Nenhum')
+                            ->native(false)
+                            ->columnSpan(3),
+                        TextInput::make('admin.charge.amount')->label('Valor Encargo')->numeric()->prefix('€')->placeholder('0,00')->columnSpan(4),
+                    ]),
+
                 Section::make('Etiquetas')
                     ->components([
                         TagsInput::make('admin.tags')
                             ->label('Etiquetas')
                             ->placeholder('Escreva e prima Enter')
                             ->helperText('Uso interno — aparecem na lista de imóveis e nunca no site.'),
-                    ]),
-
-                Section::make('Contrato e chaves')
-                    ->columns(4)
-                    ->components([
-                        TextInput::make('admin.contract.number')->label('Número do contrato')->maxLength(64),
-                        DatePicker::make('admin.contract.start')->label('Data de início')->displayFormat('d/m/Y'),
-                        DatePicker::make('admin.contract.end')->label('Data de fim')->displayFormat('d/m/Y'),
-                        Checkbox::make('admin.contract.auto_renew')->label('Renova automaticamente'),
-                        Checkbox::make('admin.keys.has')->label('Temos chaves'),
-                        TextInput::make('admin.keys.notes')->label('Notas das chaves')->maxLength(255)->columnSpan(3),
-                    ]),
-
-                Section::make('Certificado energético')
-                    ->columns(3)
-                    ->components([
-                        TextInput::make('admin.energy.number')
-                            ->label('N.º do certificado')
-                            ->maxLength(64),
-                        Select::make('energy_rating')
-                            ->label('Classe energética')
-                            ->options(fn () => self::optionsWithExisting('energy_rating', self::ENERGY_CLASSES))
-                            ->required()
-                            ->native(false)
-                            ->helperText('Obrigatório na publicitação.'),
-                        TextInput::make('admin.energy.exemption')
-                            ->label('Nível de isenção')
-                            ->maxLength(64),
-                        DatePicker::make('admin.energy.valid_from')->label('Data de início')->displayFormat('d/m/Y'),
-                        DatePicker::make('admin.energy.valid_to')->label('Data de fim')->displayFormat('d/m/Y'),
-                        TextInput::make('admin.energy.consumption')
-                            ->label('Consumo (kWh/m²·ano)')
-                            ->numeric(),
-                        Select::make('admin.energy.emissions_class')
-                            ->label('Nível de emissões')
-                            ->options(self::list(self::ENERGY_CLASSES))
-                            ->native(false),
-                        TextInput::make('admin.energy.emissions')
-                            ->label('Emissões (kg CO₂/m²·ano)')
-                            ->numeric(),
-                    ]),
-
-                Section::make('Finanças')
-                    ->columns(4)
-                    ->components([
-                        TextInput::make('admin.tax.matrix_number')->label('N.º de inscrição na matriz')->maxLength(64),
-                        TextInput::make('admin.tax.matrix_year')->label('Ano de inscrição')->numeric()->minValue(1800)->maxValue((int) date('Y')),
-                        TextInput::make('admin.tax.fraction')->label('Fração')->maxLength(32),
-                        TextInput::make('admin.tax.office')->label('Código / Repartição')->maxLength(96),
-                    ]),
-
-                Section::make('Conservatória')
-                    ->columns(2)
-                    ->components([
-                        TextInput::make('admin.registry.number')->label('Número')->maxLength(64),
-                        TextInput::make('admin.registry.name')->label('Nome')->maxLength(191),
-                    ]),
-
-                Section::make('Licença de utilização')
-                    ->columns(3)
-                    ->components([
-                        TextInput::make('admin.use_licence.number')->label('Número')->maxLength(64),
-                        DatePicker::make('admin.use_licence.date')->label('Data')->displayFormat('d/m/Y'),
-                        TextInput::make('admin.use_licence.issuer')->label('Emissor')->maxLength(191),
-                    ]),
-
-                Section::make('Licença de construção')
-                    ->columns(3)
-                    ->collapsed()
-                    ->components([
-                        TextInput::make('admin.build_licence.number')->label('Número')->maxLength(64),
-                        DatePicker::make('admin.build_licence.date')->label('Data')->displayFormat('d/m/Y'),
-                        TextInput::make('admin.build_licence.issuer')->label('Emissor')->maxLength(191),
-                    ]),
-
-                Section::make('Comissão e encargos')
-                    ->columns(4)
-                    ->components([
-                        TextInput::make('admin.commission.percent')->label('Comissão (%)')->numeric()->suffix('%'),
-                        TextInput::make('admin.commission.amount')->label('Comissão (€)')->numeric()->prefix('€'),
-                        Select::make('admin.charge.type')
-                            ->label('Tipo de encargo')
-                            ->options(self::list(['Nenhum', 'Hipoteca', 'Penhora', 'Usufruto', 'Outro']))
-                            ->native(false),
-                        TextInput::make('admin.charge.amount')->label('Valor do encargo')->numeric()->prefix('€'),
                     ]),
             ]);
     }

@@ -29,8 +29,9 @@ it('guarda os dados internos (contrato, chaves, finanças, licenças, comissão)
             'admin' => [
                 'contract' => ['number' => 'C-2026/14', 'start' => '2026-01-10', 'auto_renew' => true],
                 'keys' => ['has' => true, 'notes' => 'Chaveiro 12'],
-                'energy' => ['number' => 'SCE123456', 'consumption' => 120, 'emissions_class' => 'B'],
-                'tax' => ['matrix_number' => '4567', 'fraction' => 'B', 'office' => 'AGUEDA'],
+                'energy' => ['number' => 'SCE123456', 'consumption' => 120, 'emissions_level' => 'B2', 'emissions_class' => 'B'],
+                'tax' => ['matrix_number' => '4567', 'fraction' => 'B', 'office_code' => '19', 'office' => 'AGUEDA'],
+                'sync' => ['block_import' => true, 'block_export' => false],
                 'use_licence' => ['number' => '31/2019', 'issuer' => 'CM Águeda'],
                 'commission' => ['percent' => 5, 'amount' => 12500],
                 'charge' => ['type' => 'Hipoteca', 'amount' => 80000],
@@ -47,7 +48,10 @@ it('guarda os dados internos (contrato, chaves, finanças, licenças, comissão)
         ->and($p->admin['contract']['auto_renew'])->toBeTrue()
         ->and($p->admin['keys']['notes'])->toBe('Chaveiro 12')
         ->and($p->admin['energy']['number'])->toBe('SCE123456')
+        ->and($p->admin['energy']['emissions_level'])->toBe('B2')
+        ->and($p->admin['tax']['office_code'])->toBe('19')
         ->and($p->admin['tax']['office'])->toBe('AGUEDA')
+        ->and($p->admin['sync']['block_import'])->toBeTrue()
         ->and($p->admin['use_licence']['issuer'])->toBe('CM Águeda')
         ->and($p->admin['commission']['percent'])->toBe(5)
         ->and($p->admin['charge']['type'])->toBe('Hipoteca');
