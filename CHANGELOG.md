@@ -9,6 +9,46 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Lista de imóveis com as colunas do CRM
+
+$${\color{#6B7248}\textsf{2026-08-24 · 11:51}}$$
+
+**Commit:** `6766a99` — `Backoffice: lista de imóveis com as colunas da grelha do CRM`
+
+A listagem do backoffice passa a ter **as mesmas colunas da grelha do CRM, pela mesma
+ordem**: caixa de selecção · Referência · Foto · Tipo · Concelho · Zona · Quarto(s) ·
+Preço · Chaves · Angariador · Visualizar · Estado · Etiquetas.
+
+### Colunas que precisaram de trabalho
+- **Chaves** — lê o `admin.keys.has` do separador *Interna*; ordenável (por dentro do
+  jsonb) e com as notas das chaves em tooltip.
+- **Estado** — **um só badge** em vez das três colunas separadas que havia:
+  *Publicada* (verde) · *Retirada* (cinzento) · *Vendida* (vermelho) · *Fora de mercado*
+  (âmbar), com o motivo em tooltip.
+- **Visualizar** — abre a ficha no site, em separador novo. Só aparece quando o site a
+  mostra: vendidas, retiradas e fora de mercado respondem 410, não vale a pena o link.
+- **Etiquetas** — **campo novo**. Não existia nada equivalente, por isso criou-se o
+  `admin.tags` (caixa de etiquetas no separador *Interna*). É **interno**: aparece na
+  lista, é pesquisável pelo índice jsonb, e nunca sai no site.
+- **Angariador** — o campo chamava-se "Consultor" no formulário; passou a "Angariador",
+  como no CRM.
+
+### Também
+- **Filtros novos**: por tipo de propriedade e por "com chaves". O filtro de finalidade
+  passou a ter as seis opções (tinha ficado com duas).
+- As colunas que a grelha do CRM não tinha — título, finalidade, publicado, destaque,
+  atualizado — **continuam disponíveis no menu "Colunas"**, escondidas por omissão. Não se
+  perde o interruptor rápido de publicar; a lista é que abre limpa.
+- A listagem passa a ocupar a **largura toda do ecrã** — doze colunas não cabiam na
+  largura normal do painel.
+
+### Testes
+Quatro novos, **149 a passar**: as doze colunas existem e mostram os valores certos; o
+badge de estado nos quatro casos; o link "Visualizar" só no que é publicável; e as
+etiquetas fora do site (ficha e listagem).
+
+---
+
 ## Separador "Geral" com as listas do CRM
 
 $${\color{#6B7248}\textsf{2026-08-24 · 11:34}}$$
