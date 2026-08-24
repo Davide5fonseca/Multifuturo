@@ -388,19 +388,20 @@ it('as comodidades do Detalhes caem no array features e os campos com valor em d
 });
 
 it('editar divide as features pelos grupos e preserva as que não pertencem a nenhum', function () {
-    $p = Property::factory()->create(['features' => ['garagem', 'vista rio', 'cozinha equipada']]);
+    $p = Property::factory()->create(['features' => ['garagem', 'vista rio', 'cozinha equipada', 'painéis solares']]);
 
     Livewire::test(EditProperty::class, ['record' => $p->slug])
         ->assertFormSet([
             'det_features_a' => ['garagem'],
             'det_views' => ['vista rio'],
-            'det_features_extra' => ['cozinha equipada'],
+            'det_interior' => ['cozinha equipada'],
+            'det_features_extra' => ['painéis solares'],
         ])
         ->fillForm(['det_features_a' => ['garagem', 'cave']])
         ->call('save')
         ->assertHasNoFormErrors();
 
-    expect($p->fresh()->features)->toContain('garagem', 'cave', 'vista rio', 'cozinha equipada');
+    expect($p->fresh()->features)->toContain('garagem', 'cave', 'vista rio', 'cozinha equipada', 'painéis solares');
 });
 
 it('o Interior e o Exterior também alimentam o array features', function () {
