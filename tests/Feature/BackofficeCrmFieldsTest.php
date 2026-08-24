@@ -7,6 +7,7 @@
 
 use App\Filament\Resources\Properties\Pages\CreateProperty;
 use App\Filament\Resources\Properties\Pages\EditProperty;
+use App\Filament\Resources\Properties\Pages\ListProperties;
 use App\Models\Property;
 use App\Models\User;
 use Filament\Forms\Components\FileUpload;
@@ -126,4 +127,61 @@ it('editar mantém os dados internos que não foram tocados', function () {
     expect($p->internal_name)->toBe('Nome novo')
         ->and($p->admin['contract']['number'])->toBe('C-1')
         ->and($p->admin['keys']['has'])->toBeTrue();
+});
+
+it('a lista de imóveis tem as colunas da grelha do CRM', function () {
+    $p = Property::factory()->create([
+        'reference' => 'MF-9001',
+        'property_type' => 'Moradia',
+        'city' => 'Espinho',
+        'locality' => 'Anta',
+        'bedrooms' => 3,
+        'broker' => ['name' => 'Ana Silva'],
+        'admin' => ['keys' => ['has' => true, 'notes' => 'No cofre'], 'tags' => ['Urgente', 'Baixou preço']],
+    ]);
+
+    $lista = Livewire::test(ListProperties::class);
+
+    foreach (['reference', 'cover_photo.url', 'property_type', 'city', 'locality', 'bedrooms',
+        'price', 'keys', 'broker.name', 'view', 'status', 'tags'] as $coluna) {
+        $lista->assertCanRenderTableColumn($coluna);
+    }
+
+    $lista->assertTableColumnStateSet('keys', true, $p)
+        ->assertTableColumnStateSet('broker.name', 'Ana Silva', $p)
+        ->assertTableColumnStateSet('locality', 'Anta', $p)
+        ->assertTableColumnStateSet('status', 'Publicada', $p)
+        ->assertTableColumnStateSet('tags', ['Urgente', 'Baixou preço'], $p);
+});
+
+it('a coluna Estado acompanha vendida, fora de mercado e retirada', function () {
+    $p = Property::factory()->create();
+    $lista = fn () => Livewire::test(ListProperties::class);
+
+    $lista()->assertTableColumnStateSet('status', 'Publicada', $p);
+
+    $p->update(['is_active' => false]);
+    $lista()->assertTableColumnStateSet('status', 'Retirada', $p->fresh());
+
+    $p->update(['is_active' => true, 'off_market' => true]);
+    $lista()->assertTableColumnStateSet('status', 'Fora de mercado', $p->fresh());
+
+    $p->update(['off_market' => false, 'is_sold' => true]);
+    $lista()->assertTableColumnStateSet('status', 'Vendida', $p->fresh());
+});
+
+it('a coluna Visualizar só oferece link ao que o site mostra', function () {
+    $publicada = Property::factory()->create(['reference' => 'MF-9002']);
+    $vendida = Property::factory()->create(['reference' => 'MF-9003', 'is_sold' => true]);
+
+    Livewire::test(ListProperties::class)
+        ->assertTableColumnStateSet('view', 'Ver no site', $publicada)
+        ->assertTableColumnStateSet('view', '—', $vendida);
+});
+
+it('as etiquetas são internas e nunca aparecem no site', function () {
+    $p = Property::factory()->create(['admin' => ['tags' => ['Segredo interno']]]);
+
+    $this->get(route('property.show', $p))->assertOk()->assertDontSee('Segredo interno');
+    $this->get(route('buy'))->assertOk()->assertDontSee('Segredo interno');
 });

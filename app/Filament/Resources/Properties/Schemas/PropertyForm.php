@@ -229,7 +229,7 @@ class PropertyForm
                         ->maxLength(255)
                         ->columnSpan(2),
                     Select::make('broker.name')
-                        ->label('Consultor')
+                        ->label('Angariador')
                         ->options(fn () => Property::query()
                             ->whereNotNull('broker')
                             ->get()
@@ -257,6 +257,14 @@ class PropertyForm
         return Tab::make('Interna')
             ->badge('privado')
             ->schema([
+                Section::make('Etiquetas')
+                    ->components([
+                        TagsInput::make('admin.tags')
+                            ->label('Etiquetas')
+                            ->placeholder('Escreva e prima Enter')
+                            ->helperText('Uso interno — aparecem na lista de imóveis e nunca no site.'),
+                    ]),
+
                 Section::make('Contrato e chaves')
                     ->columns(4)
                     ->components([

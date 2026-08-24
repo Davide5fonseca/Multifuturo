@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Properties\Tables;
 
+use App\Enums\BusinessType;
 use App\Models\Property;
 use App\Support\Format;
 use App\Support\PropertyCache;
@@ -17,70 +18,176 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 /**
- * Lista de imóveis do backoffice: colunas essenciais, filtros por finalidade e
- * estado, e interruptores rápidos de publicado/destaque.
+ * Lista de imóveis do backoffice, com as mesmas colunas da grelha do CRM:
+ * Referência · Foto · Tipo · Concelho · Zona · Quarto(s) · Preço · Chaves ·
+ * Angariador · Visualizar · Estado · Etiquetas.
+ *
+ * As colunas que a grelha do CRM não tinha (título, finalidade, destaque,
+ * publicado, atualizado) continuam disponíveis no menu "Colunas", escondidas
+ * por omissão — não se perde nada, mas a lista abre limpa.
  */
 class PropertiesTable
 {
+    /** Só 'asc' e 'desc' entram no SQL das ordenações por jsonb. */
+    private static function direction(string $direction): string
+    {
+        return strtolower($direction) === 'asc' ? 'asc' : 'desc';
+    }
+
     public static function configure(Table $table): Table
     {
         return $table
             ->defaultSort('updated_at', 'desc')
             ->columns([
-                ImageColumn::make('cover_photo.url')
-                    ->label('')
-                    ->disk(null)
-                    ->defaultImageUrl(asset('images/placeholder-property.jpg'))
-                    ->square(),
                 TextColumn::make('reference')
                     ->label('Referência')
                     ->searchable()
                     ->sortable()
                     ->weight('medium'),
-                TextColumn::make('title')
-                    ->label('Título')
-                    ->state(fn ($record) => $record->title)
-                    ->limit(40)
-                    ->searchable(query: fn ($query, $search) => $query->whereRaw("LOWER(translations->'pt'->>'title') LIKE ?", ['%'.mb_strtolower($search).'%'])),
-                TextColumn::make('business_type')
-                    ->label('Finalidade')
-                    ->badge()
-                    ->formatStateUsing(fn ($state) => $state->value === 'sale' ? 'Venda' : 'Arrendamento')
-                    ->color(fn ($state) => $state->value === 'sale' ? 'primary' : 'info'),
+
+                ImageColumn::make('cover_photo.url')
+                    ->label('Foto')
+                    ->disk(null)
+                    ->defaultImageUrl(asset('images/placeholder-property.jpg'))
+                    ->square(),
+
+                TextColumn::make('property_type')
+                    ->label('Tipo')
+                    ->searchable()
+                    ->sortable(),
+
                 TextColumn::make('city')
                     ->label('Concelho')
                     ->searchable()
                     ->sortable(),
+
+                TextColumn::make('locality')
+                    ->label('Zona')
+                    ->placeholder('—')
+                    ->searchable()
+                    ->sortable(),
+
+                TextColumn::make('bedrooms')
+                    ->label('Quarto(s)')
+                    ->placeholder('—')
+                    ->alignEnd()
+                    ->sortable(),
+
                 TextColumn::make('price')
                     ->label('Preço')
-                    ->state(fn ($record) => Format::price($record->price, $record->currency, $record->business_type, $record->price_visible))
+                    ->state(fn (Property $record) => Format::price($record->price, $record->currency, $record->business_type, $record->price_visible))
+                    ->alignEnd()
                     ->sortable(),
+
+                IconColumn::make('keys')
+                    ->label('Chaves')
+                    ->state(fn (Property $record) => (bool) data_get($record->admin, 'keys.has'))
+                    ->boolean()
+                    ->tooltip(fn (Property $record) => data_get($record->admin, 'keys.notes'))
+                    ->sortable(query: fn ($query, string $direction) => $query->orderByRaw(
+                        "COALESCE((admin->'keys'->>'has')::boolean, false) ".self::direction($direction)
+                    )),
+
+                TextColumn::make('broker.name')
+                    ->label('Angariador')
+                    ->state(fn (Property $record) => data_get($record->broker, 'name'))
+                    ->placeholder('—'),
+
+                TextColumn::make('view')
+                    ->label('Visualizar')
+                    // Só abre o que o site mostra: vendidas, retiradas ou fora de
+                    // mercado respondem 410, não vale a pena oferecer o link.
+                    ->state(fn (Property $record) => $record->isPublishable() ? 'Ver no site' : '—')
+                    ->url(fn (Property $record) => $record->isPublishable() ? route('property.show', $record) : null, shouldOpenInNewTab: true)
+                    ->icon(fn (Property $record) => $record->isPublishable() ? 'heroicon-m-arrow-top-right-on-square' : null)
+                    ->color(fn (Property $record) => $record->isPublishable() ? 'primary' : 'gray'),
+
+                TextColumn::make('status')
+                    ->label('Estado')
+                    ->badge()
+                    ->state(fn (Property $record) => match (true) {
+                        $record->is_sold => 'Vendida',
+                        $record->off_market => 'Fora de mercado',
+                        ! $record->is_active => 'Retirada',
+                        default => 'Publicada',
+                    })
+                    ->color(fn (string $state) => match ($state) {
+                        'Publicada' => 'success',
+                        'Vendida' => 'danger',
+                        'Fora de mercado' => 'warning',
+                        default => 'gray',
+                    })
+                    ->tooltip(fn (Property $record) => $record->status_reason)
+                    ->sortable(['is_active', 'is_sold', 'off_market']),
+
+                TextColumn::make('tags')
+                    ->label('Etiquetas')
+                    ->state(fn (Property $record) => data_get($record->admin, 'tags', []))
+                    ->badge()
+                    ->color('gray')
+                    ->placeholder('—')
+                    ->searchable(query: fn ($query, string $search) => $query->whereRaw(
+                        "admin->'tags' @> ?::jsonb", [json_encode([$search])]
+                    )),
+
+                /* --------------------------- fora da grelha do CRM, opcionais */
+
+                TextColumn::make('title')
+                    ->label('Título')
+                    ->state(fn (Property $record) => $record->title)
+                    ->limit(40)
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(query: fn ($query, $search) => $query->whereRaw("LOWER(translations->'pt'->>'title') LIKE ?", ['%'.mb_strtolower($search).'%'])),
+
+                TextColumn::make('business_type')
+                    ->label('Finalidade')
+                    ->badge()
+                    ->formatStateUsing(fn (BusinessType $state) => $state->label())
+                    ->color(fn (BusinessType $state) => $state->routeName() === 'buy' ? 'primary' : 'info')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 ToggleColumn::make('is_active')
                     ->label('Publicado')
-                    ->afterStateUpdated(fn () => PropertyCache::flush()),
+                    ->afterStateUpdated(fn () => PropertyCache::flush())
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 ToggleColumn::make('is_featured')
                     ->label('Destaque')
-                    ->afterStateUpdated(fn () => PropertyCache::flush()),
+                    ->afterStateUpdated(fn () => PropertyCache::flush())
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 IconColumn::make('is_exclusive')
                     ->label('Exclusivo')
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('updated_at')
                     ->label('Atualizado')
                     ->since()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('business_type')
                     ->label('Finalidade')
-                    ->options(['sale' => 'Venda', 'rent' => 'Arrendamento']),
+                    ->options(BusinessType::options()),
+                SelectFilter::make('property_type')
+                    ->label('Tipo')
+                    ->options(fn () => Property::query()->whereNotNull('property_type')->distinct()->orderBy('property_type')->pluck('property_type', 'property_type')->all()),
+                SelectFilter::make('city')
+                    ->label('Concelho')
+                    ->options(fn () => Property::query()->whereNotNull('city')->distinct()->orderBy('city')->pluck('city', 'city')->all()),
                 TernaryFilter::make('is_active')
                     ->label('Publicado'),
                 TernaryFilter::make('is_featured')
                     ->label('Em destaque'),
-                SelectFilter::make('city')
-                    ->label('Concelho')
-                    ->options(fn () => Property::query()->whereNotNull('city')->distinct()->orderBy('city')->pluck('city', 'city')->all()),
+                TernaryFilter::make('keys')
+                    ->label('Com chaves')
+                    ->queries(
+                        true: fn ($query) => $query->whereRaw("(admin->'keys'->>'has')::boolean is true"),
+                        false: fn ($query) => $query->whereRaw("COALESCE((admin->'keys'->>'has')::boolean, false) is false"),
+                        blank: fn ($query) => $query,
+                    ),
             ])
             ->recordActions([
                 EditAction::make(),
