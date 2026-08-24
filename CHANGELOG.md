@@ -9,6 +9,35 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Listas confirmadas com os menus do CRM
+
+$${\color{#6B7248}\textsf{2026-08-24 · 15:41}}$$
+
+**Commit:** `1617944` — `Backoffice: listas confirmadas com os menus do CRM`
+
+O cliente abriu os menus que estavam cortados nos prints anteriores. As listas que tinham
+sido preenchidas por suposição passam a ser as verdadeiras:
+
+| Campo | Antes (suposição) | Agora (CRM) |
+|---|---|---|
+| **Motivo** (Geral › Estado) | lista de opções | **campo de texto livre** |
+| **Orientação** (Detalhes › Geral) | pontos cardeais | **Exterior · Interior** |
+| **Ocupação Atual** | Vazia · Habitada pelo proprietário · Arrendada | **Ocupado · Livre · Propriedade Nua · Arrendado · Ocupação Ilegal** |
+| **Tipo de encargo** (Interna) | + Usufruto, Outro | **Nenhum · Hipoteca · Penhora** |
+
+A **Orientação** era o engano com mais consequência: não é a orientação solar (essa
+mantém-se em campo próprio, com Norte/Sul/Este/Oeste), mas sim se o imóvel é *exterior* ou
+*interior* — coisa diferente, que teria dado dados errados nas fichas.
+
+Confirmado também que ficam como estão: os **tipos de propriedade**, as **tipologias**
+(T0–T10) e os **tipos de evento** da agenda.
+
+Continua por confirmar: as **categorias de documentos** (Media › Documentos).
+
+170 testes a passar, Pint limpo.
+
+---
+
 ## Separador "Localização" como no CRM, com mapa
 
 $${\color{#6B7248}\textsf{2026-08-24 · 15:04}}$$
