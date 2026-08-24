@@ -365,8 +365,8 @@ it('as comodidades do Detalhes caem no array features e os campos com valor em d
             'details' => [
                 'floors' => 2,
                 'solar_orientation' => ['Sul', 'Oeste'],
-                'orientation' => 'Sudoeste',
-                'occupancy' => 'Vazia',
+                'orientation' => 'Exterior',
+                'occupancy' => 'Livre',
                 'renovation_year' => 2021,
             ],
         ])
@@ -378,7 +378,8 @@ it('as comodidades do Detalhes caem no array features e os campos com valor em d
     expect($p->features)->toBe(['terraço', 'garagem', 'vista mar', 'vista jardim', 'licença turística', 'mobilado', 'painéis solares'])
         ->and($p->details['floors'])->toBe(2)
         ->and($p->details['solar_orientation'])->toBe(['Sul', 'Oeste'])
-        ->and($p->details['occupancy'])->toBe('Vazia');
+        ->and($p->details['orientation'])->toBe('Exterior')
+        ->and($p->details['occupancy'])->toBe('Livre');
 
     // As comodidades continuam a alimentar o filtro do site (índice GIN).
     expect(Property::query()->withFeatures(['vista mar'])->count())->toBe(1);

@@ -65,17 +65,6 @@ class PropertyForm
     /** Estado interno da angariação ("Actual" no CRM). Não publica nem retira do site. */
     private const STATUSES = ['Ativa', 'Inativa'];
 
-    /** Motivos do estado — por confirmar com a lista do CRM. */
-    private const STATUS_REASONS = [
-        'Angariação terminada',
-        'Contrato terminado',
-        'Em avaliação',
-        'Proprietário desistiu',
-        'Retirada pelo proprietário',
-        'Vendida por terceiros',
-        'Outro',
-    ];
-
     /**
      * Junta as opções sugeridas aos valores que já existem na base de dados
      * (importações do antigo CRM podem trazer variantes: "usado", "B-").
@@ -166,10 +155,9 @@ class PropertyForm
                         })
                         ->helperText('"Inativa" retira a ficha do site.')
                         ->columnSpan(['default' => 12, 'md' => 2]),
-                    Select::make('status_reason')
+                    TextInput::make('status_reason')
                         ->label('Motivo')
-                        ->options(fn () => self::optionsWithExisting('status_reason', self::STATUS_REASONS))
-                        ->native(false)
+                        ->maxLength(191)
                         ->columnSpan(['default' => 12, 'md' => 7]),
                     Checkbox::make('is_sold')
                         ->label('Vendida')
@@ -495,7 +483,7 @@ class PropertyForm
                     ->components([
                         Select::make('admin.charge.type')
                             ->label('Tipo')
-                            ->options(self::list(['Nenhum', 'Hipoteca', 'Penhora', 'Usufruto', 'Outro']))
+                            ->options(self::list(['Nenhum', 'Hipoteca', 'Penhora']))
                             ->default('Nenhum')
                             ->native(false)
                             ->columnSpan(3),
@@ -872,13 +860,13 @@ class PropertyForm
 
                         Select::make('details.orientation')
                             ->label('Orientação')
-                            ->options(self::list(['Norte', 'Sul', 'Este', 'Oeste', 'Nordeste', 'Noroeste', 'Sudeste', 'Sudoeste']))
+                            ->options(self::list(['Exterior', 'Interior']))
                             ->placeholder('-')
                             ->native(false)
                             ->columnSpan(['default' => 12, 'md' => 4]),
                         Select::make('details.occupancy')
                             ->label('Ocupação Atual')
-                            ->options(self::list(['Vazia', 'Habitada pelo proprietário', 'Arrendada']))
+                            ->options(self::list(['Ocupado', 'Livre', 'Propriedade Nua', 'Arrendado', 'Ocupação Ilegal']))
                             ->placeholder('-')
                             ->native(false)
                             ->columnSpan(['default' => 12, 'md' => 4]),
