@@ -9,6 +9,37 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Calendário num ecrã só, com os tipos de evento do CRM
+
+$${\color{#6B7248}\textsf{2026-08-24 · 13:03}}$$
+
+**Commit:** `b909e70` — `Calendário: mês inteiro num ecrã e os doze tipos de evento do CRM`
+
+### Sem deslocamento
+A coluna lateral desapareceu: os **filtros** (utilizador, tipo, concluídos) passaram para
+a **barra do topo**, ao lado da navegação e das vistas, e a **legenda** para o rodapé. As
+células ficaram mais compactas (2 eventos por dia na vista mensal; "+N mais" abre o dia).
+O mês inteiro passa a caber num ecrã normal sem dar scroll.
+
+### Os doze tipos do CRM
+A agenda tinha cinco tipos; passa a ter os do CRM, pela mesma ordem do menu:
+
+Telefonema · Visita a imóvel · Email · Escritura · Reunião · Tarefa · Lembrete ·
+Outros · Chegadas · **CPCV** · Dia de serviço · Oferta
+
+Cada um com rótulo, ícone e **cor própria** — no calendário, na legenda, na agenda da
+dashboard e nos formulários. A restrição CHECK da tabela `events` foi alargada por
+migração para os aceitar todos.
+
+### Nota técnica
+As cores passaram a vir de `EventType::hex()` como estilo inline, uma por tipo — deixou de
+haver classes Tailwind espalhadas pela view, e novas cores não dependem da recompilação
+do CSS.
+
+Teste novo (162 a passar): os doze tipos existem e passam na restrição da base de dados.
+
+---
+
 ## Barra lateral recolhível e sino de notificações
 
 $${\color{#6B7248}\textsf{2026-08-24 · 12:55}}$$
