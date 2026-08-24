@@ -7,7 +7,7 @@
     {{-- Cabeçalho da secção + barra de pesquisa: título curto, resultado, ordenação --}}
     <div class="flex flex-col gap-6 border-b border-sand-200 pb-8 lg:flex-row lg:items-end lg:justify-between">
         <div>
-            <p class="label">{{ $businessTypeEnum->label() }}</p>
+            <p class="label">{{ $businessTypeEnum === \App\Enums\BusinessType::Sale ? __('ui.listing.buy_eyebrow') : __('ui.listing.rent_eyebrow') }}</p>
             <h1 class="mt-3 text-4xl sm:text-5xl">{{ $businessTypeEnum === \App\Enums\BusinessType::Sale ? __('ui.listing.buy_title') : __('ui.listing.rent_title') }}</h1>
             <p class="mt-3 text-sm text-ink-muted" aria-live="polite">{{ trans_choice('ui.listing.results', $results->total(), ['count' => number_format($results->total(), 0, ',', ' ')]) }}</p>
         </div>

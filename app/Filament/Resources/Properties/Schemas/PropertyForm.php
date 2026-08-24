@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Properties\Schemas;
 
+use App\Enums\BusinessType;
 use App\Models\Property;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
@@ -28,6 +29,24 @@ class PropertyForm
 {
     /** Classes energéticas oficiais (SCE). */
     private const ENERGY_CLASSES = ['A+', 'A', 'B', 'B-', 'C', 'D', 'E', 'F', 'Isento'];
+
+    /* As três listas seguintes são as do CRM da CASAFARI, pela mesma ordem, para
+       a equipa não ter de reaprender nada ao mudar de sistema. */
+
+    /** Estado de conservação. */
+    private const CONDITIONS = ['Em construção', 'Não aplicável', 'Novo', 'Projecto', 'Ruína', 'Usado'];
+
+    /** Tipo de propriedade. */
+    private const PROPERTY_TYPES = [
+        'Apartamento', 'Casa de campo', 'Chalet', 'Empreendimento', 'Loja / comércio',
+        'Moradia', 'Moradia em Banda', 'Penthouse', 'Prédio', 'Quinta', 'Ruína',
+        'Terreno', 'Terreno rústico', 'Terreno urbano',
+    ];
+
+    /** Tipologia (T0 a T10, como no CRM). */
+    private const TYPOLOGIES = [
+        'Não aplicável', 'T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10',
+    ];
 
     /**
      * Junta as opções sugeridas aos valores que já existem na base de dados
@@ -115,22 +134,25 @@ class PropertyForm
                         ->helperText('Nunca aparece no site.'),
                     Select::make('property_condition')
                         ->label('Conservação')
-                        ->options(fn () => self::optionsWithExisting('property_condition', ['Novo', 'Como novo', 'Renovado', 'Usado', 'Para recuperar', 'Em construção', 'Não aplicável']))
+                        ->options(fn () => self::optionsWithExisting('property_condition', self::CONDITIONS))
                         ->native(false),
                     Select::make('business_type')
                         ->label('Tipo de negócio')
-                        ->options(['sale' => 'Venda', 'rent' => 'Arrendamento'])
+                        ->options(BusinessType::options())
+                        ->default(BusinessType::Sale->value)
                         ->required()
-                        ->native(false),
+                        ->native(false)
+                        ->helperText('Trespasse e permuta aparecem em Comprar; "arrendamento / venda" aparece nas duas listagens.'),
                     Select::make('property_type')
                         ->label('Tipo de propriedade')
-                        ->options(fn () => self::optionsWithExisting('property_type', ['Apartamento', 'Moradia', 'Terreno', 'Loja', 'Escritório', 'Armazém', 'Quinta', 'Prédio', 'Garagem']))
+                        ->options(fn () => self::optionsWithExisting('property_type', self::PROPERTY_TYPES))
                         ->searchable()
                         ->required()
                         ->native(false),
                     Select::make('typology')
                         ->label('Tipologia')
-                        ->options(fn () => self::optionsWithExisting('typology', ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6+', 'Não aplicável']))
+                        ->options(fn () => self::optionsWithExisting('typology', self::TYPOLOGIES))
+                        ->searchable()
                         ->native(false),
                     TextInput::make('bedrooms')
                         ->label('Quarto(s)')

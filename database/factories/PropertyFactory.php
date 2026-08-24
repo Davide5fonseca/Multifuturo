@@ -32,7 +32,7 @@ class PropertyFactory extends Factory
             'currency' => 'EUR',
             'business_type' => BusinessType::Sale,
             'property_type' => $type,
-            'property_condition' => fake()->randomElement(['Novo', 'Usado', 'Renovado']),
+            'property_condition' => fake()->randomElement(['Novo', 'Usado', 'Em construção']),
             'bedrooms' => fake()->numberBetween(0, 5),
             'bathrooms' => fake()->numberBetween(1, 4),
             'house_area' => fake()->numberBetween(40, 400),

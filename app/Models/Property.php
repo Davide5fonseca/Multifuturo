@@ -162,13 +162,13 @@ class Property extends Model
     /** @param  Builder<Property>  $query */
     public function scopeForSale(Builder $query): Builder
     {
-        return $query->where('business_type', BusinessType::Sale);
+        return $query->whereIn('business_type', BusinessType::forListing('buy'));
     }
 
     /** @param  Builder<Property>  $query */
     public function scopeForRent(Builder $query): Builder
     {
-        return $query->where('business_type', BusinessType::Rent);
+        return $query->whereIn('business_type', BusinessType::forListing('rent'));
     }
 
     /** @param  Builder<Property>  $query */

@@ -126,7 +126,7 @@ it('gravar no backoffice invalida a cache do site', function () {
         ->fillForm([
             'reference' => 'MF-3005',
             'business_type' => 'sale',
-            'property_type' => 'Loja',
+            'property_type' => 'Loja / comércio',
             'translations' => ['pt' => ['title' => 'Loja nova']],
             'city' => 'Lisboa',
             'energy_rating' => 'D',

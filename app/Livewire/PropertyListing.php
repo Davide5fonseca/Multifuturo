@@ -118,10 +118,22 @@ class PropertyListing extends Component
         return ltrim($value, '0');
     }
 
+    /**
+     * Finalidades que entram nesta listagem. /comprar mostra venda, trespasse e
+     * permuta; /arrendar mostra arrendamento ao ano e de curto prazo; o
+     * "arrendamento / venda" aparece nas duas.
+     *
+     * @return array<int, string>
+     */
+    private function businessTypes(): array
+    {
+        return BusinessType::forListing(BusinessType::from($this->businessType)->routeName());
+    }
+
     /** @return Builder<Property> */
     private function query(): Builder
     {
-        $q = Property::query()->active()->where('business_type', $this->businessType);
+        $q = Property::query()->active()->whereIn('business_type', $this->businessTypes());
 
         if ($this->search !== '') {
             $term = '%'.str_replace(['%', '_'], ['\%', '\_'], mb_strtolower($this->search)).'%';
@@ -191,7 +203,7 @@ class PropertyListing extends Component
     public function options(): array
     {
         $base = PropertyCache::remember('options:'.$this->businessType, function () {
-            $active = Property::query()->active()->where('business_type', $this->businessType);
+            $active = Property::query()->active()->whereIn('business_type', $this->businessTypes());
 
             $features = collect((clone $active)->pluck('features'))->flatten()->filter()->countBy()->sortDesc()->keys()->take(20)->values()->all();
 
@@ -204,7 +216,7 @@ class PropertyListing extends Component
         });
 
         $base['localities'] = $this->city === '' ? [] : PropertyCache::remember('localities:'.$this->businessType.':'.mb_strtolower($this->city), fn () => Property::query()->active()
-            ->where('business_type', $this->businessType)
+            ->whereIn('business_type', $this->businessTypes())
             ->whereRaw('LOWER(city) = ?', [mb_strtolower($this->city)])
             ->whereNotNull('locality')->distinct()->orderBy('locality')->pluck('locality')->all());
 

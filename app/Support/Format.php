@@ -30,7 +30,7 @@ final class Format
 
         $out = "{$formatted}\u{00A0}{$symbol}";
 
-        if ($businessType === BusinessType::Rent) {
+        if ($businessType?->isRent()) {
             $out .= __('ui.property.per_month');
         }
 

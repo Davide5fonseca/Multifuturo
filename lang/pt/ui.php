@@ -98,10 +98,16 @@ return [
 
     'business' => [
         'sale' => 'Venda',
-        'rent' => 'Arrendamento',
+        'rent' => 'Arrendamento ao ano',
+        'transfer' => 'Trespasse',
+        'exchange' => 'Permuta',
+        'rent_short' => 'Arrendamento curto prazo / férias',
+        'rent_sale' => 'Arrendamento / venda',
     ],
 
     'listing' => [
+        'buy_eyebrow' => 'Venda',
+        'rent_eyebrow' => 'Arrendamento',
         'buy_title' => 'Imóveis para comprar',
         'rent_title' => 'Imóveis para arrendar',
         'buy_description' => 'Apartamentos, moradias, terrenos e imóveis comerciais para venda, com filtros por tipologia, preço e localização.',

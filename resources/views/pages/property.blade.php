@@ -32,7 +32,7 @@
             <ol class="flex flex-wrap gap-2">
                 <li><a href="{{ route('home') }}" class="hover:text-ink">Início</a></li>
                 <li aria-hidden="true">/</li>
-                <li><a href="{{ route($p->business_type->routeName()) }}" class="hover:text-ink">{{ $p->business_type === \App\Enums\BusinessType::Sale ? __('ui.nav.buy') : __('ui.nav.rent') }}</a></li>
+                <li><a href="{{ route($p->business_type->routeName()) }}" class="hover:text-ink">{{ $p->business_type->routeName() === 'buy' ? __('ui.nav.buy') : __('ui.nav.rent') }}</a></li>
                 @if ($p->city)
                     <li aria-hidden="true">/</li>
                     <li><a href="{{ route('zones.city', \Illuminate\Support\Str::slug($p->city)) }}" class="hover:text-ink">{{ $p->city }}</a></li>
