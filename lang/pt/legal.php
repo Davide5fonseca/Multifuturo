@@ -52,8 +52,8 @@ return [
             [
                 'title' => '4. Com quem partilhamos os dados',
                 'paragraphs' => [
-                    'Os pedidos que nos envia são registados no sistema de gestão da agência (CRM), fornecido pela CASAFARI, que atua como subcontratante e trata os dados exclusivamente por nossa conta e segundo as nossas instruções.',
-                    'Recorremos ainda a prestadores de alojamento e de envio de email, igualmente vinculados por contrato à confidencialidade e segurança dos dados.',
+                    'Os pedidos que nos envia são registados no sistema de gestão da própria agência, alojado por nossa conta. Não são partilhados com nenhuma plataforma de terceiros.',
+                    'Recorremos a prestadores de alojamento do site e de envio de email, que atuam como subcontratantes: tratam os dados exclusivamente por nossa conta e segundo as nossas instruções, e estão vinculados por contrato à confidencialidade e segurança dos dados.',
                     'Não vendemos nem cedemos os seus dados a terceiros para fins próprios destes. Não são realizadas transferências para fora do Espaço Económico Europeu sem as garantias exigidas pelo RGPD.',
                 ],
             ],

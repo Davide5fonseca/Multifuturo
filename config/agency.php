@@ -36,7 +36,7 @@ return [
 
     // Versão da política de privacidade em vigor. Gravada em cada lead (RGPD: prova do texto apresentado).
     // Atualizar sempre que o texto da política mudar.
-    'privacy_policy_version' => env('AGENCY_PRIVACY_POLICY_VERSION', '2026-08-18'),
+    'privacy_policy_version' => env('AGENCY_PRIVACY_POLICY_VERSION', '2026-08-24'),
 
     // Fotografia do hero da homepage (URL local, ex.: /images/hero.jpg). Sem valor, usa a capa do primeiro destaque.
     'hero_image' => env('AGENCY_HERO_IMAGE'),

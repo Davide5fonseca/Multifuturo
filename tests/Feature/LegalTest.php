@@ -92,3 +92,18 @@ it('trans_replace substitui placeholders longos antes dos curtos e usa travessã
     expect(trans_replace('A :name em :address (:a) — :email', ['name' => 'X', 'address' => 'Rua Y', 'a' => 'z', 'email' => null]))
         ->toBe('A X em Rua Y (z) — —');
 });
+
+it('a política de privacidade já não menciona o CRM da CASAFARI', function () {
+    $this->get(route('privacy'))->assertOk()
+        ->assertDontSee('CASAFARI')
+        ->assertSee('sistema de gestão da própria agência')
+        ->assertSee('Não são partilhados com nenhuma plataforma de terceiros.');
+});
+
+it('a versão da política acompanha a alteração do texto', function () {
+    // Cada lead grava a versão que lhe foi mostrada: mudar o texto sem mudar a
+    // versão faria os consentimentos antigos parecerem dados sob o texto novo.
+    expect(config('agency.privacy_policy_version'))->toBe('2026-08-24');
+
+    $this->get(route('privacy'))->assertOk()->assertSee('2026-08-24');
+});
