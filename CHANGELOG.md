@@ -9,6 +9,30 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Secção "Anúncio" removida do separador Detalhes
+
+$${\color{#6B7248}\textsf{2026-08-24 · 14:52}}$$
+
+**Commit:** `8d8bd01` — `Backoffice: remover a secção Anúncio do separador Detalhes`
+
+A secção aparecia por baixo dos três sub-separadores (Geral, Interior, Exterior) e foi
+**eliminada** a pedido do cliente — no CRM estes textos vivem no separador "Descrições",
+que ainda não vai ser trabalhado.
+
+### O que se fez para o site não ficar sem nome nas fichas
+O título e a descrição são o que aparece nas listagens, na ficha, no `<title>` da página e
+nas partilhas. Sem campo nenhum, as fichas novas ficavam sem nome. Por isso:
+
+- o **título passa a ser gerado na criação**, a partir do tipo, tipologia e concelho —
+  *"Moradia T3 em Espinho"*; sem tipologia, *"Moradia em Cascais"*;
+- **títulos e descrições já escritos nunca são substituídos nem apagados** ao editar —
+  ficam intactos à espera do separador "Descrições";
+- a descrição fica vazia nas fichas novas até esse separador existir.
+
+Dois testes novos cobrem a geração e a preservação; **167 a passar**, Pint limpo.
+
+---
+
 ## Detalhes: Interior e Exterior preenchidos, "Dados internos" removido
 
 $${\color{#6B7248}\textsf{2026-08-24 · 14:43}}$$
