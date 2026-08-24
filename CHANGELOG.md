@@ -9,6 +9,42 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Separador "Localização" como no CRM, com mapa
+
+$${\color{#6B7248}\textsf{2026-08-24 · 15:04}}$$
+
+**Commit:** `6e83ef7` — `Backoffice: separador Localização como no CRM, com mapa`
+
+### Campos
+Pela ordem do print: **País** e **Distrito** · **Concelho** e **Freguesia** · **Zona** e
+**Código postal** · **Número** · **Morada** (caixa de texto a toda a largura).
+O País passou a lista; Distrito, Concelho, Freguesia e Zona **sugerem os valores já
+usados** noutras fichas, sem impedir escrever um novo.
+
+### Mapa
+A secção **Localização no mapa** tem a caixa **Visível**, o botão
+**"Pesquisar com os parâmetros de localização definidos"**, o mapa, e a latitude e
+longitude por baixo.
+
+- **Leaflet + OpenStreetMap** — sem chave de API e sem custo, ao contrário do Google Maps.
+- **Clicar no mapa ou arrastar o marcador** escreve as coordenadas nos campos.
+- O botão de pesquisa usa o **Nominatim** (o geocodificador do OpenStreetMap) para achar
+  as coordenadas a partir da morada; se não encontrar, avisa e não inventa nada.
+- O Leaflet é servido do **nosso storage** (`public/vendor/leaflet`), não de um CDN, e só
+  carrega nas páginas de criar/editar imóvel. Só os quadrados do mapa é que vêm do
+  openstreetmap.org.
+
+### Privacidade — inalterada
+Com **"Visível" desligado**, as coordenadas continuam a **nunca sair do servidor**: não
+vão no HTML da ficha nem no JSON-LD. O mapa do backoffice mostra-as à equipa, que é quem
+as escreve; o compromisso com o proprietário mantém-se. Há um teste a garanti-lo.
+
+Ao geocodificar é enviada **apenas a morada do imóvel** — nunca dados de clientes.
+
+Três testes novos, **170 a passar**, Pint limpo.
+
+---
+
 ## Secção "Anúncio" removida do separador Detalhes
 
 $${\color{#6B7248}\textsf{2026-08-24 · 14:52}}$$
