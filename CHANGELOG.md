@@ -9,6 +9,37 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Cabeçalho da ficha como no CRM
+
+$${\color{#6B7248}\textsf{2026-08-24 · 12:39}}$$
+
+**Commit:** `5011e38` — `Backoffice: cabeçalho da ficha como no CRM — Ver, Ações, Gravar e Sair`
+
+A ficha de edição passa a ter o cabeçalho dos prints: o **título é a referência** do
+imóvel (com o ID por baixo) e, à direita, os quatro controlos do CRM.
+
+| Controlo | O que faz |
+|---|---|
+| **Ver ▾** | *Ver no website* abre a ficha pública em separador novo; desativa-se quando a ficha não está no site (vendida, inativa, retirada) |
+| **Ações ▾** | *Partilhar* copia a ligação pública e confirma com notificação · *Imprimir* imprime a página · *Apagar propriedade* |
+| **Gravar** | grava a ficha sem sair — e ganhou o atalho **Ctrl+S** |
+| **Sair** | volta à lista de imóveis |
+
+### O que ficou desativado de propósito
+No menu *Ver*, **Smartview** e **Portais** aparecem como no CRM mas **desativados, com
+nota**: são serviços da CASAFARI (visita inteligente e publicação nos portais) que não
+existem neste backoffice. Preferiu-se mostrá-los desativados a escondê-los, para a equipa
+perceber que a funcionalidade não se perdeu por engano.
+
+O botão **"Análise de preço" (CASAFARI AI)** dos prints não foi reproduzido — é o motor
+de avaliação da CASAFARI, sem equivalente aqui.
+
+Três testes novos, **158 a passar**: as acções existem e os serviços do CRM ficam
+desativados; numa ficha fora do site o Ver/Partilhar desativam-se; o Gravar do cabeçalho
+grava mesmo.
+
+---
+
 ## Separador "Media" com os sub-separadores do CRM
 
 $${\color{#6B7248}\textsf{2026-08-24 · 12:31}}$$
