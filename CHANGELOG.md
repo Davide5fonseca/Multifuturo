@@ -9,6 +9,26 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Cabeçalho do CRM também na criação
+
+$${\color{#6B7248}\textsf{2026-08-24 · 12:50}}$$
+
+**Commits:** `823d019` + `d09ce79` — cabeçalho completo na página *Criar Imóvel*
+
+O cabeçalho novo tinha ficado só na edição; a pedido do cliente, a criação passa a ter o
+mesmo: **Ver ▾ · Ações ▾ · Gravar · Sair**.
+
+- **Gravar** cria a ficha (com o atalho **Ctrl+S**) e **Sair** volta à lista.
+- **Ver no website**, **Partilhar** e **Apagar propriedade** aparecem desde logo mas
+  **desativados com a nota "Disponível depois de gravar a ficha"** — ainda não há ligação
+  pública para ver ou partilhar, nem ficha para apagar. Desbloqueiam ao gravar.
+- **Imprimir** funciona desde logo; Smartview e Portais continuam desativados com nota
+  (serviços do CRM).
+
+Dois testes novos, **159 a passar**.
+
+---
+
 ## Cabeçalho da ficha como no CRM
 
 $${\color{#6B7248}\textsf{2026-08-24 · 12:39}}$$
