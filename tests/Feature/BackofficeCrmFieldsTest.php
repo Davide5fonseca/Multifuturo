@@ -189,3 +189,34 @@ it('as etiquetas são internas e nunca aparecem no site', function () {
     $this->get(route('property.show', $p))->assertOk()->assertDontSee('Segredo interno');
     $this->get(route('buy'))->assertOk()->assertDontSee('Segredo interno');
 });
+
+it('o estado interno "Actual" e o motivo ficam guardados e não mexem no site', function () {
+    Livewire::test(CreateProperty::class)
+        ->fillForm([
+            'reference' => 'MF-5001',
+            'business_type' => 'sale',
+            'property_type' => 'Apartamento',
+            'city' => 'Espinho',
+            'energy_rating' => 'C',
+            'translations' => ['pt' => ['title' => 'T2 em Espinho']],
+            'admin' => ['status' => 'Inativa', 'monitors' => ['Montra da rua']],
+            'status_reason' => 'Em avaliação',
+            'is_active' => true,
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $p = Property::where('reference', 'MF-5001')->firstOrFail();
+
+    // "Actual" é interno: quem publica ou retira do site é o "Visível no website".
+    expect($p->admin['status'])->toBe('Inativa')
+        ->and($p->admin['monitors'])->toBe(['Montra da rua'])
+        ->and($p->status_reason)->toBe('Em avaliação')
+        ->and($p->isPublishable())->toBeTrue();
+
+    $this->get(route('buy'))->assertOk()->assertSee('MF-5001');
+    $this->get(route('property.show', $p))->assertOk()
+        ->assertDontSee('Inativa')
+        ->assertDontSee('Montra da rua')
+        ->assertDontSee('Em avaliação');
+});

@@ -51,6 +51,20 @@ class PropertyForm
         'Não aplicável', 'T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10',
     ];
 
+    /** Estado interno da angariação ("Actual" no CRM). Não publica nem retira do site. */
+    private const STATUSES = ['Ativa', 'Inativa'];
+
+    /** Motivos do estado — por confirmar com a lista do CRM. */
+    private const STATUS_REASONS = [
+        'Angariação terminada',
+        'Contrato terminado',
+        'Em avaliação',
+        'Proprietário desistiu',
+        'Retirada pelo proprietário',
+        'Vendida por terceiros',
+        'Outro',
+    ];
+
     /**
      * Junta as opções sugeridas aos valores que já existem na base de dados
      * (importações do antigo CRM podem trazer variantes: "usado", "B-").
@@ -78,6 +92,19 @@ class PropertyForm
         return array_combine($values, $values);
     }
 
+    /** Referência seguinte da série MF-####, para a engrenagem do campo Referência. */
+    private static function nextReference(): string
+    {
+        $last = Property::query()
+            ->where('reference', 'like', 'MF-%')
+            ->orderByRaw("NULLIF(regexp_replace(reference, '[^0-9]', '', 'g'), '')::bigint desc nulls last")
+            ->value('reference');
+
+        $number = $last ? ((int) preg_replace('/[^0-9]/', '', $last)) + 1 : 1;
+
+        return 'MF-'.str_pad((string) $number, 4, '0', STR_PAD_LEFT);
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
@@ -100,26 +127,23 @@ class PropertyForm
     {
         return Tab::make('Geral')->schema([
             Section::make('Estado')
-                ->columns(3)
+                ->columns(12)
                 ->components([
-                    Toggle::make('is_active')
-                        ->label('Visível no website')
-                        ->default(true)
-                        ->inline(false),
+                    Select::make('admin.status')
+                        ->label('Actual')
+                        ->options(self::list(self::STATUSES))
+                        ->default('Ativa')
+                        ->native(false)
+                        ->columnSpan(['default' => 12, 'md' => 2]),
+                    Select::make('status_reason')
+                        ->label('Motivo')
+                        ->options(fn () => self::optionsWithExisting('status_reason', self::STATUS_REASONS))
+                        ->native(false)
+                        ->columnSpan(['default' => 12, 'md' => 7]),
                     Checkbox::make('is_sold')
                         ->label('Vendida')
-                        ->helperText('Sai das listagens públicas.'),
-                    Checkbox::make('off_market')
-                        ->label('Fora de mercado')
-                        ->helperText('Angariação suspensa; também sai do site.'),
-                    TextInput::make('status_reason')
-                        ->label('Motivo')
-                        ->maxLength(191)
-                        ->helperText('Porque está inativa/fora de mercado (uso interno).')
-                        ->columnSpan(2),
-                    Toggle::make('is_featured')
-                        ->label('Destaque na homepage')
-                        ->inline(false),
+                        ->helperText('Sai das listagens públicas.')
+                        ->columnSpan(['default' => 12, 'md' => 3]),
                 ]),
 
             Section::make('Geral')
@@ -130,7 +154,14 @@ class PropertyForm
                         ->placeholder('MF-2051')
                         ->required()
                         ->maxLength(64)
-                        ->unique(ignoreRecord: true),
+                        ->unique(ignoreRecord: true)
+                        // A engrenagem do CRM: sugere a referência seguinte da série.
+                        ->suffixAction(
+                            Action::make('gerarReferencia')
+                                ->label('Gerar a referência seguinte')
+                                ->icon('heroicon-m-cog-6-tooth')
+                                ->action(fn (callable $set) => $set('reference', self::nextReference())),
+                        ),
                     TextInput::make('internal_name')
                         ->label('Nome interno')
                         ->maxLength(191)
@@ -140,7 +171,7 @@ class PropertyForm
                         ->options(fn () => self::optionsWithExisting('property_condition', self::CONDITIONS))
                         ->native(false),
                     Select::make('business_type')
-                        ->label('Tipo de negócio')
+                        ->label('Tipo negócio')
                         ->options(BusinessType::options())
                         ->default(BusinessType::Sale->value)
                         ->required()
@@ -161,76 +192,118 @@ class PropertyForm
                         ->label('Quarto(s)')
                         ->numeric()
                         ->minValue(0)
-                        ->maxValue(50),
+                        ->maxValue(50)
+                        ->placeholder('0'),
                     TextInput::make('bathrooms')
                         ->label('Casas de banho')
                         ->numeric()
                         ->minValue(0)
-                        ->maxValue(50),
+                        ->maxValue(50)
+                        ->placeholder('0'),
                     TextInput::make('house_area')
-                        ->label('Área útil (m²)')
+                        ->label('Área útil (m2)')
                         ->numeric()
-                        ->minValue(0),
+                        ->minValue(0)
+                        ->placeholder('0,00'),
                     TextInput::make('plot_area')
-                        ->label('Área terreno (m²)')
+                        ->label('Área terreno (m2)')
                         ->numeric()
-                        ->minValue(0),
+                        ->minValue(0)
+                        ->placeholder('0,00'),
                     TextInput::make('gross_area')
-                        ->label('Área bruta (m²)')
+                        ->label('Área bruta (m2)')
                         ->numeric()
-                        ->minValue(0),
+                        ->minValue(0)
+                        ->placeholder('0,00'),
                 ]),
 
             Section::make('Preço')
-                ->columns(3)
+                ->columns(12)
                 ->components([
                     TextInput::make('price')
                         ->label('Preço')
                         ->numeric()
-                        ->prefix('€')
-                        ->helperText('Arrendamento: valor mensal.'),
+                        ->placeholder('0')
+                        ->helperText('Arrendamento: valor mensal.')
+                        ->columnSpan(['default' => 12, 'md' => 4]),
                     Select::make('currency')
                         ->label('Moeda')
                         ->options(['EUR' => 'EUR (€)', 'USD' => 'USD ($)', 'GBP' => 'GBP (£)'])
                         ->default('EUR')
                         ->required()
-                        ->native(false),
+                        ->native(false)
+                        ->columnSpan(['default' => 12, 'md' => 4]),
                     Checkbox::make('price_visible')
                         ->label('Preço visível')
                         ->default(true)
-                        ->helperText('Desligado: o site mostra "Preço sob consulta".'),
-                ]),
+                        ->helperText('Desligado: o site mostra "Preço sob consulta".')
+                        ->columnSpan(['default' => 12, 'md' => 4]),
 
-            Section::make('Edifício')
-                ->columns(3)
-                ->components([
                     TextInput::make('building_name')
-                        ->label('Prédio / Empreendimento')
-                        ->maxLength(191),
+                        ->label('Prédio \ Empreendimento')
+                        ->maxLength(191)
+                        // Sugere os empreendimentos já registados, sem impedir um novo.
+                        ->datalist(fn () => Property::query()
+                            ->whereNotNull('building_name')
+                            ->distinct()
+                            ->orderBy('building_name')
+                            ->pluck('building_name')
+                            ->all())
+                        ->columnSpan(['default' => 12, 'md' => 6]),
                     TextInput::make('floor_number')
-                        ->label('N.º andar')
-                        ->numeric(),
+                        ->label('Nº andar')
+                        ->numeric()
+                        ->columnSpan(['default' => 12, 'md' => 3]),
                     TextInput::make('build_year')
                         ->label('Ano de construção')
                         ->numeric()
                         ->minValue(1800)
-                        ->maxValue((int) date('Y') + 5),
+                        ->maxValue((int) date('Y') + 5)
+                        ->columnSpan(['default' => 12, 'md' => 3]),
+
+                    Grid::make(['default' => 1, 'sm' => 12])
+                        ->schema([
+                            Checkbox::make('admin.sign.placed')->label('Placa')->inline(false)->columnSpan(1),
+                            DatePicker::make('admin.sign.date')
+                                ->hiddenLabel()
+                                ->displayFormat('d/m/Y')
+                                ->placeholder('DD/MM/YYYY')
+                                ->columnSpan(['default' => 1, 'sm' => 4]),
+                            TextInput::make('admin.sign.notes')
+                                ->hiddenLabel()
+                                ->placeholder('Notas')
+                                ->maxLength(255)
+                                ->columnSpan(['default' => 1, 'sm' => 7]),
+                        ])
+                        ->columnSpanFull(),
+
+                    Checkbox::make('is_exclusive')
+                        ->label('Exclusiva')
+                        ->columnSpanFull(),
+                    Checkbox::make('off_market')
+                        ->label('Propriedade fora de mercado')
+                        ->helperText('Angariação suspensa; também sai do site.')
+                        ->columnSpanFull(),
+                ]),
+
+            Section::make('Visibilidade e destaques')
+                ->columns(1)
+                ->components([
+                    Checkbox::make('is_active')
+                        ->label('Visível no website')
+                        ->default(true)
+                        ->helperText('É este campo que publica ou retira a ficha do site.'),
+                    Checkbox::make('is_featured')
+                        ->label('Destaque'),
+                    TagsInput::make('admin.monitors')
+                        ->label('Monitores')
+                        ->placeholder('Escreva e prima Enter')
+                        ->helperText('Herdado do CRM. Fica registado na ficha, mas não há montras ligadas ao sistema.'),
                 ]),
 
             Section::make('Angariação')
                 ->columns(3)
                 ->components([
-                    Checkbox::make('is_exclusive')
-                        ->label('Exclusiva'),
-                    Checkbox::make('admin.sign.placed')
-                        ->label('Placa colocada'),
-                    DatePicker::make('admin.sign.date')
-                        ->label('Data da placa')
-                        ->displayFormat('d/m/Y'),
-                    TextInput::make('admin.sign.notes')
-                        ->label('Notas da placa')
-                        ->maxLength(255)
-                        ->columnSpan(2),
                     Select::make('broker.name')
                         ->label('Angariador')
                         ->options(fn () => Property::query()
@@ -252,8 +325,6 @@ class PropertyForm
                 ]),
         ]);
     }
-
-    /* -------------------------------------------------------------- Interna */
 
     private static function interna(): Tab
     {
