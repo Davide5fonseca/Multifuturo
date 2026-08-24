@@ -267,3 +267,32 @@ it('mudar o "Actual" fica registado no histórico', function () {
         ->and($registo->detail)->toBe(Property::STATUS_INACTIVE)
         ->and($registo->user_id)->toBe($user->id);
 });
+
+it('os documentos guardam nome, visível, categoria e os campos herdados do CRM', function () {
+    Livewire::test(CreateProperty::class)
+        ->fillForm([
+            'reference' => 'MF-7001',
+            'business_type' => 'sale',
+            'property_type' => 'Apartamento',
+            'city' => 'Espinho',
+            'energy_rating' => 'C',
+            'translations' => ['pt' => ['title' => 'T2 com documentos']],
+            'documents' => [[
+                'file' => ['documentos/caderneta.pdf'],
+                'name' => 'Caderneta predial',
+                'visible' => true,
+                'category' => 'Caderneta predial',
+                'portals' => false,
+                'predefined_reply' => false,
+            ]],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $doc = Property::where('reference', 'MF-7001')->firstOrFail()->documents[0];
+
+    expect($doc['file'])->toBe('documentos/caderneta.pdf')
+        ->and($doc['name'])->toBe('Caderneta predial')
+        ->and($doc['visible'])->toBeTrue()
+        ->and($doc['category'])->toBe('Caderneta predial');
+});

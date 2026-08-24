@@ -8,6 +8,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
@@ -49,6 +50,12 @@ class PropertyForm
     /** Tipologia (T0 a T10, como no CRM). */
     private const TYPOLOGIES = [
         'Não aplicável', 'T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10',
+    ];
+
+    /** Categorias de documentos (separador Media › Documentos). */
+    private const DOCUMENT_CATEGORIES = [
+        'Caderneta predial', 'Certidão permanente', 'Certificado energético',
+        'Licença de utilização', 'Planta', 'Contrato', 'Identificação', 'Outro',
     ];
 
     /** Estado interno da angariação ("Actual" no CRM). Não publica nem retira do site. */
@@ -532,41 +539,78 @@ class PropertyForm
     private static function media(): Tab
     {
         return Tab::make('Media')->schema([
-            Section::make('Fotografias')
-                ->components([
-                    FileUpload::make('photos')
-                        ->label('Fotografias')
-                        ->multiple()
-                        ->image()
-                        ->reorderable()
-                        ->appendFiles()
-                        ->disk('public')
-                        ->directory('imoveis')
-                        ->maxSize(8192)
-                        ->imageEditor()
-                        ->helperText('A primeira é a capa. Arraste para alterar a ordenação.')
-                        ->columnSpanFull(),
-                ]),
+            Tabs::make('MediaTabs')
+                ->contained(false)
+                ->tabs([
+                    Tab::make('Fotos')->schema([
+                        FileUpload::make('photos')
+                            ->hiddenLabel()
+                            ->multiple()
+                            ->image()
+                            ->reorderable()
+                            ->appendFiles()
+                            ->disk('public')
+                            ->directory('imoveis')
+                            ->maxSize(8192)
+                            ->imageEditor()
+                            ->uploadingMessage('A carregar fotos…')
+                            ->helperText('A primeira é a capa. Arraste para alterar a ordenação.')
+                            ->columnSpanFull(),
+                    ]),
 
-            Section::make('Documentos')
-                ->components([
-                    FileUpload::make('documents')
-                        ->label('Documentos')
-                        ->multiple()
-                        ->disk('local')                 // fora de public/: nunca são servidos ao visitante
-                        ->directory('documentos')
-                        ->maxSize(20480)
-                        ->acceptedFileTypes(['application/pdf', 'image/*', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
-                        ->helperText('Uso interno (caderneta, certidão, CE…). Não são publicados no site.')
-                        ->columnSpanFull(),
-                ]),
+                    Tab::make('Documentos')->schema([
+                        Repeater::make('documents')
+                            ->hiddenLabel()
+                            ->addActionLabel('Carregar ficheiros')
+                            ->defaultItems(0)
+                            ->table([
+                                Repeater\TableColumn::make('Ficheiro'),
+                                Repeater\TableColumn::make('Nome'),
+                                Repeater\TableColumn::make('Visível'),
+                                Repeater\TableColumn::make('Categoria'),
+                                Repeater\TableColumn::make('Enviar para os portais'),
+                                Repeater\TableColumn::make('Disponível em resposta predefinida'),
+                            ])
+                            ->schema([
+                                FileUpload::make('file')
+                                    ->hiddenLabel()
+                                    ->disk('local')                 // fora de public/: nunca servidos ao visitante
+                                    ->directory('documentos')
+                                    ->maxSize(20480)
+                                    ->acceptedFileTypes(['application/pdf', 'image/*', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+                                    ->required(),
+                                TextInput::make('name')->hiddenLabel()->maxLength(191)->placeholder('Nome do documento'),
+                                Checkbox::make('visible')->hiddenLabel()->inline(false),
+                                Select::make('category')
+                                    ->hiddenLabel()
+                                    ->options(self::list(self::DOCUMENT_CATEGORIES))
+                                    ->native(false),
+                                Checkbox::make('portals')->hiddenLabel()->inline(false),
+                                Checkbox::make('predefined_reply')->hiddenLabel()->inline(false),
+                            ])
+                            ->helperText('Uso interno — os documentos ficam em disco privado e nunca são publicados no site. "Visível", "portais" e "resposta predefinida" são campos herdados do CRM: ficam registados, mas não há portais nem respostas predefinidas ligados ao sistema.')
+                            ->columnSpanFull(),
+                    ]),
 
-            Section::make('Links e visita virtual')
-                ->columns(3)
-                ->components([
-                    TextInput::make('virtual_tour_url')->label('Visita virtual (URL)')->url()->maxLength(2048),
-                    TextInput::make('video_url')->label('Vídeo (URL)')->url()->maxLength(2048),
-                    TextInput::make('floorplan_url')->label('Planta (URL)')->url()->maxLength(2048),
+                    Tab::make('Links')->schema([
+                        TextInput::make('video_url')->label('Vídeo')->url()->maxLength(2048),
+                        TextInput::make('virtual_tour_url')->label('Visita Virtual / 360º')->url()->maxLength(2048),
+                        TextInput::make('floorplan_url')->label('Planta')->url()->maxLength(2048),
+                    ]),
+
+                    Tab::make('Visita virtual')->schema([
+                        FileUpload::make('admin.photos_360')
+                            ->label('Adicionar foto')
+                            ->multiple()
+                            ->image()
+                            ->reorderable()
+                            ->appendFiles()
+                            ->disk('public')
+                            ->directory('imoveis/360')
+                            ->maxSize(16384)
+                            ->helperText('As fotos em 360º ficam guardadas na ficha. A criação automática da visita era um serviço do CRM; para publicar um tour feito noutra plataforma, use o campo "Visita Virtual / 360º" em Links.')
+                            ->columnSpanFull(),
+                    ]),
                 ]),
         ]);
     }
