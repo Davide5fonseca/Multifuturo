@@ -9,6 +9,30 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Detalhes: Interior e Exterior preenchidos, "Dados internos" removido
+
+$${\color{#6B7248}\textsf{2026-08-24 · 14:43}}$$
+
+**Commits:** `7ee07d8` + `97f0bce` — sub-separadores Interior e Exterior do CRM
+
+- **Interior** — as 20 comodidades do print, pela mesma ordem: Aquecimento, Máquina lavar
+  roupa, Máquina lavar loiça, Ar condicionado, Chão aquecido, Salamandra, Lareira,
+  Aspiração central, Roupeiros, Cozinha equipada, Closet, Chão radiante, Aquecimento
+  central a gás, Cofre, Domótica pré instalação, Alarme pré instalação, Painéis solares
+  pré instalação, Chão flutuante, Termo acumulador, Pré-instalação ar condicionado.
+- **Exterior** — Jardim, Court de Ténis, Jacuzzi, Piscina, e o bloco **Proximidade**
+  (Aeroporto, Serra, Praia, Campo golfe, Zona comercial, Parque infantil, Restaurantes,
+  Cidade, Campo, Hospital, Farmácia, Transportes Públicos, Escolas, Piscinas Públicas).
+- O sub-separador **"Dados internos" foi eliminado**, a pedido do cliente.
+
+Tudo continua a cair no array público de características — os **filtros do site** conhecem
+as novas automaticamente. As proximidades gravam como `proximidade: praia`, para se lerem
+bem na ficha pública e nos filtros.
+
+Teste novo de ida e volta pelos dois sub-separadores; **165 a passar**, Pint limpo.
+
+---
+
 ## Separador "Detalhes › Geral" com a lista completa do CRM
 
 $${\color{#6B7248}\textsf{2026-08-24 · 14:36}}$$
