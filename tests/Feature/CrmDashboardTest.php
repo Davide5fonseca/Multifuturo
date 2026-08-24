@@ -194,3 +194,17 @@ it('o quadro de actualizações mostra a linha de um imóvel apagado', function 
     Livewire::test(PropertyActivitiesWidget::class)
         ->assertCanSeeTableRecords([$apagado]);
 });
+
+it('a agenda aceita os doze tipos de evento do CRM', function () {
+    expect(EventType::cases())->toHaveCount(12)
+        ->and(EventType::Deed->label())->toBe('Escritura')
+        ->and(EventType::Cpcv->label())->toBe('CPCV')
+        ->and(EventType::ServiceDay->label())->toBe('Dia de serviço');
+
+    // Os tipos novos passam na restrição CHECK da base de dados.
+    foreach (['email', 'deed', 'other', 'arrival', 'cpcv', 'service_day', 'offer'] as $type) {
+        $event = Event::factory()->create(['type' => $type]);
+
+        expect($event->fresh()->type->value)->toBe($type);
+    }
+});
