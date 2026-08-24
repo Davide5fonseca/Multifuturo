@@ -36,6 +36,11 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->viteTheme('resources/css/filament/admin/theme.css')
+            // Como no CRM: a barra lateral abre e fecha, e o sino das
+            // notificações avisa dos novos pedidos do site (verifica de 30 em 30 s).
+            ->sidebarCollapsibleOnDesktop()
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->login()
             ->brandName('Multifuturo.')
             ->colors([

@@ -7,7 +7,10 @@ use App\Enums\LeadStatus;
 use App\Http\Requests\StoreLeadRequest;
 use App\Models\Lead;
 use App\Models\Property;
+use App\Models\User;
 use App\Notifications\NewLeadReceived;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification as BackofficeNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Notification;
@@ -54,7 +57,32 @@ class LeadController extends Controller
             Notification::route('mail', $email)->notify(new NewLeadReceived($lead));
         }
 
+        // E no sino do backoffice, para toda a equipa.
+        $this->notifyBackoffice($lead);
+
         return $this->accepted($request);
+    }
+
+    /** Notificação no sino do painel, com ligação directa ao pedido. */
+    private function notifyBackoffice(Lead $lead): void
+    {
+        $title = match ($lead->source->value) {
+            'property' => 'Novo pedido de informação'.($lead->property?->reference ? " — {$lead->property->reference}" : ''),
+            'valuation' => 'Novo pedido de avaliação',
+            default => 'Novo contacto pelo website',
+        };
+
+        BackofficeNotification::make()
+            ->title($title)
+            ->body($lead->name.($lead->phone ? ' · '.$lead->phone : ''))
+            ->icon('heroicon-o-envelope')
+            ->iconColor('primary')
+            ->actions([
+                Action::make('abrir')
+                    ->label('Abrir pedido')
+                    ->url(route('filament.admin.resources.leads.edit', $lead)),
+            ])
+            ->sendToDatabase(User::all());
     }
 
     private function accepted(StoreLeadRequest $request): RedirectResponse|JsonResponse
