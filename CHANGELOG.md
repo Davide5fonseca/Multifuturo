@@ -9,6 +9,46 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Separador "Detalhes › Geral" com a lista completa do CRM
+
+$${\color{#6B7248}\textsf{2026-08-24 · 14:36}}$$
+
+**Commit:** `fd367c4` — `Backoffice: separador Detalhes › Geral com a lista completa do CRM`
+
+O *Detalhes* passa a ter os **sub-separadores do CRM** — Geral · Interior · Exterior ·
+Dados internos (os três últimos à espera dos ecrãs) — e o **Geral** reproduz os 56 campos
+do print, pela mesma ordem:
+
+- **Ano construção** e **Pisos** no topo (o Ano de construção mudou do separador Geral
+  para aqui, como no CRM);
+- ~50 **comodidades** de sim/não (Terraço, Garagem, … Com estacionamento, Mobilado);
+- o bloco **Vista** com as 13 vistas (mar, campo, golfe, montanha, rio, cidade, piscina,
+  vila, urbanização, praia, marina, jardim, lago);
+- **Orientação solar** (Norte/Sul/Este/Oeste), **Orientação** e **Ocupação Atual**;
+- **Ano de renovação**.
+
+### Como ficou guardado (importa para o site)
+- As comodidades caem todas no array público **`features`** — o mesmo que alimenta os
+  **filtros do site** pelo índice GIN. Ou seja: marcar "Vista mar" na ficha faz "vista
+  mar" aparecer automaticamente como filtro em /comprar, sem mais nada.
+- Os grupos de caixas existem **só no formulário**, para reproduzir a disposição do CRM;
+  ao gravar fundem-se, ao editar dividem-se outra vez (com teste de ida e volta).
+- O que não pertencer a nenhum grupo — importações antigas, valores livres — aparece em
+  **"Outras características"** e nunca se perde.
+- Os campos com valor (pisos, orientações, ocupação, ano de renovação) vivem na coluna
+  jsonb nova **`details`**.
+- O **título e a descrição do anúncio** mantêm-se no fim do separador: no CRM vivem em
+  "Descrições", que ainda não vai ser trabalhado, e o site não pode ficar sem eles.
+
+### Por confirmar
+As listas de **Orientação** e **Ocupação Atual** (os menus do print estavam fechados) —
+ficaram com valores prováveis: pontos cardeais/colaterais e Vazia · Habitada pelo
+proprietário · Arrendada.
+
+Três testes novos, **164 a passar**, Pint limpo.
+
+---
+
 ## Calendário num ecrã só, com os tipos de evento do CRM
 
 $${\color{#6B7248}\textsf{2026-08-24 · 13:03}}$$
