@@ -4,13 +4,19 @@ namespace App\Filament\Resources\Properties\Pages;
 
 use App\Filament\Resources\Properties\PropertyResource;
 use App\Support\PropertyCache;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Str;
 
 /**
  * Edição de imóvel. O slug NUNCA é recalculado (partiria URLs indexados) e o
  * internal_id não muda.
+ *
+ * Cabeçalho como no CRM: referência + ID, menu "Ver", menu "Ações"
+ * (Partilhar · Imprimir · Apagar propriedade), "Gravar" e "Sair".
  *
  * Fotografias: o componente de upload só gere ficheiros do nosso storage. As
  * imagens externas (importadas do antigo CRM, alojadas no CDN deles) não
@@ -21,10 +27,81 @@ class EditProperty extends EditRecord
 {
     protected static string $resource = PropertyResource::class;
 
+    public function getTitle(): string
+    {
+        return (string) ($this->getRecord()->reference ?: 'Editar imóvel');
+    }
+
+    public function getSubheading(): ?string
+    {
+        return '(ID: '.$this->getRecord()->getKey().')';
+    }
+
     protected function getHeaderActions(): array
     {
+        $record = $this->getRecord();
+        $publishable = $record->isPublishable();
+        $publicUrl = $publishable ? route('property.show', $record) : null;
+
         return [
-            DeleteAction::make()->after(fn () => PropertyCache::flush()),
+            ActionGroup::make([
+                Action::make('verNoWebsite')
+                    ->label('Ver no website')
+                    ->icon('heroicon-m-arrow-top-right-on-square')
+                    ->url($publicUrl, shouldOpenInNewTab: true)
+                    ->disabled(! $publishable)
+                    ->tooltip($publishable ? null : 'A ficha não está publicada no site.'),
+                Action::make('smartview')
+                    ->label('Smartview')
+                    ->disabled()
+                    ->tooltip('Serviço do CRM da CASAFARI — não existe neste backoffice.'),
+                Action::make('portais')
+                    ->label('Portais')
+                    ->disabled()
+                    ->tooltip('Não há portais ligados ao sistema.'),
+            ])
+                ->label('Ver')
+                ->button()
+                ->color('gray'),
+
+            ActionGroup::make([
+                Action::make('partilhar')
+                    ->label('Partilhar')
+                    ->icon('heroicon-m-link')
+                    ->disabled(! $publishable)
+                    ->tooltip($publishable ? 'Copia a ligação pública da ficha.' : 'A ficha não está publicada no site.')
+                    ->extraAttributes($publicUrl ? ['x-on:click' => 'window.navigator.clipboard.writeText('.json_encode($publicUrl, JSON_HEX_APOS | JSON_HEX_QUOT).')'] : [])
+                    ->action(function () use ($publicUrl): void {
+                        if ($publicUrl) {
+                            Notification::make()
+                                ->title('Ligação copiada')
+                                ->body($publicUrl)
+                                ->success()
+                                ->send();
+                        }
+                    }),
+                Action::make('imprimir')
+                    ->label('Imprimir')
+                    ->icon('heroicon-m-printer')
+                    ->extraAttributes(['x-on:click' => 'window.print()']),
+                DeleteAction::make()
+                    ->label('Apagar propriedade')
+                    ->after(fn () => PropertyCache::flush()),
+            ])
+                ->label('Ações')
+                ->button()
+                ->color('gray'),
+
+            Action::make('gravar')
+                ->label('Gravar')
+                ->icon('heroicon-m-check')
+                ->action(fn () => $this->save())
+                ->keyBindings(['mod+s']),
+
+            Action::make('sair')
+                ->label('Sair')
+                ->color('gray')
+                ->url(PropertyResource::getUrl('index')),
         ];
     }
 

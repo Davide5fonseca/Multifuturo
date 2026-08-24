@@ -296,3 +296,37 @@ it('os documentos guardam nome, visível, categoria e os campos herdados do CRM'
         ->and($doc['visible'])->toBeTrue()
         ->and($doc['category'])->toBe('Caderneta predial');
 });
+
+it('a ficha tem o cabeçalho do CRM: Ver, Ações, Gravar e Sair', function () {
+    $p = Property::factory()->create(['reference' => 'MF-8001']);
+
+    $page = Livewire::test(EditProperty::class, ['record' => $p->slug]);
+
+    foreach (['verNoWebsite', 'smartview', 'portais', 'partilhar', 'imprimir', 'delete', 'gravar', 'sair'] as $action) {
+        $page->assertActionExists($action);
+    }
+
+    // Smartview e Portais são serviços do CRM que não existem: ficam desativados.
+    $page->assertActionDisabled('smartview')
+        ->assertActionDisabled('portais')
+        ->assertActionEnabled('verNoWebsite')
+        ->assertActionEnabled('partilhar');
+});
+
+it('numa ficha fora do site, Ver no website e Partilhar ficam desativados', function () {
+    $p = Property::factory()->create(['is_sold' => true]);
+
+    Livewire::test(EditProperty::class, ['record' => $p->slug])
+        ->assertActionDisabled('verNoWebsite')
+        ->assertActionDisabled('partilhar');
+});
+
+it('o botão Gravar do cabeçalho grava mesmo', function () {
+    $p = Property::factory()->create(['internal_name' => 'Antes']);
+
+    Livewire::test(EditProperty::class, ['record' => $p->slug])
+        ->fillForm(['internal_name' => 'Depois'])
+        ->callAction('gravar');
+
+    expect($p->fresh()->internal_name)->toBe('Depois');
+});
