@@ -9,6 +9,46 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Separador "Interna" igual aos prints do CRM
+
+$${\color{#6B7248}\textsf{2026-08-24 · 12:03}}$$
+
+**Commit:** `4375e60` — `Backoffice: separador Interna igual aos prints do CRM`
+
+As secções passam a estar **pela ordem do CRM**, com a mesma disposição de campos:
+
+`Contrato e chaves` → `Certificado energético` → `Finanças` → `Conservatória` →
+`Licença de utilização` → `Licença de construção` → `Comissão` → `Import / Export` →
+`Encargo`
+
+### O que mudou
+- **Chaves** — a caixa de selecção e o campo de notas passam a estar na mesma linha, com
+  as notas a ocupar o resto da largura.
+- **Certificado energético** e **Nível de emissões** — campo de texto com o **selector da
+  classe ao lado**, como no CRM, em vez de dois campos soltos.
+- **Nível de emissões** ganhou o campo de texto que faltava (só tinha o selector).
+- **Finanças** — `Código\Repartição` passa a ser **dois campos** (código e repartição), que
+  era como estava no CRM; antes era um só.
+- **Comissão** — ganhou a **seta do CRM**: calcula o valor em euros a partir da
+  percentagem e do preço do imóvel.
+- **Encargo** deixa de estar agarrado à comissão e fica em secção própria, como nos prints.
+- **Import / Export** — secção nova, com "Bloquear importação" e "Bloquear exportação".
+- **Licença de construção** deixa de abrir fechada.
+- Rótulos e marcadores de data (`DD/MM/YYYY`) iguais aos prints.
+- As **Etiquetas** passaram para o fim do separador, para o topo começar exactamente como
+  no print.
+
+### Duas diferenças propositadas
+- A **classe energética continua obrigatória**. No CRM é opcional, mas é exigida na
+  publicitação (Decreto-Lei n.º 118/2013) e o site precisa dela.
+- Os campos de **Import / Export** ficam registados na ficha, mas hoje **não fazem nada** —
+  não há importação nem exportação automática, os imóveis são geridos no backoffice. Está
+  escrito na própria secção para ninguém contar com o que não existe.
+
+149 testes a passar (o dos dados internos passou a cobrir os campos novos), Pint limpo.
+
+---
+
 ## Lista de imóveis com as colunas do CRM
 
 $${\color{#6B7248}\textsf{2026-08-24 · 11:51}}$$
