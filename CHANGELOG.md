@@ -9,6 +9,41 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Separador "Media" com os sub-separadores do CRM
+
+$${\color{#6B7248}\textsf{2026-08-24 · 12:31}}$$
+
+**Commit:** `101cfe2` — `Backoffice: separador Media com os sub-separadores do CRM`
+
+O *Media* deixa de ser três secções empilhadas e passa a ter os quatro sub-separadores do
+CRM: **Fotos · Documentos · Links · Visita virtual**.
+
+### Fotos
+O upload de sempre: múltiplo, arrastar para ordenar (a primeira é a capa), editor de
+imagem. O "SnapSense" do print é um serviço de IA do CRM — não existe aqui.
+
+### Documentos
+Deixa de ser um upload solto e passa a **tabela com as colunas do CRM**: Ficheiro · Nome ·
+Visível · Categoria · Enviar para os portais · Disponível em resposta predefinida.
+- As categorias: Caderneta predial, Certidão permanente, Certificado energético, Licença
+  de utilização, Planta, Contrato, Identificação, Outro.
+- **Continuam em disco privado**, fora de `public/` — nunca são publicados no site.
+- "Enviar para os portais" e "resposta predefinida" ficam **registados mas inertes**: não
+  há portais nem respostas predefinidas ligados ao sistema (nota no próprio campo).
+
+### Links
+`Vídeo` · `Visita Virtual / 360º` · `Planta`, em coluna, pela ordem do print.
+
+### Visita virtual
+Upload das fotos em 360º (ficam guardadas na ficha). A **criação automática do tour era um
+serviço do CRM** — não é reproduzível aqui; a nota no campo encaminha para o campo de
+Links quando o tour é feito noutra plataforma (Matterport, Kuula, …).
+
+155 testes a passar (novo: os documentos guardam ficheiro, nome, visível e categoria),
+Pint limpo.
+
+---
+
 ## "Actual: Inativa" passa a retirar a ficha do site
 
 $${\color{#6B7248}\textsf{2026-08-24 · 12:20}}$$
