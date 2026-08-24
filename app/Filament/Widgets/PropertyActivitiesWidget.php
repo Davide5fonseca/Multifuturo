@@ -48,6 +48,7 @@ class PropertyActivitiesWidget extends TableWidget
                     ->height(32),
                 TextColumn::make('property.reference')
                     ->label('Referência')
+                    ->placeholder('—')
                     ->url(fn (PropertyActivity $record) => $record->property ? route('filament.admin.resources.properties.edit', $record->property) : null),
                 TextColumn::make('type')
                     ->label('Tipo')

@@ -167,3 +167,30 @@ it('as leads têm pipeline próprio por tipo', function () {
         ->and(LeadStage::forKind(LeadKind::Buyer))->toHaveKeys(['received', 'qualification', 'visit', 'proposal', 'closed', 'lost'])
         ->and(LeadPriority::Urgent->label())->toBe('Urgente');
 });
+
+it('apagar um imóvel não rebenta e deixa registo de quem o apagou', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $p = Property::factory()->create(['reference' => 'REF-APAGAR']);
+    expect(PropertyActivity::count())->toBe(1); // "Nova"
+
+    $p->delete();
+
+    // O histórico do imóvel morre com ele (chave estrangeira em cascata);
+    // fica só a linha da eliminação, sem imóvel e com a referência no detalhe.
+    $registo = PropertyActivity::query()->latest('id')->first();
+
+    expect(PropertyActivity::count())->toBe(1)
+        ->and($registo->type)->toBe('deleted')
+        ->and($registo->property_id)->toBeNull()
+        ->and($registo->user_id)->toBe($user->id)
+        ->and($registo->detail)->toContain('REF-APAGAR');
+});
+
+it('o quadro de actualizações mostra a linha de um imóvel apagado', function () {
+    $apagado = PropertyActivity::create(['type' => 'deleted', 'detail' => 'REF-APAGAR — Moradia']);
+
+    Livewire::test(PropertyActivitiesWidget::class)
+        ->assertCanSeeTableRecords([$apagado]);
+});

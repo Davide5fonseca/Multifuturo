@@ -50,7 +50,15 @@ class PropertyObserver
 
     public function deleted(Property $property): void
     {
-        $this->log($property, 'deleted');
+        // Sem imóvel: a chave estrangeira é em cascata, e a esta altura a linha
+        // do imóvel já não existe. A referência fica no detalhe, para a
+        // dashboard continuar a registar quem apagou a ficha.
+        PropertyActivity::query()->create([
+            'property_id' => null,
+            'user_id' => Auth::id(),
+            'type' => 'deleted',
+            'detail' => trim($property->reference.' — '.($property->title ?? ''), ' —'),
+        ]);
     }
 
     private function log(Property $property, string $type, ?string $detail = null): void
