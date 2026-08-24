@@ -110,6 +110,7 @@ class Property extends Model
             'translations' => 'array',
             'photos' => 'array',
             'features' => 'array',
+            'details' => 'array',
             'broker' => 'array',
             'admin' => 'array',
             'documents' => 'array',

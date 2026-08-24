@@ -350,3 +350,55 @@ it('a criação tem o mesmo cabeçalho, com Ver e Ações à espera da gravaçã
 
     expect(Property::where('reference', 'MF-8100')->exists())->toBeTrue();
 });
+
+it('as comodidades do Detalhes caem no array features e os campos com valor em details', function () {
+    Livewire::test(CreateProperty::class)
+        ->fillForm([
+            'reference' => 'MF-9100',
+            'business_type' => 'sale',
+            'property_type' => 'Moradia',
+            'city' => 'Espinho',
+            'energy_rating' => 'B',
+            'translations' => ['pt' => ['title' => 'Moradia com vista mar']],
+            'det_features_a' => ['terraço', 'garagem'],
+            'det_views' => ['vista mar', 'vista jardim'],
+            'det_features_c' => ['licença turística'],
+            'det_features_e' => ['mobilado'],
+            'det_features_extra' => ['painéis solares'],
+            'details' => [
+                'floors' => 2,
+                'solar_orientation' => ['Sul', 'Oeste'],
+                'orientation' => 'Sudoeste',
+                'occupancy' => 'Vazia',
+                'renovation_year' => 2021,
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $p = Property::where('reference', 'MF-9100')->firstOrFail();
+
+    expect($p->features)->toBe(['terraço', 'garagem', 'vista mar', 'vista jardim', 'licença turística', 'mobilado', 'painéis solares'])
+        ->and($p->details['floors'])->toBe(2)
+        ->and($p->details['solar_orientation'])->toBe(['Sul', 'Oeste'])
+        ->and($p->details['occupancy'])->toBe('Vazia');
+
+    // As comodidades continuam a alimentar o filtro do site (índice GIN).
+    expect(Property::query()->withFeatures(['vista mar'])->count())->toBe(1);
+});
+
+it('editar divide as features pelos grupos e preserva as que não pertencem a nenhum', function () {
+    $p = Property::factory()->create(['features' => ['garagem', 'vista rio', 'cozinha equipada']]);
+
+    Livewire::test(EditProperty::class, ['record' => $p->slug])
+        ->assertFormSet([
+            'det_features_a' => ['garagem'],
+            'det_views' => ['vista rio'],
+            'det_features_extra' => ['cozinha equipada'],
+        ])
+        ->fillForm(['det_features_a' => ['garagem', 'cave']])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($p->fresh()->features)->toContain('garagem', 'cave', 'vista rio', 'cozinha equipada');
+});

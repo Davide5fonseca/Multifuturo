@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Properties\Pages;
 
 use App\Filament\Resources\Properties\PropertyResource;
+use App\Filament\Resources\Properties\Schemas;
 use App\Support\PropertyCache;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -108,6 +109,9 @@ class EditProperty extends EditRecord
     /** @param  array<string, mixed>  $data */
     protected function mutateFormDataBeforeFill(array $data): array
     {
+        // As comodidades guardadas em `features` voltam aos grupos do formulário.
+        $data = [...$data, ...Schemas\PropertyForm::splitDetailFeatures($data['features'] ?? [])];
+
         // Só os uploads locais entram no componente (caminhos relativos ao disco público).
         $data['photos'] = collect($data['photos'] ?? [])
             ->pluck('url')
@@ -122,6 +126,7 @@ class EditProperty extends EditRecord
     /** @param  array<string, mixed>  $data */
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        $data = Schemas\PropertyForm::foldDetailFeatures($data);
         $external = collect($this->getRecord()->photos ?? [])
             ->pluck('url')
             ->reject(fn ($u) => Str::startsWith($u, '/storage/'))

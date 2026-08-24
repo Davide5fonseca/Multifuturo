@@ -6,6 +6,7 @@ use App\Enums\BusinessType;
 use App\Models\Property;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -19,6 +20,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
 
 /**
@@ -269,13 +271,7 @@ class PropertyForm
                     TextInput::make('floor_number')
                         ->label('Nº andar')
                         ->numeric()
-                        ->columnSpan(['default' => 12, 'md' => 3]),
-                    TextInput::make('build_year')
-                        ->label('Ano de construção')
-                        ->numeric()
-                        ->minValue(1800)
-                        ->maxValue((int) date('Y') + 5)
-                        ->columnSpan(['default' => 12, 'md' => 3]),
+                        ->columnSpan(['default' => 12, 'md' => 6]),
 
                     Grid::make(['default' => 1, 'sm' => 12])
                         ->schema([
@@ -617,10 +613,203 @@ class PropertyForm
 
     /* ------------------------------------------------------------- Detalhes */
 
+    /**
+     * Comodidades do separador Detalhes › Geral, pela ordem do CRM. Todas vivem
+     * no array público `features` (filtros do site via índice GIN); os grupos
+     * existem só para o formulário reproduzir a disposição do CRM.
+     *
+     * @var array<string, array<string, string>>
+     */
+    public const DETAIL_FEATURE_GROUPS = [
+        'det_features_a' => [
+            'terraço' => 'Terraço', 'garagem' => 'Garagem', 'lavandaria' => 'Lavandaria',
+            'condomínio fechado' => 'Condomínio fechado', 'adega' => 'Adega', 'cave' => 'Cave',
+            'arrecadação' => 'Arrecadação',
+        ],
+        'det_views' => [
+            'vista mar' => 'Vista mar', 'vista campo' => 'Vista campo', 'vista golfe' => 'Vista golfe',
+            'vista montanha' => 'Vista montanha', 'vista rio' => 'Vista rio', 'vista cidade' => 'Vista cidade',
+            'vista piscina' => 'Vista piscina', 'vista vila' => 'Vista vila',
+            'vista urbanização' => 'Vista urbanização', 'vista praia' => 'Vista praia',
+            'vista marina' => 'Vista marina', 'vista jardim' => 'Vista jardim', 'vista lago' => 'Vista lago',
+        ],
+        'det_features_b' => [
+            'propriedade em primeira linha' => 'Propriedade em primeira linha',
+            'video porteiro' => 'Video porteiro', 'alarme' => 'Alarme', 'elevador' => 'Elevador',
+            'anexo para visitas' => 'Anexo para visitas', 'vidros duplos' => 'Vidros duplos',
+            'estores eléctricos' => 'Estores eléctricos',
+            'portão de garagem eléctrico' => 'Portão de garagem eléctrico', 'barbecue' => 'Barbecue',
+            'terreno vedado' => 'Terreno vedado', 'domótica' => 'Domótica',
+            'porta de segurança' => 'Porta de segurança', 'vistas panorâmicas' => 'Vistas panorâmicas',
+        ],
+        'det_features_c' => [
+            'ginásio' => 'Ginásio', 'sistema som central' => 'Sistema som central',
+            'localização central' => 'Localização central', 'aquecedor a gás' => 'Aquecedor a gás',
+            'sotão' => 'Sotão', 'localização sossegada' => 'Localização sossegada',
+            'marquise' => 'Marquise', 'kitchenette' => 'Kitchenette', 'cavalariças' => 'Cavalariças',
+            'picadeiro' => 'Picadeiro', 'rega automática' => 'Rega automática', 'despensa' => 'Despensa',
+            'forno de lenha' => 'Forno de lenha', 'cisterna' => 'Cisterna', 'furo' => 'Furo',
+            'fossa' => 'Fossa', 'esgotos municipais' => 'Esgotos municipais',
+            'curta distância a pé da praia' => 'Curta distância a pé da praia', 'varanda' => 'Varanda',
+            'água da rede' => 'Água da rede', 'licença turística' => 'Licença turística',
+        ],
+        'det_features_d' => [
+            'área de estacionamento' => 'Área de estacionamento', 'poço' => 'Poço',
+            'aquecimento solar' => 'Aquecimento solar',
+            'lareira com recuperador de calor' => 'Lareira com recuperador de calor',
+            'sistema de irrigação' => 'Sistema de irrigação',
+            'banheira de hidromassagem' => 'Banheira de Hidromassagem',
+        ],
+        'det_features_e' => [
+            'com estacionamento' => 'Com estacionamento', 'mobilado' => 'Mobilado',
+        ],
+    ];
+
+    /**
+     * Junta os grupos do formulário (e as características livres) no array
+     * `features` que o site conhece, e retira os campos transitórios.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    public static function foldDetailFeatures(array $data): array
+    {
+        // Um 'features' já vindo nos dados (importações, testes) mantém-se à frente.
+        $features = $data['features'] ?? [];
+        foreach (array_keys(self::DETAIL_FEATURE_GROUPS) as $group) {
+            $features = [...$features, ...($data[$group] ?? [])];
+            unset($data[$group]);
+        }
+        $features = [...$features, ...($data['det_features_extra'] ?? [])];
+        unset($data['det_features_extra']);
+
+        $data['features'] = array_values(array_unique($features));
+
+        return $data;
+    }
+
+    /**
+     * O inverso: divide o `features` guardado pelos grupos do formulário; o que
+     * não pertencer a nenhum (importações, valores antigos) vai para as
+     * características livres, para nada se perder ao gravar.
+     *
+     * @param  array<int, string>|null  $features
+     * @return array<string, array<int, string>>
+     */
+    public static function splitDetailFeatures(?array $features): array
+    {
+        $features = $features ?? [];
+        $state = [];
+        foreach (self::DETAIL_FEATURE_GROUPS as $group => $options) {
+            $state[$group] = array_values(array_intersect($features, array_keys($options)));
+        }
+        $known = array_merge(...array_map(array_keys(...), array_values(self::DETAIL_FEATURE_GROUPS)));
+        $state['det_features_extra'] = array_values(array_diff($features, $known));
+
+        return $state;
+    }
+
     private static function detalhes(): Tab
     {
         return Tab::make('Detalhes')->schema([
+            Tabs::make('DetalhesTabs')
+                ->contained(false)
+                ->tabs([
+                    Tab::make('Geral')->schema([
+                        TextInput::make('build_year')
+                            ->label('Ano construção')
+                            ->numeric()
+                            ->minValue(1800)
+                            ->maxValue((int) date('Y') + 5)
+                            ->columnSpan(['default' => 12, 'md' => 3]),
+                        TextInput::make('details.floors')
+                            ->label('Pisos')
+                            ->numeric()
+                            ->minValue(0)
+                            ->columnSpan(['default' => 12, 'md' => 3]),
+
+                        CheckboxList::make('det_features_a')
+                            ->hiddenLabel()
+                            ->options(self::DETAIL_FEATURE_GROUPS['det_features_a'])
+                            ->columns(['default' => 1, 'md' => 3])
+                            ->columnSpanFull(),
+
+                        CheckboxList::make('det_views')
+                            ->label('Vista')
+                            ->options(self::DETAIL_FEATURE_GROUPS['det_views'])
+                            ->columns(['default' => 2, 'md' => 4])
+                            ->columnSpanFull(),
+
+                        CheckboxList::make('det_features_b')
+                            ->hiddenLabel()
+                            ->options(self::DETAIL_FEATURE_GROUPS['det_features_b'])
+                            ->columns(['default' => 1, 'md' => 3])
+                            ->columnSpanFull(),
+
+                        CheckboxList::make('details.solar_orientation')
+                            ->label('Orientação solar')
+                            ->options(['Norte' => 'Norte', 'Sul' => 'Sul', 'Este' => 'Este', 'Oeste' => 'Oeste'])
+                            ->columns(['default' => 2, 'md' => 4])
+                            ->columnSpanFull(),
+
+                        CheckboxList::make('det_features_c')
+                            ->hiddenLabel()
+                            ->options(self::DETAIL_FEATURE_GROUPS['det_features_c'])
+                            ->columns(['default' => 1, 'md' => 3])
+                            ->columnSpanFull(),
+
+                        Select::make('details.orientation')
+                            ->label('Orientação')
+                            ->options(self::list(['Norte', 'Sul', 'Este', 'Oeste', 'Nordeste', 'Noroeste', 'Sudeste', 'Sudoeste']))
+                            ->placeholder('-')
+                            ->native(false)
+                            ->columnSpan(['default' => 12, 'md' => 4]),
+                        Select::make('details.occupancy')
+                            ->label('Ocupação Atual')
+                            ->options(self::list(['Vazia', 'Habitada pelo proprietário', 'Arrendada']))
+                            ->placeholder('-')
+                            ->native(false)
+                            ->columnSpan(['default' => 12, 'md' => 4]),
+
+                        CheckboxList::make('det_features_d')
+                            ->hiddenLabel()
+                            ->options(self::DETAIL_FEATURE_GROUPS['det_features_d'])
+                            ->columns(['default' => 1, 'md' => 3])
+                            ->columnSpanFull(),
+
+                        TextInput::make('details.renovation_year')
+                            ->label('Ano de renovação')
+                            ->numeric()
+                            ->minValue(1800)
+                            ->maxValue((int) date('Y') + 5)
+                            ->columnSpan(['default' => 12, 'md' => 3]),
+
+                        CheckboxList::make('det_features_e')
+                            ->hiddenLabel()
+                            ->options(self::DETAIL_FEATURE_GROUPS['det_features_e'])
+                            ->columns(['default' => 1, 'md' => 3])
+                            ->columnSpanFull(),
+
+                        TagsInput::make('det_features_extra')
+                            ->label('Outras características')
+                            ->placeholder('Escreva e prima Enter')
+                            ->helperText('Livres — também aparecem no site. As importações antigas caem aqui.')
+                            ->columnSpanFull(),
+                    ])->columns(12),
+
+                    Tab::make('Interior')->schema([
+                        Text::make('Por preencher — aguarda os ecrãs do CRM.'),
+                    ]),
+                    Tab::make('Exterior')->schema([
+                        Text::make('Por preencher — aguarda os ecrãs do CRM.'),
+                    ]),
+                    Tab::make('Dados internos')->schema([
+                        Text::make('Por preencher — aguarda os ecrãs do CRM.'),
+                    ]),
+                ]),
+
             Section::make('Anúncio')
+                ->description('Título e descrição públicos da ficha (no CRM vivem no separador "Descrições", ainda por trabalhar).')
                 ->components([
                     TextInput::make('translations.pt.title')
                         ->label('Título do anúncio')
@@ -632,15 +821,6 @@ class PropertyForm
                         ->label('Descrição')
                         ->rows(10)
                         ->helperText('Parágrafos separados por uma linha em branco.')
-                        ->columnSpanFull(),
-                ]),
-
-            Section::make('Características')
-                ->components([
-                    TagsInput::make('features')
-                        ->label('Características e comodidades')
-                        ->placeholder('garagem, elevador, terraço…')
-                        ->suggestions(['garagem', 'elevador', 'terraço', 'varanda', 'piscina', 'jardim', 'ar condicionado', 'lareira', 'arrecadação', 'vista de mar', 'mobilado', 'cozinha equipada', 'painéis solares', 'alarme', 'condomínio fechado', 'churrasqueira', 'despensa', 'suite', 'roupeiros', 'aquecimento central'])
                         ->columnSpanFull(),
                 ]),
         ]);

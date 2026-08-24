@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Properties\Pages;
 
 use App\Filament\Resources\Properties\PropertyResource;
+use App\Filament\Resources\Properties\Schemas;
 use App\Models\Property;
 use App\Support\PropertyCache;
 use Filament\Actions\Action;
@@ -58,6 +59,7 @@ class CreateProperty extends CreateRecord
     /** @param  array<string, mixed>  $data */
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        $data = Schemas\PropertyForm::foldDetailFeatures($data);
         $data['internal_id'] = 'BO-'.strtolower((string) Str::ulid());
         $data['photos'] = self::photosFromUploads($data['photos'] ?? []);
         $data['slug'] = Property::generateSlug(
