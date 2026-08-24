@@ -132,8 +132,17 @@ class PropertyForm
                     Select::make('admin.status')
                         ->label('Actual')
                         ->options(self::list(self::STATUSES))
-                        ->default('Ativa')
+                        ->default(Property::STATUS_ACTIVE)
                         ->native(false)
+                        ->live()
+                        // "Inativa" retira do site: desliga logo o "Visível no
+                        // website", para não ficar a dizer uma coisa e valer outra.
+                        ->afterStateUpdated(function (?string $state, callable $set) {
+                            if ($state === Property::STATUS_INACTIVE) {
+                                $set('is_active', false);
+                            }
+                        })
+                        ->helperText('"Inativa" retira a ficha do site.')
                         ->columnSpan(['default' => 12, 'md' => 2]),
                     Select::make('status_reason')
                         ->label('Motivo')
@@ -292,7 +301,9 @@ class PropertyForm
                     Checkbox::make('is_active')
                         ->label('Visível no website')
                         ->default(true)
-                        ->helperText('É este campo que publica ou retira a ficha do site.'),
+                        ->helperText(fn (callable $get) => $get('admin.status') === Property::STATUS_INACTIVE
+                            ? 'A ficha está "Inativa" no separador Estado — não aparece no site, mesmo com isto ligado.'
+                            : 'Publica ou retira a ficha do site.'),
                     Checkbox::make('is_featured')
                         ->label('Destaque'),
                     TagsInput::make('admin.monitors')

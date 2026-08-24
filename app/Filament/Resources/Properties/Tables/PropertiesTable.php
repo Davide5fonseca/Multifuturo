@@ -108,12 +108,13 @@ class PropertiesTable
                     ->state(fn (Property $record) => match (true) {
                         $record->is_sold => 'Vendida',
                         $record->off_market => 'Fora de mercado',
+                        $record->isInactive() => 'Inativa',
                         ! $record->is_active => 'Retirada',
                         default => 'Publicada',
                     })
                     ->color(fn (string $state) => match ($state) {
                         'Publicada' => 'success',
-                        'Vendida' => 'danger',
+                        'Vendida', 'Inativa' => 'danger',
                         'Fora de mercado' => 'warning',
                         default => 'gray',
                     })

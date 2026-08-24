@@ -9,6 +9,7 @@ use App\Filament\Resources\Properties\Pages\CreateProperty;
 use App\Filament\Resources\Properties\Pages\EditProperty;
 use App\Filament\Resources\Properties\Pages\ListProperties;
 use App\Models\Property;
+use App\Models\PropertyActivity;
 use App\Models\User;
 use Filament\Forms\Components\FileUpload;
 use Livewire\Livewire;
@@ -190,7 +191,7 @@ it('as etiquetas são internas e nunca aparecem no site', function () {
     $this->get(route('buy'))->assertOk()->assertDontSee('Segredo interno');
 });
 
-it('o estado interno "Actual" e o motivo ficam guardados e não mexem no site', function () {
+it('o estado interno "Actual", o motivo e os monitores ficam guardados e fora do site', function () {
     Livewire::test(CreateProperty::class)
         ->fillForm([
             'reference' => 'MF-5001',
@@ -199,7 +200,7 @@ it('o estado interno "Actual" e o motivo ficam guardados e não mexem no site', 
             'city' => 'Espinho',
             'energy_rating' => 'C',
             'translations' => ['pt' => ['title' => 'T2 em Espinho']],
-            'admin' => ['status' => 'Inativa', 'monitors' => ['Montra da rua']],
+            'admin' => ['status' => Property::STATUS_ACTIVE, 'monitors' => ['Montra da rua']],
             'status_reason' => 'Em avaliação',
             'is_active' => true,
         ])
@@ -208,15 +209,61 @@ it('o estado interno "Actual" e o motivo ficam guardados e não mexem no site', 
 
     $p = Property::where('reference', 'MF-5001')->firstOrFail();
 
-    // "Actual" é interno: quem publica ou retira do site é o "Visível no website".
-    expect($p->admin['status'])->toBe('Inativa')
+    expect($p->admin['status'])->toBe(Property::STATUS_ACTIVE)
         ->and($p->admin['monitors'])->toBe(['Montra da rua'])
         ->and($p->status_reason)->toBe('Em avaliação')
         ->and($p->isPublishable())->toBeTrue();
 
+    // Guardados, mas nada disto sai no site.
     $this->get(route('buy'))->assertOk()->assertSee('MF-5001');
     $this->get(route('property.show', $p))->assertOk()
-        ->assertDontSee('Inativa')
         ->assertDontSee('Montra da rua')
         ->assertDontSee('Em avaliação');
+});
+
+it('"Actual: Inativa" retira a ficha do site, mesmo com "Visível no website" ligado', function () {
+    $p = Property::factory()->create([
+        'reference' => 'MF-6001',
+        'is_active' => true,
+        'admin' => ['status' => Property::STATUS_INACTIVE],
+    ]);
+
+    expect($p->isPublishable())->toBeFalse()
+        ->and(Property::query()->active()->count())->toBe(0);
+
+    $this->get(route('buy'))->assertOk()->assertDontSee('MF-6001');
+    $this->get(route('property.show', $p))->assertGone();
+});
+
+it('as fichas sem "Actual" contam como ativas', function () {
+    $p = Property::factory()->create(['reference' => 'MF-6002', 'admin' => []]);
+
+    expect($p->internalStatus())->toBe(Property::STATUS_ACTIVE)
+        ->and($p->isPublishable())->toBeTrue()
+        ->and(Property::query()->active()->count())->toBe(1);
+
+    $this->get(route('buy'))->assertOk()->assertSee('MF-6002');
+});
+
+it('marcar "Inativa" no formulário desliga o "Visível no website"', function () {
+    $p = Property::factory()->create(['is_active' => true, 'admin' => ['status' => Property::STATUS_ACTIVE]]);
+
+    Livewire::test(EditProperty::class, ['record' => $p->slug])
+        ->assertFormSet(['is_active' => true])
+        ->fillForm(['admin' => ['status' => Property::STATUS_INACTIVE]])
+        ->assertFormSet(['is_active' => false]);
+});
+
+it('mudar o "Actual" fica registado no histórico', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $p = Property::factory()->create(['admin' => ['status' => Property::STATUS_ACTIVE]]);
+    $p->update(['admin' => ['status' => Property::STATUS_INACTIVE]]);
+
+    $registo = PropertyActivity::query()->latest('id')->first();
+
+    expect($registo->type)->toBe('status')
+        ->and($registo->detail)->toBe(Property::STATUS_INACTIVE)
+        ->and($registo->user_id)->toBe($user->id);
 });

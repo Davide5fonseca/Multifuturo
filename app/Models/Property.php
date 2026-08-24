@@ -74,6 +74,11 @@ class Property extends Model
     /** @use HasFactory<PropertyFactory> */
     use HasFactory;
 
+    /** Valores do "Actual" — o estado interno da angariação (jsonb admin.status). */
+    public const STATUS_ACTIVE = 'Ativa';
+
+    public const STATUS_INACTIVE = 'Inativa';
+
     /**
      * Sem $fillable restritivo: a escrita é feita apenas pelo sync a partir de
      * arrays construídos pelo mapper (não de input do utilizador). Owner nunca
@@ -119,7 +124,21 @@ class Property extends Model
      */
     public function isPublishable(): bool
     {
-        return $this->is_active && ! $this->is_sold && ! $this->off_market;
+        return $this->is_active
+            && ! $this->is_sold
+            && ! $this->off_market
+            && ! $this->isInactive();
+    }
+
+    /** Estado interno da angariação ("Actual" no CRM). */
+    public function internalStatus(): string
+    {
+        return (string) (data_get($this->admin, 'status') ?: self::STATUS_ACTIVE);
+    }
+
+    public function isInactive(): bool
+    {
+        return $this->internalStatus() === self::STATUS_INACTIVE;
     }
 
     /** As fichas resolvem-se pelo slug, nunca pelo id. */
@@ -156,7 +175,11 @@ class Property extends Model
     {
         return $query->where('is_active', true)
             ->where('is_sold', false)
-            ->where('off_market', false);
+            ->where('off_market', false)
+            // "Actual" (o estado interno da angariação): uma ficha inativa nunca
+            // chega ao site, mesmo que o "Visível no website" tenha ficado ligado.
+            // As fichas antigas não têm o campo — COALESCE trata-as como ativas.
+            ->whereRaw("COALESCE(admin->>'status', ?) <> ?", [self::STATUS_ACTIVE, self::STATUS_INACTIVE]);
     }
 
     /** @param  Builder<Property>  $query */

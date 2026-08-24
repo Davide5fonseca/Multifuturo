@@ -36,6 +36,14 @@ class PropertyObserver
             ));
         }
 
+        // "Actual" (estado interno) — vive no jsonb, por isso compara-se à mão.
+        $statusBefore = self::statusOf($property->getOriginal('admin'));
+        $statusAfter = self::statusOf($property->admin);
+
+        if ($statusBefore !== $statusAfter) {
+            $this->log($property, 'status', $statusAfter);
+        }
+
         foreach (self::STATUS_FIELDS as $field => [$off, $on]) {
             if ($property->wasChanged($field)) {
                 $this->log($property, 'status', $property->{$field} ? $on : $off);
@@ -43,7 +51,7 @@ class PropertyObserver
         }
 
         // Edição sem nada disto (texto, fotografias, características…).
-        if (! $property->wasChanged(['price', 'is_active', 'is_sold', 'off_market'])) {
+        if ($statusBefore === $statusAfter && ! $property->wasChanged(['price', 'is_active', 'is_sold', 'off_market'])) {
             $this->log($property, 'updated');
         }
     }
@@ -59,6 +67,16 @@ class PropertyObserver
             'type' => 'deleted',
             'detail' => trim($property->reference.' — '.($property->title ?? ''), ' —'),
         ]);
+    }
+
+    /** @param  array<string, mixed>|string|null  $admin */
+    private static function statusOf(array|string|null $admin): string
+    {
+        if (is_string($admin)) {
+            $admin = json_decode($admin, true) ?: [];
+        }
+
+        return (string) (data_get($admin, 'status') ?: Property::STATUS_ACTIVE);
     }
 
     private function log(Property $property, string $type, ?string $detail = null): void
