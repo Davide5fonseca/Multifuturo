@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Properties\Schemas;
 
 use App\Enums\BusinessType;
 use App\Models\Property;
+use App\Support\Geocoder;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\CheckboxList;
@@ -12,8 +13,11 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ViewField;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\FusedGroup;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -91,6 +95,17 @@ class PropertyForm
         $all = array_values(array_unique([...$suggested, ...$existing]));
 
         return array_combine($all, $all);
+    }
+
+    /** Valores já usados numa coluna, para sugerir sem impedir novos. @return array<int, string> */
+    private static function existingValues(string $column): array
+    {
+        return Property::query()
+            ->whereNotNull($column)
+            ->distinct()
+            ->orderBy($column)
+            ->pluck($column)
+            ->all();
     }
 
     /** @param  array<int, string>  $values */
@@ -503,27 +518,98 @@ class PropertyForm
     {
         return Tab::make('Localização')->schema([
             Section::make('Localização')
-                ->columns(3)
+                ->columns(2)
                 ->components([
-                    TextInput::make('country')->label('País')->default('PT')->maxLength(2)->required(),
-                    TextInput::make('district')->label('Distrito')->maxLength(96),
-                    TextInput::make('city')->label('Concelho')->required()->maxLength(96),
-                    TextInput::make('locality')->label('Freguesia')->maxLength(96),
-                    TextInput::make('zone')->label('Zona')->maxLength(96),
-                    TextInput::make('zipcode')->label('Código postal')->placeholder('0000-000')->maxLength(16),
-                    TextInput::make('address')->label('Morada')->maxLength(255)->columnSpan(2),
-                    TextInput::make('street_number')->label('Número')->maxLength(32),
+                    Select::make('country')
+                        ->label('País')
+                        ->options(['PT' => 'Portugal', 'ES' => 'Espanha', 'FR' => 'França', 'BR' => 'Brasil'])
+                        ->default('PT')
+                        ->required()
+                        ->native(false),
+                    TextInput::make('district')
+                        ->label('Distrito')
+                        ->maxLength(96)
+                        ->datalist(fn () => self::existingValues('district')),
+                    TextInput::make('city')
+                        ->label('Concelho')
+                        ->required()
+                        ->maxLength(96)
+                        ->datalist(fn () => self::existingValues('city')),
+                    TextInput::make('locality')
+                        ->label('Freguesia')
+                        ->maxLength(96)
+                        ->datalist(fn () => self::existingValues('locality')),
+                    TextInput::make('zone')
+                        ->label('Zona')
+                        ->maxLength(96)
+                        ->placeholder('(Sem zona)')
+                        ->datalist(fn () => self::existingValues('zone')),
+                    TextInput::make('zipcode')
+                        ->label('Código postal')
+                        ->placeholder('0000-000')
+                        ->maxLength(16),
+                    TextInput::make('street_number')
+                        ->label('Número')
+                        ->maxLength(32),
+                    Textarea::make('address')
+                        ->label('Morada')
+                        ->rows(3)
+                        ->maxLength(255)
+                        ->columnSpanFull(),
                 ]),
 
             Section::make('Localização no mapa')
-                ->columns(3)
                 ->components([
-                    Toggle::make('gmap_visible')
-                        ->label('Mostrar o mapa no site')
-                        ->inline(false)
-                        ->helperText('Desligado: as coordenadas nunca saem do servidor (compromisso com o proprietário).'),
-                    TextInput::make('lat')->label('Latitude')->numeric()->step('0.0000001'),
-                    TextInput::make('lon')->label('Longitude')->numeric()->step('0.0000001'),
+                    Checkbox::make('gmap_visible')
+                        ->label('Visível')
+                        ->helperText('Desligado: as coordenadas nunca saem do servidor — não vão no HTML nem no JSON-LD da ficha.'),
+
+                    Actions::make([
+                        Action::make('geocodificar')
+                            ->label('Pesquisar com os parâmetros de localização definidos')
+                            ->icon('heroicon-m-magnifying-glass')
+                            ->color('gray')
+                            ->action(function (callable $get, callable $set): void {
+                                $coords = Geocoder::search([
+                                    'address' => $get('address'),
+                                    'street_number' => $get('street_number'),
+                                    'zipcode' => $get('zipcode'),
+                                    'locality' => $get('locality'),
+                                    'city' => $get('city'),
+                                    'district' => $get('district'),
+                                    'country' => $get('country'),
+                                ]);
+
+                                if (! $coords) {
+                                    Notification::make()
+                                        ->title('Não foi possível localizar')
+                                        ->body('Verifique a morada, o concelho e o código postal — ou marque o ponto no mapa.')
+                                        ->warning()
+                                        ->send();
+
+                                    return;
+                                }
+
+                                $set('lat', $coords['lat']);
+                                $set('lon', $coords['lon']);
+
+                                Notification::make()
+                                    ->title('Localização encontrada')
+                                    ->body($coords['label'])
+                                    ->success()
+                                    ->send();
+                            }),
+                    ])->fullWidth(),
+
+                    ViewField::make('map')
+                        ->hiddenLabel()
+                        ->view('filament.forms.property-map')
+                        ->dehydrated(false),
+
+                    Grid::make(3)->schema([
+                        TextInput::make('lat')->label('Latitude')->numeric()->step('0.0000001'),
+                        TextInput::make('lon')->label('Longitude')->numeric()->step('0.0000001'),
+                    ]),
                 ]),
         ]);
     }

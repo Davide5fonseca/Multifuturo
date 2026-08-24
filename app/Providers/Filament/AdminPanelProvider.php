@@ -3,6 +3,8 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Calendario;
+use App\Filament\Resources\Properties\Pages\CreateProperty;
+use App\Filament\Resources\Properties\Pages\EditProperty;
 use App\Filament\Widgets\BuyerLeadsWidget;
 use App\Filament\Widgets\ListingLeadsWidget;
 use App\Filament\Widgets\PropertyActivitiesWidget;
@@ -15,6 +17,8 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -77,6 +81,12 @@ class AdminPanelProvider extends PanelProvider
                 UpcomingEventsWidget::class,
                 PropertyViewsChart::class,
             ])
+            // Leaflet só nas páginas com mapa (ficha do imóvel), não em todo o painel.
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): View => view('filament.leaflet-assets'),
+                scopes: [CreateProperty::class, EditProperty::class],
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

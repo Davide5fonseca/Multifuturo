@@ -11,7 +11,9 @@ use App\Filament\Resources\Properties\Pages\ListProperties;
 use App\Models\Property;
 use App\Models\PropertyActivity;
 use App\Models\User;
+use App\Support\Geocoder;
 use Filament\Forms\Components\FileUpload;
+use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 
 beforeEach(fn () => $this->actingAs(User::factory()->create()));
@@ -460,4 +462,50 @@ it('editar não apaga o título nem a descrição que já existiam', function ()
     expect($p->title)->toBe('Título escrito à mão')
         ->and($p->translations['pt']['description'])->toBe('Descrição antiga.')
         ->and($p->bedrooms)->toBe(5);
+});
+
+it('o geocodificador devolve as coordenadas da morada', function () {
+    Http::fake([
+        'nominatim.openstreetmap.org/*' => Http::response([[
+            'lat' => '40.5762594', 'lon' => '-8.4490490', 'display_name' => 'Águeda, Aveiro, Portugal',
+        ]]),
+    ]);
+
+    $coords = Geocoder::search([
+        'address' => 'Rua Direita', 'street_number' => '12', 'zipcode' => '3750-100',
+        'locality' => 'Aguada de Cima', 'city' => 'Águeda', 'district' => 'Aveiro', 'country' => 'PT',
+    ]);
+
+    expect($coords['lat'])->toBe('40.5762594')
+        ->and($coords['lon'])->toBe('-8.449049')
+        ->and($coords['label'])->toContain('Águeda');
+
+    // A morada segue completa, e identificamo-nos como o Nominatim exige.
+    Http::assertSent(function ($request) {
+        return str_contains(urldecode($request->url()), 'Rua Direita')
+            && str_contains($request->url(), 'countrycodes=pt')
+            && $request->hasHeader('User-Agent');
+    });
+});
+
+it('sem morada ou sem resultado, o geocodificador não inventa coordenadas', function () {
+    Http::fake([
+        'nominatim.openstreetmap.org/*' => Http::response([]),
+    ]);
+
+    expect(Geocoder::search([]))->toBeNull()
+        ->and(Geocoder::search(['city' => 'Sítio que não existe']))->toBeNull();
+
+    // Sem nada preenchido nem se chega a contactar o serviço.
+    Http::assertSentCount(1);
+});
+
+it('as coordenadas continuam escondidas quando o mapa não é visível', function () {
+    $p = Property::factory()->create(['gmap_visible' => false, 'lat' => '40.5762594', 'lon' => '-8.449049']);
+
+    expect($p->coordinates)->toBeNull();
+
+    $this->get(route('property.show', $p))->assertOk()
+        ->assertDontSee('40.5762594')
+        ->assertDontSee('-8.449049');
 });
