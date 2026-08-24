@@ -223,7 +223,10 @@ it('/favoritos renderiza os cartões pedidos por slug, só ativos, e ignora lixo
 
     $html = $this->get(route('favorites', ['slugs' => "{$a->slug},{$b->slug},<script>,nao-existe"]))->assertOk()->getContent();
 
-    expect($html)->toContain('data-slug="'.$a->slug.'"')->not->toContain($b->slug);
+    // O slug do inativo pode aparecer no endereço do seletor de idioma (veio do
+    // próprio pedido); o que não pode é haver cartão para ele.
+    expect($html)->toContain('data-slug="'.$a->slug.'"')
+        ->not->toContain('data-slug="'.$b->slug.'"');
     $this->get(route('favorites'))->assertOk()->assertSee(__('ui.favorites.empty'));
 });
 

@@ -23,8 +23,8 @@ it('avisa no rodapé quando o AMI ainda não está configurado', function () {
 });
 
 it('tem rotas separadas para comprar e arrendar', function () {
-    $this->get('/comprar')->assertOk()->assertSee(__('ui.listing.buy_title'));
-    $this->get('/arrendar')->assertOk()->assertSee(__('ui.listing.rent_title'));
+    $this->get(route('buy'))->assertOk()->assertSee(__('ui.listing.buy_title'));
+    $this->get(route('rent'))->assertOk()->assertSee(__('ui.listing.rent_title'));
 });
 
 it('a 404 mostra a pesquisa de imóveis', function () {

@@ -26,7 +26,7 @@
     $ogImage = $image ?? asset('images/og-default.jpg');
 @endphp
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}-PT" class="scroll-smooth">
+<html lang="{{ \App\Support\Locales::htmlLang() }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -37,10 +37,18 @@
     <meta name="robots" content="{{ $robots }}">
     <link rel="canonical" href="{{ $canonicalUrl }}">
 
+    {{-- Idiomas: cada versão aponta para as outras, e x-default para a principal. --}}
+    @foreach (\App\Support\Locales::alternates() as $hreflang => $alternateUrl)
+        <link rel="alternate" hreflang="{{ $hreflang }}" href="{{ $alternateUrl }}">
+    @endforeach
+    @if (\App\Support\Locales::isMultilingual())
+        <link rel="alternate" hreflang="x-default" href="{{ \App\Support\Locales::switchUrl(\App\Support\Locales::default(), withQuery: false) }}">
+    @endif
+
     {{-- Open Graph / Twitter --}}
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ $agency }}">
-    <meta property="og:locale" content="pt_PT">
+    <meta property="og:locale" content="{{ str_replace('-', '_', \App\Support\Locales::htmlLang()) }}">
     <meta property="og:title" content="{{ $fullTitle }}">
     @if ($description)
         <meta property="og:description" content="{{ $description }}">

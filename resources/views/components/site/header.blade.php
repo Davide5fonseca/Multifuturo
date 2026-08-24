@@ -31,6 +31,8 @@
             <span x-cloak x-show="$store.favorites.count > 0" x-text="$store.favorites.count" class="min-w-5 rounded-full bg-olive-600 px-1.5 text-center text-xs text-sand-50"></span>
         </a>
 
+        <x-site.language-switcher class="ml-4 hidden lg:flex" />
+
         <button type="button" class="lg:hidden -mr-2 p-2 text-ink" @click="open = !open" :aria-expanded="open" aria-controls="menu-movel">
             <span class="sr-only" x-text="open ? @js(__('ui.nav.menu_close')) : @js(__('ui.nav.menu_open'))"></span>
             <svg x-show="!open" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" d="M3 7h18M3 12h18M3 17h18"/></svg>
@@ -46,6 +48,7 @@
                 </a>
             @endforeach
             <a href="{{ route('favorites') }}" class="py-3 text-base text-ink hover:text-olive-700">{{ __('ui.nav.favorites') }}</a>
+            <x-site.language-switcher class="mt-3 gap-2" compact />
         </div>
     </nav>
 </header>

@@ -7,9 +7,11 @@ use App\Models\Property;
 use App\Observers\PropertyObserver;
 use App\Support\AgencyCompliance;
 use App\Support\AppUrl;
+use App\Support\Locales;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -30,6 +32,10 @@ class AppServiceProvider extends ServiceProvider
         if (! $this->app->environment('local') || AppUrl::pathPrefix() !== '') {
             AppUrl::forceFromConfig();
         }
+
+        // Idioma por omissão nos route() gerados fora de um pedido HTTP
+        // (sitemap, filas, consola). Dentro do pedido, o SetLocale sobrepõe-se.
+        URL::defaults(['locale' => Locales::default()]);
 
         // Em produção, arrancar sem AMI é proibido (ver AgencyCompliance).
         AgencyCompliance::assertAmi($this->app->environment());

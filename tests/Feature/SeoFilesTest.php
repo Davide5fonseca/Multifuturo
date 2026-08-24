@@ -13,8 +13,10 @@ it('gera o sitemap a partir de app.url', function () {
     $this->get('/sitemap.xml')
         ->assertOk()
         ->assertHeader('Content-Type', 'application/xml; charset=UTF-8')
-        ->assertSee('<loc>https://exemplo-multifuturo.pt/comprar</loc>', false)
-        ->assertSee('<loc>https://exemplo-multifuturo.pt/arrendar</loc>', false)
+        ->assertSee('<loc>https://exemplo-multifuturo.pt/pt/comprar</loc>', false)
+        ->assertSee('<loc>https://exemplo-multifuturo.pt/pt/arrendar</loc>', false)
+        // Multilingue: o sitemap lista as duas versões de cada página.
+        ->assertSee('<loc>https://exemplo-multifuturo.pt/en/comprar</loc>', false)
         ->assertDontSee('multifuturo.test');
 });
 
