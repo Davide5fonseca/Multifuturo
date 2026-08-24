@@ -331,10 +331,13 @@ it('o botão Gravar do cabeçalho grava mesmo', function () {
     expect($p->fresh()->internal_name)->toBe('Depois');
 });
 
-it('a criação também tem Gravar e Sair no cabeçalho, e o Gravar cria', function () {
+it('a criação tem o mesmo cabeçalho, com Ver e Ações à espera da gravação', function () {
     Livewire::test(CreateProperty::class)
         ->assertActionExists('gravar')
         ->assertActionExists('sair')
+        ->assertActionDisabled('verNoWebsite')
+        ->assertActionDisabled('partilhar')
+        ->assertActionDisabled('apagar')
         ->fillForm([
             'reference' => 'MF-8100',
             'business_type' => 'sale',

@@ -6,6 +6,7 @@ use App\Filament\Resources\Properties\PropertyResource;
 use App\Models\Property;
 use App\Support\PropertyCache;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Str;
 
@@ -20,10 +21,28 @@ class CreateProperty extends CreateRecord
 {
     protected static string $resource = PropertyResource::class;
 
-    /** Como no CRM: Gravar e Sair também no cabeçalho. */
+    /** O mesmo cabeçalho do CRM da edição; Ver e Ações desbloqueiam depois de gravar. */
     protected function getHeaderActions(): array
     {
+        $aindaNaoGravada = 'Disponível depois de gravar a ficha.';
+
         return [
+            ActionGroup::make([
+                Action::make('verNoWebsite')->label('Ver no website')->disabled()->tooltip($aindaNaoGravada),
+                Action::make('smartview')->label('Smartview')->disabled()->tooltip('Serviço do CRM da CASAFARI — não existe neste backoffice.'),
+                Action::make('portais')->label('Portais')->disabled()->tooltip('Não há portais ligados ao sistema.'),
+            ])
+                ->label('Ver')
+                ->button()
+                ->color('gray'),
+            ActionGroup::make([
+                Action::make('partilhar')->label('Partilhar')->disabled()->tooltip($aindaNaoGravada),
+                Action::make('imprimir')->label('Imprimir')->icon('heroicon-m-printer')->extraAttributes(['x-on:click' => 'window.print()']),
+                Action::make('apagar')->label('Apagar propriedade')->color('danger')->disabled()->tooltip($aindaNaoGravada),
+            ])
+                ->label('Ações')
+                ->button()
+                ->color('gray'),
             Action::make('gravar')
                 ->label('Gravar')
                 ->icon('heroicon-m-check')
