@@ -9,6 +9,37 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Barra lateral recolhível e sino de notificações
+
+$${\color{#6B7248}\textsf{2026-08-24 · 12:55}}$$
+
+**Commit:** `3cf1c9a` — `Backoffice: barra lateral recolhível e sino de notificações`
+
+Duas funcionalidades do CRM pedidas pelo cliente:
+
+### Barra lateral
+Passa a **abrir e fechar** — a seta fica à esquerda do logótipo, como o ☰ do CRM. A
+preferência fica guardada no browser de cada utilizador.
+
+### Sino de notificações
+No cabeçalho, ao lado do avatar. **Cada pedido novo chegado pelo site** (contacto,
+informação sobre um imóvel, avaliação) cria uma notificação **para toda a equipa**, com:
+- o título com a referência do imóvel quando existe ("Novo pedido de informação — MF-888");
+- o nome e telefone do contacto;
+- o botão **"Abrir pedido"**, que vai direto à lead no backoffice.
+
+O sino verifica de 30 em 30 segundos. O **email à agência mantém-se** — o sino acresce,
+não substitui. O spam apanhado pelo honeypot continua a não acender nada.
+
+### Nota técnica
+Tabela `notifications` nova; a coluna `data` é **jsonb** e não `text` (o padrão do
+Laravel) porque o Filament filtra por dentro do JSON (`data->>'format'`) e o PostgreSQL
+rejeitava a consulta — foi apanhado pelos testes antes de chegar ao browser.
+
+Dois testes novos, **161 a passar**, Pint limpo.
+
+---
+
 ## Cabeçalho do CRM também na criação
 
 $${\color{#6B7248}\textsf{2026-08-24 · 12:50}}$$
