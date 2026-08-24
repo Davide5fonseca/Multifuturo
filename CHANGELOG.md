@@ -9,6 +9,40 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## "Actual: Inativa" passa a retirar a ficha do site
+
+$${\color{#6B7248}\textsf{2026-08-24 · 12:20}}$$
+
+**Commit:** `2961c83` — `Backoffice: "Actual: Inativa" passa a retirar a ficha do site`
+
+Os dois campos deixam de ser independentes, como estavam no CRM. Uma angariação marcada
+como **Inativa** nunca chega ao site — mesmo que o "Visível no website" tenha ficado
+ligado. Assim não há forma de alguém marcar "Inativa" e o imóvel continuar publicado.
+
+### Onde ficou a regra
+- `Property::scopeActive()` e `Property::isPublishable()` passam a exigir que o estado
+  interno não seja *Inativa*. As fichas **sem** o campo contam como ativas (`COALESCE`),
+  para nada do que já existe mudar de comportamento.
+- Como a regra está no **modelo**, vale para tudo de uma vez: listagens, página inicial,
+  páginas de zona, imóveis semelhantes, sitemap e a própria ficha (que passa a responder
+  **410 Gone**, o código correcto para o Google).
+
+### No backoffice
+- Escolher **Inativa** no separador *Estado* **desliga logo** o "Visível no website" — não
+  fica a dizer uma coisa e a valer outra.
+- O texto de ajuda do "Visível no website" muda conforme o estado: se a ficha estiver
+  inativa, avisa que não aparece no site mesmo com a caixa ligada.
+- A coluna **Estado** da lista ganhou o badge **Inativa**.
+- Mudar o "Actual" fica **registado no histórico**, com o utilizador que o fez — aparece
+  no quadro "Actualizações" da dashboard.
+
+### Testes
+Quatro novos, **154 a passar**: a ficha inativa sai da listagem e responde 410; as fichas
+sem o campo continuam publicáveis; o formulário desliga o "Visível"; e a mudança fica no
+histórico.
+
+---
+
 ## Separador "Geral" igual aos prints do CRM
 
 $${\color{#6B7248}\textsf{2026-08-24 · 12:11}}$$
