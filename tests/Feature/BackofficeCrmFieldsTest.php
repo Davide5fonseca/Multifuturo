@@ -330,3 +330,20 @@ it('o botão Gravar do cabeçalho grava mesmo', function () {
 
     expect($p->fresh()->internal_name)->toBe('Depois');
 });
+
+it('a criação também tem Gravar e Sair no cabeçalho, e o Gravar cria', function () {
+    Livewire::test(CreateProperty::class)
+        ->assertActionExists('gravar')
+        ->assertActionExists('sair')
+        ->fillForm([
+            'reference' => 'MF-8100',
+            'business_type' => 'sale',
+            'property_type' => 'Apartamento',
+            'city' => 'Espinho',
+            'energy_rating' => 'C',
+            'translations' => ['pt' => ['title' => 'Criado pelo cabeçalho']],
+        ])
+        ->callAction('gravar');
+
+    expect(Property::where('reference', 'MF-8100')->exists())->toBeTrue();
+});

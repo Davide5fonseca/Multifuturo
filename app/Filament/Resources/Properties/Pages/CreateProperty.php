@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Properties\Pages;
 use App\Filament\Resources\Properties\PropertyResource;
 use App\Models\Property;
 use App\Support\PropertyCache;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Str;
 
@@ -18,6 +19,22 @@ use Illuminate\Support\Str;
 class CreateProperty extends CreateRecord
 {
     protected static string $resource = PropertyResource::class;
+
+    /** Como no CRM: Gravar e Sair também no cabeçalho. */
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('gravar')
+                ->label('Gravar')
+                ->icon('heroicon-m-check')
+                ->action(fn () => $this->create())
+                ->keyBindings(['mod+s']),
+            Action::make('sair')
+                ->label('Sair')
+                ->color('gray')
+                ->url(PropertyResource::getUrl('index')),
+        ];
+    }
 
     /** @param  array<string, mixed>  $data */
     protected function mutateFormDataBeforeCreate(array $data): array
