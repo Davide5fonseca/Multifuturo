@@ -9,6 +9,38 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Correcção: apagar um imóvel rebentava
+
+$${\color{#6B7248}\textsf{2026-08-24 · 10:58}}$$
+
+**Commit:** `62bdfa0` — `Backoffice: corrigir erro ao apagar um imóvel`
+
+Encontrado ao verificar, a pedido do cliente, se uma ficha criada no backoffice
+aparecia logo no site.
+
+### O problema
+Apagar um imóvel no backoffice dava **erro de violação de chave estrangeira**. O
+`PropertyObserver` tentava escrever a linha "Apagada" no histórico já **depois** de a
+linha do imóvel ter desaparecido — e a chave estrangeira, que é em cascata, tinha
+entretanto levado com todo o histórico daquela ficha. Resultado: o imóvel era apagado, mas
+o utilizador via um erro e **não ficava registo de quem o tinha apagado**.
+
+### A correcção
+- `property_activities.property_id` passa a **poder ser nulo**. A cascata mantém-se: o
+  histórico de um imóvel continua a morrer com ele — não faria sentido encher o quadro
+  "Actualizações" de linhas órfãs de fichas que já não existem.
+- A **linha da eliminação** fica sem imóvel, com a **referência e o título no detalhe**
+  (`REF-001 — Moradia T3 em Espinho`), para a dashboard continuar a registar quem apagou o
+  quê e quando.
+- Coluna "Referência" do quadro passa a mostrar `—` nessas linhas.
+
+### Testes
+Dois novos, agora **141 a passar**:
+- apagar um imóvel não rebenta e deixa registo com o utilizador que o fez;
+- o quadro "Actualizações" mostra a linha de um imóvel apagado.
+
+---
+
 ## Site servido em `http://localhost/multifuturo`
 
 $${\color{#6B7248}\textsf{2026-08-20 · 16:44}}$$
