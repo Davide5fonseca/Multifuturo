@@ -6,6 +6,8 @@
  */
 
 use App\Filament\Resources\Leads\LeadResource;
+use App\Models\Contact;
+use App\Models\Event;
 use App\Models\Lead;
 use App\Models\Property;
 use App\Models\User;
@@ -40,4 +42,29 @@ it('o backoffice não é indexável (fora do sitemap; robots dinâmico bloqueia-
     // O sitemap nunca inclui /admin; o robots.txt de produção só permite o site público.
     $xml = $this->get('/sitemap.xml')->assertOk()->getContent();
     expect($xml)->not->toContain('/admin');
+});
+
+it('o backoffice está todo em português', function () {
+    $this->actingAs(User::factory()->create());
+
+    // O idioma por omissão não depende do .env: uma instalação nova arranca em pt.
+    expect(config('app.locale'))->toBe('pt')
+        ->and(config('app.fallback_locale'))->toBe('pt');
+
+    $contacto = Contact::factory()->create();
+    $evento = Event::factory()->create();
+
+    $this->get(route('filament.admin.resources.contacts.index'))->assertOk()
+        ->assertSee('Nome')->assertSee('Telefone')->assertSee('Responsável')
+        ->assertDontSee('Email address')->assertDontSee('Created at');
+
+    $this->get(route('filament.admin.resources.events.index'))->assertOk()
+        ->assertSee('Título')->assertSee('Início')->assertSee('Concluído')
+        ->assertDontSee('Starts at')->assertDontSee('Is done');
+
+    $this->get(route('filament.admin.resources.contacts.edit', $contacto))->assertOk()
+        ->assertSee('Preferências')->assertDontSee('Email address');
+
+    $this->get(route('filament.admin.resources.events.edit', $evento))->assertOk()
+        ->assertSee('Ligações')->assertDontSee('Ends at');
 });
