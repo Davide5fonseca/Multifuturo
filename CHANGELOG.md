@@ -9,6 +9,40 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Política de privacidade: fora a menção ao CRM da CASAFARI
+
+$${\color{#6B7248}\textsf{2026-08-24 · 16:27}}$$
+
+**Commit:** `b63bad9` — `Legal: a política de privacidade deixa de mencionar o CRM da CASAFARI`
+
+A secção **"4. Com quem partilhamos os dados"** dizia que os pedidos eram registados no
+CRM fornecido pela CASAFARI, que actuava como subcontratante. **Deixou de ser verdade**
+quando o backoffice próprio substituiu o CRM — e era uma afirmação factual errada num
+documento legal.
+
+| | |
+|---|---|
+| **Antes** | "Os pedidos que nos envia são registados no sistema de gestão da agência (CRM), fornecido pela CASAFARI, que atua como subcontratante…" |
+| **Agora** | "Os pedidos que nos envia são registados no sistema de gestão da própria agência, alojado por nossa conta. Não são partilhados com nenhuma plataforma de terceiros." |
+
+Os subcontratantes que **de facto** restam — alojamento do site e envio de email — passam
+a estar identificados como tal no parágrafo seguinte, que antes os descrevia de forma
+vaga.
+
+### A versão da política subiu
+`AGENCY_PRIVACY_POLICY_VERSION` passa de `2026-08-18` para **`2026-08-24`**. Não é
+cosmético: **cada lead grava a versão que lhe foi apresentada**. Mudar o texto sem mudar a
+versão faria os consentimentos recolhidos ontem parecerem dados sob o texto de hoje — que
+é precisamente o que o registo da versão existe para evitar.
+
+Dois testes novos: a página não menciona a CASAFARI, e a versão acompanha o texto.
+**185 a passar**, Pint limpo.
+
+> O texto continua a precisar de **revisão por quem trata dos assuntos legais** da agência,
+> como todos os documentos desta secção.
+
+---
+
 ## Site multilingue: português e inglês
 
 $${\color{#6B7248}\textsf{2026-08-24 · 16:16}}$$
