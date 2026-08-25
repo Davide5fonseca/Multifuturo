@@ -9,6 +9,52 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Cópias de segurança diárias
+
+$${\color{#5D6348}\textsf{2026-08-25 · 16:41}}$$
+
+**Commit:** `56983f9` — `Cópias de segurança diárias`
+
+Pedido do cliente, e a rede que faltava: **não havia nenhuma cópia**. A reciclagem protege
+de um clique errado; não protege de um disco avariado nem de uma migração mal dada.
+
+| | |
+|---|---|
+| **Quando** | todos os dias à mesma hora — `BACKUP_AT`, por omissão **03:30** |
+| **O quê** | base de dados (`pg_dump` comprimido) + fotografias e documentos |
+| **Onde** | `storage/backups/`, fora de `public/` |
+| **Quanto tempo** | `BACKUP_KEEP_DAYS`, por omissão **14 dias** |
+| **À mão** | `.\sail.ps1 artisan backup:run` |
+
+Os **documentos** entram na cópia por uma razão específica: vivem em disco privado e **não
+estão em mais lado nenhum** — a base de dados só guarda o caminho para eles.
+
+### Verificado a sério
+Uma cópia que nunca se restaurou não é uma cópia. Apaguei tudo e restaurei a partir do
+ficheiro, com `ON_ERROR_STOP` (aborta ao primeiro problema): **restauro limpo, sem um
+único erro**, e o imóvel de teste voltou.
+
+Para lá chegar foi preciso retirar do ficheiro um parâmetro de sessão que o `pg_dump` 18
+escreve e o PostgreSQL 16 não conhece. Com ele lá, um restauro feito da forma segura
+**abortava logo na primeira linha** — a cópia parecia boa e não era.
+
+### Detalhes que evitam surpresas
+- Se a cópia falhar a meio, a pasta é **removida**. Uma cópia incompleta é pior do que
+  nenhuma, porque parece que existe.
+- A limpeza das antigas só toca em pastas com o **nosso formato de nome** — nada de apagar
+  por engano algo que alguém tenha posto lá.
+- Serviço **`scheduler`** novo no `compose.yaml`. Sem um agendador a correr, o agendamento
+  do Laravel **nunca acontece**; em produção tem de haver um cron equivalente. Está no
+  README, com o procedimento de restauro.
+
+Quatro testes novos, **212 a passar**, Pint limpo.
+
+> **Fica por fazer:** as cópias ficam **no mesmo servidor** que a aplicação. Chega para um
+> erro humano, não chega para uma avaria de disco. Assim que houver alojamento, convém
+> copiá-las também para fora.
+
+---
+
 ## Reciclagem: apagar um imóvel deixa de ser definitivo
 
 $${\color{#5D6348}\textsf{2026-08-25 · 16:29}}$$
