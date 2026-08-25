@@ -9,6 +9,46 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Reciclagem: apagar um imóvel deixa de ser definitivo
+
+$${\color{#5D6348}\textsf{2026-08-25 · 16:29}}$$
+
+**Commit:** `ee2379b` — `Imóveis: reciclagem em vez de apagar para sempre`
+
+Surgiu de uma pergunta do cliente — *"apagaste o meu imóvel?"* — que expôs um risco que
+não estava tratado.
+
+### O que estava mal
+O botão **"Apagar propriedade"** apagava **definitivamente**. A ficha, o histórico e as
+visualizações desapareciam sem recurso. Um clique errado custava o trabalho de uma
+angariação inteira, e **não há cópias de segurança** para lá ir buscar.
+
+### Como ficou
+Apagar passa a mandar para a **reciclagem**:
+
+| | |
+|---|---|
+| No site | sai de imediato das listagens; a ficha responde **410** |
+| No backoffice | fica, com o estado **"Na reciclagem"** |
+| Filtro **Reciclagem** | mostra o que está apagado, com **"Repor"** e **"Apagar de vez"** |
+| Histórico | regista a ida para a reciclagem, a reposição e a eliminação definitiva |
+
+Apagar de vez continua a existir — mas é um **segundo passo consciente**, não a
+consequência de um clique.
+
+### Um detalhe de SEO
+A rota da ficha passa a encontrar o que está na reciclagem, para poder responder **410
+(removida)** em vez de **404 (nunca existiu)**. Num endereço que o Google já indexou, a
+diferença conta: o 410 diz-lhe que pode esquecer a página, o 404 deixa-o a tentar.
+
+Quatro testes novos, **208 a passar**, Pint limpo.
+
+> **Continua por fazer:** as **cópias de segurança da base de dados**. A reciclagem
+> protege de um clique errado; não protege de um disco avariado nem de um `DELETE` mal
+> dado. É trabalho para o dia do alojamento.
+
+---
+
 ## Responder ao cliente, e "Dúvidas dos clientes"
 
 $${\color{#5D6348}\textsf{2026-08-25 · 16:18}}$$
