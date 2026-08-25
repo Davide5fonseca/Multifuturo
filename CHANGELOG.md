@@ -9,6 +9,28 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Smartview e Portais fora do cabeçalho da ficha
+
+$${\color{#5D6348}\textsf{2026-08-25 · 10:39}}$$
+
+**Commit:** `fb3b682` — `Backoffice: remover Smartview e Portais do cabeçalho da ficha`
+
+Eram serviços da CASAFARI, reproduzidos a partir dos prints do CRM. Nunca chegaram a
+fazer nada aqui: apareciam sempre desactivados, com uma nota a explicar que não existiam
+neste backoffice. A pedido do cliente, saem.
+
+Com eles fora, o menu **"Ver"** ficava com uma única entrada — deixa de fazer sentido ser
+menu, e o **"Ver no website"** passa a botão directo. O cabeçalho da ficha fica:
+
+`Ver no website` · `Ações ▾` · `Gravar` · `Sair`
+
+O teste passa a exigir que as duas acções **não existam**, em vez de existirem
+desactivadas — assim, se alguém as voltar a acrescentar por engano, o teste avisa.
+
+**188 a passar**, Pint limpo.
+
+---
+
 ## Logótipo oficial e mudança de nome
 
 $${\color{#5D6348}\textsf{2026-08-25 · 10:18}}$$
