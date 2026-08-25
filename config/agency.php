@@ -5,7 +5,7 @@
 | Dados da agência
 |--------------------------------------------------------------------------
 |
-| Identificação comercial da Multifuturo Imóveis Lda usada em rodapé, meta
+| Identificação comercial da Multifuturo Propriedades usada em rodapé, meta
 | tags, JSON-LD e emails. Tudo vem do .env.
 |
 | O número AMI é OBRIGATÓRIO por lei em toda a comunicação comercial de
@@ -16,7 +16,7 @@
 
 return [
 
-    'name' => env('AGENCY_NAME', 'Multifuturo Imóveis Lda'),
+    'name' => env('AGENCY_NAME', 'Multifuturo Propriedades'),
 
     // Licença AMI (ex.: "AMI 12345"). Só o número; o prefixo é aplicado na view.
     'ami' => env('AGENCY_AMI'),

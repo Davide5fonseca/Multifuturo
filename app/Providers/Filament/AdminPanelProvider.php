@@ -46,26 +46,28 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
             ->login()
-            ->brandName('Multifuturo.')
+            ->brandName('Multifuturo Propriedades')
             ->colors([
                 // Escala azeitona definida à mão: o gerador automático do Filament
-                // produzia tons fluorescentes a partir do nosso hex. Os tons 600/700
-                // são exatamente os da marca (olive-600 / olive-700).
+                // produzia tons fluorescentes a partir do nosso hex. O tom 600 é o
+                // verde exacto do logótipo oficial (#5D6348).
                 'primary' => [
-                    50 => '#F5F6F0',
-                    100 => '#E8EADE',
-                    200 => '#D2D6BF',
-                    300 => '#B4BB99',
-                    400 => '#8F9970',
-                    500 => '#77804F',
-                    600 => '#6B7248',
-                    700 => '#565C39',
-                    800 => '#43482D',
-                    900 => '#2F3320',
-                    950 => '#1B1D12',
+                    50 => '#F4F5EF',
+                    100 => '#E6E8DC',
+                    200 => '#CFD3BC',
+                    300 => '#AFB596',
+                    400 => '#87906C',
+                    500 => '#6C734F',
+                    600 => '#5D6348',
+                    700 => '#4A4F39',
+                    800 => '#393D2B',
+                    900 => '#282C1E',
+                    950 => '#171911',
                 ],
             ])
-            ->favicon(asset('favicon-192.png'))
+            ->brandLogo(asset('images/marca/simbolo.png'))
+            ->brandLogoHeight('2rem')
+            ->favicon(asset('images/marca/favicon-192.png'))
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([

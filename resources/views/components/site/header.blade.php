@@ -11,8 +11,15 @@
 @endphp
 <header class="border-b border-sand-200 bg-sand-50" x-data="{ open: false }" @keydown.escape.window="open = false">
     <div class="container-site flex h-20 items-center justify-between gap-8">
-        <a href="{{ route('home') }}" class="font-serif text-2xl font-normal tracking-tight text-ink" aria-label="{{ config('agency.name') }}">
-            Multifuturo<span class="text-olive-600">.</span>
+        {{-- O logótipo oficial é empilhado (M sobre o nome) e não assenta numa
+             barra de 80px: aqui usa-se o símbolo ao lado do nome. Se o designer
+             tiver uma versão horizontal, é trocar esta imagem. --}}
+        <a href="{{ route('home') }}" class="flex items-center gap-3 text-ink" aria-label="{{ config('agency.name') }}">
+            <img src="{{ asset('images/marca/simbolo.png') }}" alt="" width="384" height="317"
+                 class="h-9 w-auto sm:h-10">
+            <span class="font-serif text-base leading-tight tracking-[0.14em] uppercase sm:text-lg">
+                Multifuturo<span class="block text-[0.62em] tracking-[0.2em] text-olive-600">Propriedades</span>
+            </span>
         </a>
 
         <nav class="ml-auto hidden items-center gap-8 lg:flex" aria-label="{{ __('ui.nav.main') }}">

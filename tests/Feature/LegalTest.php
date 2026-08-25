@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Blade;
 
 beforeEach(function () {
     config([
-        'agency.name' => 'Multifuturo Imóveis Lda',
+        'agency.name' => 'Multifuturo Propriedades',
         'agency.ami' => '12345',
         'agency.address' => 'Rua Exemplo 1, 2750-000 Cascais',
         'agency.email' => 'geral@example.test',
@@ -106,4 +106,21 @@ it('a versão da política acompanha a alteração do texto', function () {
     expect(config('agency.privacy_policy_version'))->toBe('2026-08-24');
 
     $this->get(route('privacy'))->assertOk()->assertSee('2026-08-24');
+});
+
+it('o site usa o nome e o logótipo oficiais', function () {
+    config(['agency.name' => 'Multifuturo Propriedades']);
+
+    $html = $this->get(route('home'))->assertOk()->getContent();
+
+    // Cabeçalho: símbolo da marca e o nome novo; nada do wordmark antigo.
+    expect($html)->toContain('images/marca/simbolo.png')
+        ->toContain('Propriedades')
+        ->not->toContain('Multifuturo Imóveis');
+
+    // Favicon é o "M" da marca.
+    expect($html)->toContain('images/marca/favicon.png');
+
+    // Rodapé: logótipo completo.
+    expect($html)->toContain('images/marca/logotipo.png');
 });

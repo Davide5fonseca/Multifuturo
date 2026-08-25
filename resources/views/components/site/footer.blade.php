@@ -12,7 +12,12 @@
 <footer class="mt-24 bg-olive-900 text-sand-100">
     <div class="container-site grid gap-12 py-16 md:grid-cols-4">
         <div class="md:col-span-2">
-            <a href="{{ route('home') }}" class="font-serif text-2xl text-sand-50" aria-label="{{ $agency['name'] }}">Multifuturo<span class="text-clay-400">.</span></a>
+            {{-- No rodapé há altura para o logótipo completo. A imagem é verde
+                 sobre fundo escuro: leva um filtro para ficar em bege claro. --}}
+            <a href="{{ route('home') }}" class="inline-block" aria-label="{{ $agency['name'] }}">
+                <img src="{{ asset('images/marca/logotipo.png') }}" alt="{{ $agency['name'] }}"
+                     width="588" height="540" class="h-24 w-auto brightness-0 invert opacity-90">
+            </a>
             <p class="mt-4 max-w-sm text-sm leading-relaxed text-sand-200">
                 {{ $agency['name'] }}
                 @if ($agency['address'])<br>{{ $agency['address'] }}@endif

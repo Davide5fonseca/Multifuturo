@@ -49,8 +49,9 @@
 /*
  * Tokens de marca. Única fonte de verdade das cores — nos componentes usam-se
  * as utilities geradas (bg-sand-50, text-ink, bg-olive-600…), nunca hex soltos.
- * Pares verificados WCAG AA: ink/sand-50 (14,7:1), sand-50/olive-600 (5,0:1),
- * olive-600/sand-50 (5,0:1), ink-muted/sand-50 (5,1:1). clay-400 NÃO serve para texto (2,9:1).
+ * O olive-600 é o verde exacto do logótipo oficial (#5D6348).
+ * Pares verificados WCAG AA: ink/sand-50 (14,7:1), sand-50/olive-600 (5,9:1),
+ * olive-700/sand-50 (8,0:1), ink-muted/sand-50 (5,1:1). clay-400 NÃO serve para texto (2,9:1).
  */
 @theme {
     --color-*: initial;
@@ -64,9 +65,9 @@
     --color-sand-100: #F2EDE1;
     --color-sand-200: #E5DCC9;
 
-    --color-olive-600: #6B7248;
-    --color-olive-700: #565C39;
-    --color-olive-900: #2F3320;
+    --color-olive-600: #5D6348;
+    --color-olive-700: #4A4F39;
+    --color-olive-900: #282C1E;
 
     --color-ink: #26261F;
     --color-ink-muted: #6F6C60;
