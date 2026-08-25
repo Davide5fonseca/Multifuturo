@@ -17,7 +17,7 @@
                 @if ($atual) aria-current="true" @endif
                 title="{{ \App\Support\Locales::label($locale) }}"
                 @class([
-                    'rounded px-1.5 py-1 text-xs font-medium uppercase tracking-wide transition',
+                    'grid min-h-11 min-w-11 place-items-center rounded text-xs font-medium uppercase tracking-wide transition sm:min-h-0 sm:min-w-0 sm:px-1.5 sm:py-1',
                     'bg-olive-600 text-sand-50' => $atual,
                     'text-ink/60 hover:text-olive-700' => ! $atual,
                     'text-base' => $compact,

@@ -142,10 +142,15 @@
      * o clique tem um "press" físico de 1 px, e o prefers-reduced-motion global
      * desliga todas as transições.
      */
+    /*
+     * min-h-11 (44px) é o mínimo recomendado para um alvo de toque (WCAG 2.5.8).
+     * Vale para todos os botões e campos: num telemóvel a diferença entre 38px
+     * e 44px é a diferença entre acertar e falhar.
+     */
     .btn,
     .btn-primary,
     .btn-secondary {
-        @apply relative inline-flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-medium tracking-wide select-none;
+        @apply relative inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-medium tracking-wide select-none;
         transition:
             background-position 0.45s cubic-bezier(0.22, 1, 0.36, 1),
             background-color 0.3s ease,
@@ -223,6 +228,6 @@
         font-variation-settings: 'SOFT' 50, 'opsz' 24;
     }
     .field {
-        @apply w-full rounded-md border border-sand-200 bg-white px-4 py-3 text-ink placeholder:text-ink-muted focus:border-olive-600 focus:outline-none;
+        @apply min-h-11 w-full rounded-md border border-sand-200 bg-white px-4 py-3 text-ink placeholder:text-ink-muted focus:border-olive-600 focus:outline-none;
     }
 }

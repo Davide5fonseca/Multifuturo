@@ -33,7 +33,7 @@
 
         <x-site.language-switcher class="ml-4 hidden lg:flex" />
 
-        <button type="button" class="lg:hidden -mr-2 p-2 text-ink" @click="open = !open" :aria-expanded="open" aria-controls="menu-movel">
+        <button type="button" class="lg:hidden -mr-2 grid h-11 w-11 place-items-center text-ink" @click="open = !open" :aria-expanded="open" aria-controls="menu-movel">
             <span class="sr-only" x-text="open ? @js(__('ui.nav.menu_close')) : @js(__('ui.nav.menu_open'))"></span>
             <svg x-show="!open" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" d="M3 7h18M3 12h18M3 17h18"/></svg>
             <svg x-show="open" x-cloak class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>

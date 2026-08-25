@@ -4,6 +4,10 @@
     os filtros na barra do topo e a legenda no rodapé, para o mês caber no ecrã
     sem deslocamento. As cores vêm de EventType::hex() como estilo inline —
     não dependem da compilação do Tailwind.
+
+    Telemóvel: sete colunas em 390px dariam células de 46px, onde nenhum evento
+    se lê. A grelha passa a ter largura mínima e desliza na horizontal; a barra
+    de topo empilha-se em vez de se espremer.
 --}}
 @php
     $eventsByDay = $this->eventsByDay;
@@ -13,7 +17,7 @@
 <x-filament-panels::page>
     <x-filament::section>
         {{-- Barra de topo: navegação + filtros + vistas --}}
-        <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4">
             <div class="flex items-center gap-1.5">
                 <x-filament::icon-button icon="heroicon-m-chevron-left" wire:click="previous" label="Anterior" />
                 <x-filament::icon-button icon="heroicon-m-chevron-right" wire:click="next" label="Seguinte" />
@@ -21,10 +25,11 @@
                 <h2 class="ms-2 whitespace-nowrap text-base font-semibold capitalize text-gray-950 dark:text-white">{{ $this->periodLabel }}</h2>
             </div>
 
-            <div class="flex flex-1 flex-wrap items-center justify-end gap-x-3 gap-y-2">
+            {{-- Filtros: dois por linha no telemóvel, em vez de espremidos a nada. --}}
+            <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-1 sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-3">
                 <label class="sr-only" for="cal-user">Utilizador</label>
                 <select id="cal-user" wire:model.live="userId"
-                        class="fi-input rounded-lg border-gray-300 py-1.5 text-sm shadow-sm dark:border-gray-600 dark:bg-gray-800">
+                        class="fi-input w-full min-w-0 rounded-lg border-gray-300 py-1.5 text-sm shadow-sm sm:w-auto dark:border-gray-600 dark:bg-gray-800">
                     <option value="">Utilizador: todos</option>
                     @foreach ($this->userOptions as $id => $name)
                         <option value="{{ $id }}">{{ $name }}</option>
@@ -33,22 +38,23 @@
 
                 <label class="sr-only" for="cal-type">Tipo</label>
                 <select id="cal-type" wire:model.live="type"
-                        class="fi-input rounded-lg border-gray-300 py-1.5 text-sm shadow-sm dark:border-gray-600 dark:bg-gray-800">
+                        class="fi-input w-full min-w-0 rounded-lg border-gray-300 py-1.5 text-sm shadow-sm sm:w-auto dark:border-gray-600 dark:bg-gray-800">
                     <option value="">Tipo: todos</option>
                     @foreach ($this->typeOptions as $value => $label)
                         <option value="{{ $value }}">{{ $label }}</option>
                     @endforeach
                 </select>
 
-                <label class="flex items-center gap-1.5 whitespace-nowrap text-sm text-gray-950 dark:text-white">
+                <label class="col-span-2 flex min-h-11 items-center gap-1.5 whitespace-nowrap text-sm text-gray-950 sm:col-auto sm:min-h-0 dark:text-white">
                     <input type="checkbox" wire:model.live="showDone" class="rounded border-gray-300 text-primary-600">
                     Concluídos
                 </label>
 
-                <div class="flex items-center gap-1">
+                <div class="col-span-2 flex items-center gap-1 sm:col-auto">
                     @foreach (['month' => 'Mês', 'week' => 'Semana', 'day' => 'Dia'] as $value => $label)
                         <x-filament::button
                             size="sm"
+                            class="flex-1 justify-center sm:flex-none"
                             :color="$mode === $value ? 'primary' : 'gray'"
                             wire:click="setMode('{{ $value }}')">
                             {{ $label }}
@@ -58,6 +64,8 @@
             </div>
         </div>
 
+        <div class="-mx-2 overflow-x-auto px-2 sm:mx-0 sm:px-0">
+            <div @class(['min-w-[46rem]' => $mode === 'month', 'min-w-[38rem]' => $mode === 'week'])>
         @if ($mode !== 'day')
             <div class="grid grid-cols-7 gap-px rounded-t-lg bg-primary-600 text-center text-xs font-medium uppercase tracking-wide text-white">
                 @foreach (['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom'] as $dow)
@@ -116,6 +124,8 @@
                     @endforeach
                 </div>
             @endforeach
+        </div>
+            </div>
         </div>
 
         {{-- Legenda --}}

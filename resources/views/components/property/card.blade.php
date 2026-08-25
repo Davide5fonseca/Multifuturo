@@ -31,11 +31,14 @@
             @click.prevent="$store.favorites.toggle(@js($p->slug))"
             :aria-pressed="$store.favorites.has(@js($p->slug))"
             :aria-label="$store.favorites.has(@js($p->slug)) ? @js(__('ui.property.favorite_remove')) : @js(__('ui.property.favorite_add'))"
-            class="absolute right-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-full bg-sand-50/90 text-ink hover:text-olive-700">
-        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"
-             :fill="$store.favorites.has(@js($p->slug)) ? 'currentColor' : 'none'">
-            <path stroke-linejoin="round" d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10Z"/>
-        </svg>
+            class="absolute right-1.5 top-1.5 z-10 grid h-11 w-11 place-items-center rounded-full text-ink hover:text-olive-700 sm:right-3 sm:top-3"
+            {{-- 44px de área de toque; o círculo bege é o filho, para o botão não parecer enorme --}}>
+        <span class="grid h-9 w-9 place-items-center rounded-full bg-sand-50/90">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"
+                 :fill="$store.favorites.has(@js($p->slug)) ? 'currentColor' : 'none'">
+                <path stroke-linejoin="round" d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10Z"/>
+            </svg>
+        </span>
     </button>
 
     <div class="flex flex-1 flex-col p-5">

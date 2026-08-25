@@ -25,6 +25,10 @@ use Filament\Tables\Table;
  * As colunas que a grelha do CRM não tinha (título, finalidade, destaque,
  * publicado, atualizado) continuam disponíveis no menu "Colunas", escondidas
  * por omissão — não se perde nada, mas a lista abre limpa.
+ *
+ * No telemóvel ficam só Referência, Foto, Preço e Estado; as restantes vão
+ * aparecendo à medida que há largura (md, lg, xl). Doze colunas num ecrã de
+ * 390px dariam 1400px de tabela para arrastar de lado.
  */
 class PropertiesTable
 {
@@ -49,29 +53,34 @@ class PropertiesTable
                     ->label('Foto')
                     ->disk(null)
                     ->defaultImageUrl(asset('images/placeholder-property.jpg'))
-                    ->square(),
+                    ->square()
+                    ->visibleFrom('sm'),
 
                 TextColumn::make('property_type')
                     ->label('Tipo')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->visibleFrom('md'),
 
                 TextColumn::make('city')
                     ->label('Concelho')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->visibleFrom('md'),
 
                 TextColumn::make('locality')
                     ->label('Zona')
                     ->placeholder('—')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->visibleFrom('lg'),
 
                 TextColumn::make('bedrooms')
                     ->label('Quarto(s)')
                     ->placeholder('—')
                     ->alignEnd()
-                    ->sortable(),
+                    ->sortable()
+                    ->visibleFrom('lg'),
 
                 TextColumn::make('price')
                     ->label('Preço')
@@ -86,12 +95,14 @@ class PropertiesTable
                     ->tooltip(fn (Property $record) => data_get($record->admin, 'keys.notes'))
                     ->sortable(query: fn ($query, string $direction) => $query->orderByRaw(
                         "COALESCE((admin->'keys'->>'has')::boolean, false) ".self::direction($direction)
-                    )),
+                    ))
+                    ->visibleFrom('lg'),
 
                 TextColumn::make('broker.name')
                     ->label('Angariador')
                     ->state(fn (Property $record) => data_get($record->broker, 'name'))
-                    ->placeholder('—'),
+                    ->placeholder('—')
+                    ->visibleFrom('xl'),
 
                 TextColumn::make('view')
                     ->label('Visualizar')
@@ -100,7 +111,8 @@ class PropertiesTable
                     ->state(fn (Property $record) => $record->isPublishable() ? 'Ver no site' : '—')
                     ->url(fn (Property $record) => $record->isPublishable() ? route('property.show', $record) : null, shouldOpenInNewTab: true)
                     ->icon(fn (Property $record) => $record->isPublishable() ? 'heroicon-m-arrow-top-right-on-square' : null)
-                    ->color(fn (Property $record) => $record->isPublishable() ? 'primary' : 'gray'),
+                    ->color(fn (Property $record) => $record->isPublishable() ? 'primary' : 'gray')
+                    ->visibleFrom('xl'),
 
                 TextColumn::make('status')
                     ->label('Estado')
@@ -129,7 +141,8 @@ class PropertiesTable
                     ->placeholder('—')
                     ->searchable(query: fn ($query, string $search) => $query->whereRaw(
                         "admin->'tags' @> ?::jsonb", [json_encode([$search])]
-                    )),
+                    ))
+                    ->visibleFrom('lg'),
 
                 /* --------------------------- fora da grelha do CRM, opcionais */
 

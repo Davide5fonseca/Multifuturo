@@ -2,3 +2,33 @@
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
+
+/*
+|--------------------------------------------------------------------------
+| Ajustes do painel para ecrãs pequenos
+|--------------------------------------------------------------------------
+|
+| A ficha do imóvel tem cinco separadores e o formulário é longo: num
+| telemóvel a barra de separadores não cabe e ficava cortada, sem forma de
+| chegar ao "Detalhes". Passa a deslizar na horizontal, com as extremidades
+| esbatidas a indicar que há mais para o lado.
+|
+*/
+@media (max-width: 1023px) {
+    .fi-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        /* Sugere que há mais separadores fora do ecrã. */
+        mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
+    }
+
+    .fi-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .fi-tabs-item {
+        flex: 0 0 auto;
+    }
+}

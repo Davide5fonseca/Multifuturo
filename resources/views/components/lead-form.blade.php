@@ -106,11 +106,11 @@
         <fieldset class="grid gap-3 text-sm">
             <legend class="sr-only">Consentimentos</legend>
             <label class="flex items-start gap-3">
-                <input type="checkbox" name="consent_contact" value="1" @checked(old('consent_contact')) class="mt-1 h-4 w-4 accent-olive-600">
+                <input type="checkbox" name="consent_contact" value="1" @checked(old('consent_contact')) class="mt-1 h-5 w-5 shrink-0 accent-olive-600">
                 <span>{{ __('ui.lead.consent_contact') }}</span>
             </label>
             <label class="flex items-start gap-3">
-                <input type="checkbox" name="consent_marketing" value="1" @checked(old('consent_marketing')) class="mt-1 h-4 w-4 accent-olive-600">
+                <input type="checkbox" name="consent_marketing" value="1" @checked(old('consent_marketing')) class="mt-1 h-5 w-5 shrink-0 accent-olive-600">
                 <span>{{ __('ui.lead.consent_marketing') }}</span>
             </label>
         </fieldset>

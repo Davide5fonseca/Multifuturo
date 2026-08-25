@@ -36,7 +36,7 @@
             <label class="text-sm">
                 <span class="flex items-center justify-between font-medium">
                     {{ __('legal.consent.analytics') }}
-                    <input type="checkbox" x-model="$store.consent.choices.analytics" aria-label="{{ __('legal.consent.analytics') }}" class="h-4 w-4 accent-olive-600">
+                    <input type="checkbox" x-model="$store.consent.choices.analytics" aria-label="{{ __('legal.consent.analytics') }}" class="h-5 w-5 shrink-0 accent-olive-600">
                 </span>
                 <span class="mt-1 block text-ink-muted">{{ __('legal.consent.analytics_desc') }}</span>
             </label>
@@ -44,7 +44,7 @@
             <label class="text-sm">
                 <span class="flex items-center justify-between font-medium">
                     {{ __('legal.consent.marketing') }}
-                    <input type="checkbox" x-model="$store.consent.choices.marketing" aria-label="{{ __('legal.consent.marketing') }}" class="h-4 w-4 accent-olive-600">
+                    <input type="checkbox" x-model="$store.consent.choices.marketing" aria-label="{{ __('legal.consent.marketing') }}" class="h-5 w-5 shrink-0 accent-olive-600">
                 </span>
                 <span class="mt-1 block text-ink-muted">{{ __('legal.consent.marketing_desc') }}</span>
             </label>
