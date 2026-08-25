@@ -9,6 +9,49 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Responder ao cliente, e "Dúvidas dos clientes"
+
+$${\color{#5D6348}\textsf{2026-08-25 · 16:18}}$$
+
+**Commit:** `2915651` — `Backoffice: responder ao cliente, e "Dúvidas dos clientes"`
+
+### Responder
+Não havia forma de responder a quem escrevia pelo site: a dúvida era lida no painel e a
+resposta tinha de sair de outro lado, sem ficar registo nenhum.
+
+- **"Responder ao cliente"** na ficha: abre uma caixa com um **rascunho já começado**
+  conforme a origem (imóvel, avaliação ou contacto), envia o email e **regista a resposta
+  na própria dúvida**.
+- O email leva a **referência do imóvel no assunto**, um botão para a ficha pública, a
+  assinatura de quem respondeu, e o **responder-para** aponta à caixa da agência — quem
+  responder ao email cai lá, não no servidor.
+- Vai **em fila**, como o aviso de entrada: quem está no painel não fica à espera do
+  servidor de email.
+- **Histórico das respostas** na ficha: quem respondeu, quando e o que disse. Sem isto,
+  duas pessoas da equipa podiam responder à mesma pergunta sem saber uma da outra — e
+  ninguém saberia, semanas depois, o que foi dito ao cliente.
+- **"Abrir no meu email"** e **"Telefonar"** para quem prefere a sua própria caixa ou o
+  telefone.
+- Na lista, cada dúvida mostra **"Por responder"** ou **"Respondida"**, com filtro. Quem
+  abre a caixa quer ver de relance o que ainda espera por alguém.
+
+### Nome
+A secção passa a chamar-se **"Dúvidas dos clientes"**. Corrigiu-se também a capitalização
+do menu, que saía *"Dúvidas Dos Clientes"* — o Filament põe maiúscula em cada palavra.
+
+### Um defeito apanhado pelo caminho
+O campo **"Imóvel"** da ficha aparecia **sempre vazio**, mesmo em dúvidas sobre um imóvel
+concreto: a referência vive numa relação e o formulário não a resolvia sozinho. Passa a
+mostrar a referência, e ganhou um botão **"Abrir imóvel"** — antes era preciso decorar a
+referência e ir procurá-la a Imóveis.
+
+Sete testes novos, **205 a passar**, Pint limpo.
+
+> Nota: a secção continua a receber também os **pedidos de avaliação** e os contactos
+> gerais, não só dúvidas sobre imóveis. O nome é o que o cliente pediu.
+
+---
+
 ## Correcção: abrir um pedido rebentava
 
 $${\color{#5D6348}\textsf{2026-08-25 · 12:47}}$$
