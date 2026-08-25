@@ -38,8 +38,13 @@ class LeadForm
                                 default => 'Contacto geral',
                             })
                             ->disabled(),
-                        TextInput::make('property.reference')
+                        TextInput::make('imovel')
                             ->label('Imóvel')
+                            ->placeholder('Pedido sem imóvel associado')
+                            // A referência vive numa relação: o formulário não
+                            // a resolve sozinho, tem de ser lida do registo.
+                            ->formatStateUsing(fn ($record) => $record?->property?->reference)
+                            ->dehydrated(false)
                             ->disabled(),
                         Textarea::make('message')
                             ->label('Mensagem')
@@ -54,6 +59,18 @@ class LeadForm
                             ->columnSpanFull()
                             ->visible(fn ($record) => filled($record?->payload)),
                     ]),
+                Section::make('Respostas enviadas')
+                    ->columnSpanFull()
+                    ->visible(fn ($record) => filled($record?->replies))
+                    ->components([
+                        Textarea::make('replies_texto')
+                            ->hiddenLabel()
+                            ->rows(8)
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->columnSpanFull(),
+                    ]),
+
                 Section::make('RGPD')
                     ->columns(4)
                     ->columnSpanFull()

@@ -24,9 +24,12 @@ class LeadResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedInboxArrowDown;
 
-    protected static ?string $modelLabel = 'pedido';
+    protected static ?string $modelLabel = 'dúvida';
 
-    protected static ?string $pluralModelLabel = 'Pedidos do site';
+    protected static ?string $pluralModelLabel = 'Dúvidas dos clientes';
+
+    // Sem isto o Filament capitaliza cada palavra e sai "Dúvidas Dos Clientes".
+    protected static ?string $navigationLabel = 'Dúvidas dos clientes';
 
     protected static ?int $navigationSort = 2;
 

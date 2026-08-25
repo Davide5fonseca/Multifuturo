@@ -45,6 +45,27 @@ class Lead extends Model
 
     protected $guarded = ['id'];
 
+    /**
+     * Regista uma resposta enviada ao cliente. O envio do email é separado —
+     * aqui só fica o registo, para a equipa saber o que já foi dito e por quem.
+     */
+    public function registarResposta(string $body, string $author): void
+    {
+        $this->replies = [...($this->replies ?? []), [
+            'author' => $author,
+            'body' => $body,
+            'at' => now()->toIso8601String(),
+        ]];
+        $this->replied_at = now();
+        $this->save();
+    }
+
+    /** Já foi respondida alguma vez? */
+    public function foiRespondida(): bool
+    {
+        return $this->replied_at !== null;
+    }
+
     protected function casts(): array
     {
         return [
@@ -56,6 +77,8 @@ class Lead extends Model
             'crm_status' => LeadStatus::class,
             'payload' => 'array',
             'crm_response' => 'array',
+            'replies' => 'array',
+            'replied_at' => 'datetime',
             'consent_contact' => 'boolean',
             'consent_marketing' => 'boolean',
             'sent_at' => 'datetime',
