@@ -9,6 +9,51 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Logótipo oficial e mudança de nome
+
+$${\color{#5D6348}\textsf{2026-08-25 · 10:18}}$$
+
+**Commits:** `da95e31` (preparação) · `78900c8` (aplicação)
+
+O cliente confirmou que o nome comercial passa a ser **Multifuturo Propriedades** e enviou
+o logótipo oficial.
+
+### Nome
+`AGENCY_NAME`, o `config/agency.php` e os textos em português e inglês passam a dizer
+**Multifuturo Propriedades**. Não sobrou nenhuma menção a "Multifuturo Imóveis" no site.
+
+### Cor
+O verde oficial é **`#5D6348`**. O `olive-600` do site era `#6B7248` — mais claro e mais
+amarelado. A escala passa a assentar no verde do logótipo, e o painel do backoffice recebe
+a mesma.
+
+Ganhou-se acessibilidade sem se procurar: o texto branco sobre o verde passa de **4,76:1
+para 5,87:1**. O comentário do CSS afirmava 5,0:1, valor que na verdade nunca se
+verificou — ficava a raspar o mínimo de 4,5:1 exigido pela WCAG AA.
+
+### Logótipo
+- **Cabeçalho** — o símbolo *M* ao lado do nome. O logótipo oficial é empilhado (M sobre o
+  nome) e não assenta numa barra de 80 px; **se o designer tiver uma versão horizontal, é
+  trocar a imagem** e mais nada.
+- **Rodapé** — logótipo completo, invertido para bege sobre o verde escuro.
+- **Favicons** — o *M* passa a ser o ícone do site e do painel, incluindo os ficheiros na
+  raiz de `public/` que o browser pede por omissão.
+
+### Notas sobre os ficheiros
+O **primeiro** ficheiro enviado era **CMYK de impressão**: as cores não correspondiam ao
+que o browser mostra (ler os valores directamente dava um castanho-azeitona em vez do
+verde) e o fundo branco não assentava no bege do cabeçalho. O **segundo** já veio em PNG
+com transparência — é esse que está em uso, guardado em `public/images/marca/original.png`.
+
+Fica **por pedir ao designer**: o original em **vetor** (`.ai`, `.eps` ou `.svg`). O PNG
+enviado tem 294 px de largura útil, o que chega para o tamanho a que é mostrado mas não
+sobra; um SVG ficaria perfeito em qualquer dimensão e permitiria mudar a cor por código.
+
+Teste novo verifica o nome, o símbolo, o favicon e o logótipo do rodapé.
+**188 a passar**, Pint limpo.
+
+---
+
 ## Auditoria responsiva: site e backoffice em telemóvel
 
 $${\color{#6B7248}\textsf{2026-08-25 · 09:46}}$$
