@@ -9,6 +9,43 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Correcção: abrir um pedido rebentava
+
+$${\color{#5D6348}\textsf{2026-08-25 · 12:47}}$$
+
+**Commit:** `b151430` — `Correcção: abrir um pedido no backoffice rebentava`
+
+Clicar em **Ver** num pedido dava `Call to a member function format() on string`. A página
+ficava inacessível: **não havia forma de ver o detalhe de nenhum pedido do site**.
+
+O formulário entrega a data já convertida em texto, não como objeto de data — chamar
+`format()` nela rebenta.
+
+### E um segundo erro, mais silencioso
+Ao corrigir, apareceu outro: a data vinha em **UTC** e era mostrada sem repor o fuso da
+aplicação. No horário de verão mostrava **menos uma hora** — um pedido recebido às **14:30**
+aparecia como **13:30**.
+
+Este era pior do que o primeiro. O erro de arranque vê-se; uma hora errada não. Ninguém
+daria por isso, e a equipa podia ligar de volta a dizer "recebemos o seu pedido às 13:30"
+a quem o enviou às 14:30.
+
+### Também
+As secções da ficha ficavam lado a lado e espremiam os campos: o **email**, o **telefone**
+e a própria **data** apareciam cortados. Passam a ocupar a largura toda.
+
+### Porque é que isto passou
+Os testes abriam as **listagens** de todas as secções, mas **nunca abriam uma ficha**. Um
+erro que só acontece ao carregar um registo passava despercebido.
+
+Ficheiro novo `BackofficeSmokeTest`: abre **todas as listagens, todas as fichas e todos os
+formulários de criação** do backoffice, com registos reais. Se alguma página deixar de
+abrir, os testes dizem qual.
+
+**198 a passar**, Pint limpo.
+
+---
+
 ## Contas da equipa e processo das filas
 
 $${\color{#5D6348}\textsf{2026-08-25 · 12:06}}$$
