@@ -12,6 +12,7 @@ use App\Http\Requests\StoreLeadRequest;
 use App\Models\Lead;
 use App\Models\Property;
 use App\Notifications\NewLeadReceived;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -192,4 +193,18 @@ it('as páginas de contacto e avaliação mostram o formulário com honeypot e c
             ->and($html)->toContain(route('privacy'))
             ->and($html)->toContain('name="form_ts"');
     }
+});
+
+it('o aviso à agência é enfileirado, e não enviado no pedido HTTP', function () {
+    // O contacto tem de ficar guardado mesmo que o email falhe ou demore:
+    // por isso o aviso vai para a fila. Sem um processo a tratar da fila
+    // (serviço "queue" no compose.yaml, e o equivalente em produção), os
+    // emails ficam parados — foi por isso que este teste existe.
+    $this->post(route('leads.store'), leadPayload());
+
+    Notification::assertSentOnDemand(NewLeadReceived::class, function ($notification) {
+        return $notification instanceof ShouldQueue;
+    });
+
+    expect(Lead::count())->toBe(1);
 });

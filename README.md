@@ -83,7 +83,7 @@ Pré-requisito: Docker Desktop a correr. O `./vendor/bin/sail` só corre em
 macOS/Linux/WSL2 — **no Windows** usa o wrapper `sail.ps1`:
 
 ```powershell
-.\sail.ps1 up -d              # arranca app + nginx + PostgreSQL + Redis + Mailpit
+.\sail.ps1 up -d              # arranca app + nginx + fila + PostgreSQL + Redis + Mailpit
 .\sail.ps1 artisan migrate    # cria as tabelas
 npm install; npm run build    # assets (ver nota abaixo)
 ```
@@ -141,6 +141,7 @@ Os **testes correm sempre na raiz** (`APP_URL` fixo no `phpunit.xml`).
 |---|---|
 | nginx (serve o site) | `80` |
 | Aplicação | interna, sem porta no host |
+| Fila (`queue:work`) | interna, sem porta |
 | Vite (HMR) | `5173` |
 | PostgreSQL | `54320` † |
 | Redis | `63790` † |
@@ -192,6 +193,7 @@ O painel de gestão da agência — substitui o CRM. Filament 4, cor da marca, p
 | **Pedidos do site** | caixa de entrada das leads (só leitura — não se criam à mão), badge com a contagem dos últimos 7 dias, detalhe com consentimentos RGPD |
 | **Zonas (editorial)** | editar os textos das páginas de zona no browser |
 | **Clientes** | compradores, proprietários ou ambos; agrega leads e eventos de cada pessoa |
+| **Equipa** | contas de quem entra no backoffice — só visível a administradores |
 | **Agenda** | telefonemas, visitas, reuniões, tarefas e lembretes |
 | **Calendário** | vista mensal/semanal/diária dos eventos, com filtros por utilizador e tipo |
 
@@ -281,6 +283,30 @@ Cache de leituras: `App\Support\PropertyCache` (tag `properties`, TTL 1 h), limp
 | Feed tratado como não confiável | tipos forçados e limitados, escape nas views, `LIBXML_NONET` (sem XXE), URLs validados |
 
 Textos legais em `lang/pt/legal.php` — **minutas**, carecem de revisão jurídica.
+
+## 🔄 Filas e contas
+
+> [!IMPORTANT]
+> **O aviso por email de cada pedido do site é enviado em fila.** Sem um processo a
+> tratar da fila, os pedidos ficam guardados e aparecem no backoffice, mas **o email
+> nunca sai**. Localmente é o serviço `queue` do `compose.yaml`; **em produção tem de
+> haver um processo equivalente sempre a correr** (`php artisan queue:work`), reiniciado
+> automaticamente se cair.
+
+O sino do backoffice não depende da fila — é escrito no próprio pedido. Ou seja: mesmo
+com a fila parada, a equipa vê o pedido ao entrar no painel; o que se perde é o email.
+
+**Contas da equipa** vivem em **Equipa** (`/admin/users`), visível só a administradores:
+
+| | |
+|---|---|
+| Criar conta | nome, email e palavra-passe (mínimo 8 caracteres) |
+| Administrador | gere as contas da equipa; os restantes usam o backoffice normalmente |
+| Palavra-passe | ao editar, em branco mantém a atual |
+| Proteções | ninguém se apaga nem se despromove a si próprio |
+
+Cada pessoa muda o seu nome e a sua palavra-passe no **perfil** (canto superior direito),
+e quem se esquecer dela recupera-a por email — o que exige o `MAIL_*` configurado.
 
 ## ✅ Testes e CI
 

@@ -46,6 +46,10 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
             ->login()
+            // Cada pessoa muda o seu nome e a sua palavra-passe sem depender de
+            // ninguém; e quem se esquecer dela recupera-a por email.
+            ->profile(isSimple: false)
+            ->passwordReset()
             ->brandName('Multifuturo Propriedades')
             ->colors([
                 // Escala azeitona definida à mão: o gerador automático do Filament

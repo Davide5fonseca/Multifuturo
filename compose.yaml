@@ -27,6 +27,26 @@ services:
             - pgsql
             - redis
             - mailpit
+    # Processo das filas. Os avisos por email de cada pedido do site são
+    # enviados em fila; sem isto ficam parados e nunca saem — em produção é
+    # preciso um processo equivalente sempre a correr.
+    queue:
+        image: 'sail-8.3/app'
+        command: ['php', 'artisan', 'queue:work', '--tries=3', '--max-time=3600', '--sleep=1']
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+        volumes:
+            - '.:/var/www/html'
+            - './docker/php-dev.ini:/etc/php/8.3/cli/conf.d/99-multifuturo.ini'
+        networks:
+            - sail
+        depends_on:
+            - multifuturo.test
+            - pgsql
+            - redis
+        restart: unless-stopped
+
     # nginx à frente da aplicação, para servir o site em http://localhost/multifuturo.
     proxy:
         image: 'nginx:1.27-alpine'
