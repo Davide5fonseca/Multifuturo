@@ -15,3 +15,18 @@
 | ficheiro no git (Fase 3).
 |
 */
+
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schedule;
+
+/*
+| Cópia de segurança diária, sempre à mesma hora (config/backup.php).
+|
+| withoutOverlapping: se uma cópia demorar mais do que o esperado, a seguinte
+| espera em vez de correr por cima. runInBackground: não prende o agendador.
+*/
+Schedule::command('backup:run')
+    ->dailyAt((string) config('backup.at'))
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->onFailure(fn () => Log::error('A cópia de segurança diária falhou.'));

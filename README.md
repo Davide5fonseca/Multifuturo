@@ -83,7 +83,7 @@ Pré-requisito: Docker Desktop a correr. O `./vendor/bin/sail` só corre em
 macOS/Linux/WSL2 — **no Windows** usa o wrapper `sail.ps1`:
 
 ```powershell
-.\sail.ps1 up -d              # arranca app + nginx + fila + PostgreSQL + Redis + Mailpit
+.\sail.ps1 up -d              # arranca app + nginx + fila + agendador + PostgreSQL + Redis + Mailpit
 .\sail.ps1 artisan migrate    # cria as tabelas
 npm install; npm run build    # assets (ver nota abaixo)
 ```
@@ -142,6 +142,7 @@ Os **testes correm sempre na raiz** (`APP_URL` fixo no `phpunit.xml`).
 | nginx (serve o site) | `80` |
 | Aplicação | interna, sem porta no host |
 | Fila (`queue:work`) | interna, sem porta |
+| Agendador (`schedule:work`) | interna, sem porta |
 | Vite (HMR) | `5173` |
 | PostgreSQL | `54320` † |
 | Redis | `63790` † |
@@ -307,6 +308,37 @@ com a fila parada, a equipa vê o pedido ao entrar no painel; o que se perde é 
 
 Cada pessoa muda o seu nome e a sua palavra-passe no **perfil** (canto superior direito),
 e quem se esquecer dela recupera-a por email — o que exige o `MAIL_*` configurado.
+
+## 💾 Cópias de segurança
+
+Uma cópia por dia, **sempre à mesma hora** (`BACKUP_AT`, por omissão `03:30`), com a
+**base de dados** e os **ficheiros carregados** — fotografias e documentos, que só
+existem em disco. Guardadas em `storage/backups/`, fora de `public/`.
+
+| | |
+|---|---|
+| `BACKUP_AT` | hora da cópia diária (24h) |
+| `BACKUP_KEEP_DAYS` | quantos dias guardar (por omissão 14; as mais antigas são apagadas) |
+| À mão | `.\sail.ps1 artisan backup:run` |
+
+> [!IMPORTANT]
+> A cópia só acontece se houver um **agendador** a correr. Localmente é o serviço
+> `scheduler` do `compose.yaml`; **em produção tem de haver um cron ou processo
+> equivalente** (`php artisan schedule:run` a cada minuto, ou `schedule:work`).
+
+**Restaurar** — descomprimir e passar ao `psql`. O `ON_ERROR_STOP` faz o restauro abortar
+ao primeiro problema, em vez de deixar a base de dados a meio:
+
+```bash
+gunzip -c storage/backups/2026-08-25_033000/base-de-dados.sql.gz   | psql --host=$DB_HOST --username=$DB_USERNAME --dbname=$DB_DATABASE --set ON_ERROR_STOP=1
+```
+
+Os ficheiros restauram-se com `tar -xzf ficheiros.tar.gz -C storage/app/`.
+
+> As cópias ficam **no mesmo servidor** que a aplicação. Isso chega para um clique errado
+> ou uma migração falhada — **não chega para um disco avariado**. Assim que o alojamento
+> estiver escolhido, convém copiá-las também para fora (outro fornecedor, ou o
+> armazenamento de objetos do próprio).
 
 ## ✅ Testes e CI
 
