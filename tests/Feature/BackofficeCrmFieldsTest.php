@@ -301,13 +301,13 @@ it('a ficha tem o cabeçalho do CRM: Ver, Ações, Gravar e Sair', function () {
 
     $page = Livewire::test(EditProperty::class, ['record' => $p->slug]);
 
-    foreach (['verNoWebsite', 'smartview', 'portais', 'partilhar', 'imprimir', 'delete', 'gravar', 'sair'] as $action) {
+    foreach (['verNoWebsite', 'partilhar', 'imprimir', 'delete', 'gravar', 'sair'] as $action) {
         $page->assertActionExists($action);
     }
 
-    // Smartview e Portais são serviços do CRM que não existem: ficam desativados.
-    $page->assertActionDisabled('smartview')
-        ->assertActionDisabled('portais')
+    // Smartview e Portais eram serviços da CASAFARI sem equivalente: removidos.
+    $page->assertActionDoesNotExist('smartview')
+        ->assertActionDoesNotExist('portais')
         ->assertActionEnabled('verNoWebsite')
         ->assertActionEnabled('partilhar');
 });

@@ -28,14 +28,12 @@ class CreateProperty extends CreateRecord
         $aindaNaoGravada = 'Disponível depois de gravar a ficha.';
 
         return [
-            ActionGroup::make([
-                Action::make('verNoWebsite')->label('Ver no website')->disabled()->tooltip($aindaNaoGravada),
-                Action::make('smartview')->label('Smartview')->disabled()->tooltip('Serviço do CRM da CASAFARI — não existe neste backoffice.'),
-                Action::make('portais')->label('Portais')->disabled()->tooltip('Não há portais ligados ao sistema.'),
-            ])
-                ->label('Ver')
-                ->button()
-                ->color('gray'),
+            Action::make('verNoWebsite')
+                ->label('Ver no website')
+                ->icon('heroicon-m-arrow-top-right-on-square')
+                ->color('gray')
+                ->disabled()
+                ->tooltip($aindaNaoGravada),
             ActionGroup::make([
                 Action::make('partilhar')->label('Partilhar')->disabled()->tooltip($aindaNaoGravada),
                 Action::make('imprimir')->label('Imprimir')->icon('heroicon-m-printer')->extraAttributes(['x-on:click' => 'window.print()']),

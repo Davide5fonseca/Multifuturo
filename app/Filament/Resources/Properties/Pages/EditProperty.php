@@ -16,8 +16,12 @@ use Illuminate\Support\Str;
  * Edição de imóvel. O slug NUNCA é recalculado (partiria URLs indexados) e o
  * internal_id não muda.
  *
- * Cabeçalho como no CRM: referência + ID, menu "Ver", menu "Ações"
+ * Cabeçalho como no CRM: referência + ID, "Ver no website", menu "Ações"
  * (Partilhar · Imprimir · Apagar propriedade), "Gravar" e "Sair".
+ *
+ * O menu "Ver" do CRM tinha ainda Smartview e Portais — serviços da CASAFARI
+ * sem equivalente aqui. Foram removidos a pedido do cliente: um menu com uma
+ * entrada útil e duas mortas não ajuda ninguém.
  *
  * Fotografias: o componente de upload só gere ficheiros do nosso storage. As
  * imagens externas (importadas do antigo CRM, alojadas no CDN deles) não
@@ -45,25 +49,13 @@ class EditProperty extends EditRecord
         $publicUrl = $publishable ? route('property.show', $record) : null;
 
         return [
-            ActionGroup::make([
-                Action::make('verNoWebsite')
-                    ->label('Ver no website')
-                    ->icon('heroicon-m-arrow-top-right-on-square')
-                    ->url($publicUrl, shouldOpenInNewTab: true)
-                    ->disabled(! $publishable)
-                    ->tooltip($publishable ? null : 'A ficha não está publicada no site.'),
-                Action::make('smartview')
-                    ->label('Smartview')
-                    ->disabled()
-                    ->tooltip('Serviço do CRM da CASAFARI — não existe neste backoffice.'),
-                Action::make('portais')
-                    ->label('Portais')
-                    ->disabled()
-                    ->tooltip('Não há portais ligados ao sistema.'),
-            ])
-                ->label('Ver')
-                ->button()
-                ->color('gray'),
+            Action::make('verNoWebsite')
+                ->label('Ver no website')
+                ->icon('heroicon-m-arrow-top-right-on-square')
+                ->color('gray')
+                ->url($publicUrl, shouldOpenInNewTab: true)
+                ->disabled(! $publishable)
+                ->tooltip($publishable ? null : 'A ficha não está publicada no site.'),
 
             ActionGroup::make([
                 Action::make('partilhar')
