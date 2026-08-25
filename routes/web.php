@@ -41,7 +41,12 @@ Route::prefix('{locale}')
         Route::get('/arrendar', [PageController::class, 'rent'])->name('rent');
 
         // Ficha de imóvel — slug semântico: tipo-concelho-referência
-        Route::get('/imoveis/{property:slug}', [PropertyController::class, 'show'])->name('property.show');
+        // withTrashed: uma ficha na reciclagem tem de chegar ao controlador para
+        // responder 410 (removida), e não 404 (nunca existiu) — num endereço já
+        // indexado, a diferença conta para o Google.
+        Route::get('/imoveis/{property:slug}', [PropertyController::class, 'show'])
+            ->withTrashed()
+            ->name('property.show');
 
         // Zonas (páginas editoriais por concelho/freguesia)
         Route::get('/zonas', [ZoneController::class, 'index'])->name('zones.index');

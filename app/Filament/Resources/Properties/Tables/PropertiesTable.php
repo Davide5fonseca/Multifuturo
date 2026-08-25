@@ -9,12 +9,17 @@ use App\Support\PropertyCache;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
 /**
@@ -118,6 +123,7 @@ class PropertiesTable
                     ->label('Estado')
                     ->badge()
                     ->state(fn (Property $record) => match (true) {
+                        $record->trashed() => 'Na reciclagem',
                         $record->is_sold => 'Vendida',
                         $record->off_market => 'Fora de mercado',
                         $record->isInactive() => 'Inativa',
@@ -126,7 +132,7 @@ class PropertiesTable
                     })
                     ->color(fn (string $state) => match ($state) {
                         'Publicada' => 'success',
-                        'Vendida', 'Inativa' => 'danger',
+                        'Vendida', 'Inativa', 'Na reciclagem' => 'danger',
                         'Fora de mercado' => 'warning',
                         default => 'gray',
                     })
@@ -195,6 +201,10 @@ class PropertiesTable
                     ->label('Publicado'),
                 TernaryFilter::make('is_featured')
                     ->label('Em destaque'),
+                // Sem este filtro, a reciclagem ficava invisível: o Filament
+                // esconde o que está apagado por omissão.
+                TrashedFilter::make()
+                    ->label('Reciclagem'),
                 TernaryFilter::make('keys')
                     ->label('Com chaves')
                     ->queries(
@@ -205,10 +215,21 @@ class PropertiesTable
             ])
             ->recordActions([
                 EditAction::make(),
+                // Repor e apagar de vez só aparecem no que está na reciclagem.
+                RestoreAction::make()
+                    ->label('Repor')
+                    ->after(fn () => PropertyCache::flush()),
+                ForceDeleteAction::make()
+                    ->label('Apagar de vez')
+                    ->after(fn () => PropertyCache::flush()),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
+                        ->after(fn () => PropertyCache::flush()),
+                    RestoreBulkAction::make()
+                        ->after(fn () => PropertyCache::flush()),
+                    ForceDeleteBulkAction::make()
                         ->after(fn () => PropertyCache::flush()),
                 ]),
             ]);

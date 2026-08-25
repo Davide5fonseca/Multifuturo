@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PropertyResource extends Resource
 {
@@ -41,6 +43,15 @@ class PropertyResource extends Resource
     public static function getRelations(): array
     {
         return [];
+    }
+
+    /**
+     * A reciclagem tem de ser alcançável: sem isto, o que está apagado some-se
+     * do backoffice e o filtro "Reciclagem" não teria nada para mostrar.
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->withoutGlobalScopes([SoftDeletingScope::class]);
     }
 
     public static function getPages(): array

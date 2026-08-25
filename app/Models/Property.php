@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
@@ -74,6 +75,10 @@ class Property extends Model
     /** @use HasFactory<PropertyFactory> */
     use HasFactory;
 
+    // Apagar um imóvel vai para a reciclagem, não para o vazio: uma angariação
+    // é trabalho de semanas e não há cópias de segurança para lá ir buscar.
+    use SoftDeletes;
+
     /** Valores do "Actual" — o estado interno da angariação (jsonb admin.status). */
     public const STATUS_ACTIVE = 'Ativa';
 
@@ -128,7 +133,8 @@ class Property extends Model
         return $this->is_active
             && ! $this->is_sold
             && ! $this->off_market
-            && ! $this->isInactive();
+            && ! $this->isInactive()
+            && ! $this->trashed();
     }
 
     /** Estado interno da angariação ("Actual" no CRM). */

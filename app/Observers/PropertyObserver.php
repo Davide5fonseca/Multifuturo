@@ -56,16 +56,39 @@ class PropertyObserver
         }
     }
 
+    /**
+     * Ida para a reciclagem. O imóvel continua na base de dados, por isso o
+     * registo pode apontar-lhe — e a ficha pode ser reposta a partir daqui.
+     */
     public function deleted(Property $property): void
     {
-        // Sem imóvel: a chave estrangeira é em cascata, e a esta altura a linha
-        // do imóvel já não existe. A referência fica no detalhe, para a
-        // dashboard continuar a registar quem apagou a ficha.
+        // Apagar de vez dispara este evento e o forceDeleted: aqui só interessa
+        // a ida para a reciclagem, senão escrevia-se um registo a apontar para
+        // uma linha que já não existe.
+        if ($property->isForceDeleting()) {
+            return;
+        }
+
+        $this->log($property, 'deleted', 'Movido para a reciclagem');
+    }
+
+    public function restored(Property $property): void
+    {
+        $this->log($property, 'status', 'Reposto da reciclagem');
+    }
+
+    /**
+     * Apagado de vez. A chave estrangeira é em cascata: a esta altura o
+     * histórico do imóvel já foi com ele, e a linha não lhe pode apontar. A
+     * referência fica no detalhe, para ficar registado quem o apagou.
+     */
+    public function forceDeleted(Property $property): void
+    {
         PropertyActivity::query()->create([
             'property_id' => null,
             'user_id' => Auth::id(),
             'type' => 'deleted',
-            'detail' => trim($property->reference.' — '.($property->title ?? ''), ' —'),
+            'detail' => trim('Apagado definitivamente: '.$property->reference.' — '.($property->title ?? ''), ' —'),
         ]);
     }
 

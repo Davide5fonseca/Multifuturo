@@ -10,6 +10,7 @@ use App\Enums\EventType;
 use App\Enums\LeadKind;
 use App\Enums\LeadPriority;
 use App\Enums\LeadStage;
+use App\Filament\Resources\Properties\Pages\ListProperties;
 use App\Filament\Widgets\BuyerLeadsWidget;
 use App\Filament\Widgets\ListingLeadsWidget;
 use App\Filament\Widgets\PropertyActivitiesWidget;
@@ -168,7 +169,7 @@ it('as leads têm pipeline próprio por tipo', function () {
         ->and(LeadPriority::Urgent->label())->toBe('Urgente');
 });
 
-it('apagar um imóvel não rebenta e deixa registo de quem o apagou', function () {
+it('apagar um imóvel manda-o para a reciclagem, e dá para o repor', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
 
@@ -177,15 +178,54 @@ it('apagar um imóvel não rebenta e deixa registo de quem o apagou', function (
 
     $p->delete();
 
+    // A ficha continua lá, apenas fora do site e das listagens normais.
+    expect(Property::count())->toBe(0)
+        ->and(Property::withTrashed()->count())->toBe(1)
+        ->and($p->fresh()->trashed())->toBeTrue()
+        ->and(Property::query()->active()->count())->toBe(0);
+
+    $registo = PropertyActivity::query()->latest('id')->first();
+    expect($registo->type)->toBe('deleted')
+        ->and($registo->property_id)->toBe($p->getKey())
+        ->and($registo->user_id)->toBe($user->id)
+        ->and($registo->detail)->toContain('reciclagem');
+
+    // E volta atrás sem perder nada.
+    $p->restore();
+
+    expect(Property::count())->toBe(1)
+        ->and(Property::query()->active()->count())->toBe(1);
+});
+
+it('a ficha na reciclagem sai do site e responde 410', function () {
+    $p = Property::factory()->create();
+
+    $this->get(route('property.show', $p))->assertOk();
+
+    $p->delete();
+
+    $this->get(route('property.show', $p))->assertGone();
+    $this->get(route('buy'))->assertOk()->assertDontSee($p->reference);
+});
+
+it('apagar de vez leva o histórico e deixa só o registo da eliminação', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $p = Property::factory()->create(['reference' => 'REF-DE-VEZ']);
+    $p->delete();
+    $p->forceDelete();
+
     // O histórico do imóvel morre com ele (chave estrangeira em cascata);
-    // fica só a linha da eliminação, sem imóvel e com a referência no detalhe.
+    // fica a linha da eliminação, sem imóvel e com a referência no detalhe.
     $registo = PropertyActivity::query()->latest('id')->first();
 
-    expect(PropertyActivity::count())->toBe(1)
+    expect(Property::withTrashed()->count())->toBe(0)
         ->and($registo->type)->toBe('deleted')
         ->and($registo->property_id)->toBeNull()
         ->and($registo->user_id)->toBe($user->id)
-        ->and($registo->detail)->toContain('REF-APAGAR');
+        ->and($registo->detail)->toContain('REF-DE-VEZ')
+        ->and($registo->detail)->toContain('definitivamente');
 });
 
 it('o quadro de actualizações mostra a linha de um imóvel apagado', function () {
@@ -207,4 +247,26 @@ it('a agenda aceita os doze tipos de evento do CRM', function () {
 
         expect($event->fresh()->type->value)->toBe($type);
     }
+});
+
+it('a reciclagem é alcançável no backoffice e dá para repor a partir dela', function () {
+    $this->actingAs(User::factory()->create());
+
+    $vivo = Property::factory()->create(['reference' => 'MF-VIVO']);
+    $reciclado = Property::factory()->create(['reference' => 'MF-RECICLADO']);
+    $reciclado->delete();
+
+    $lista = Livewire::test(ListProperties::class);
+
+    // Por omissão, a lista mostra só o que está vivo.
+    $lista->assertCanSeeTableRecords([$vivo])
+        ->assertCanNotSeeTableRecords([$reciclado]);
+
+    // Com o filtro da reciclagem, aparece — e pode ser reposto.
+    $lista->filterTable('trashed', 'with')
+        ->assertCanSeeTableRecords([$vivo, $reciclado])
+        ->callTableAction('restore', $reciclado);
+
+    expect($reciclado->fresh()->trashed())->toBeFalse()
+        ->and(Property::query()->active()->count())->toBe(2);
 });
