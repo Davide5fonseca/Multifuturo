@@ -9,6 +9,49 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Auditoria responsiva: site e backoffice em telemóvel
+
+$${\color{#6B7248}\textsf{2026-08-25 · 09:46}}$$
+
+**Commit:** `e3e59cb` — `Responsivo: auditoria do site e do backoffice em telemóvel`
+
+### Como foi feita
+O headless do Edge **não deixa a janela descer abaixo de ~477 px**: as primeiras capturas
+a "390 px" mostravam o site cortado à direita e pareciam denunciar um transbordo grave que
+**não existia**. A auditoria passou a correr com o site dentro de um **iframe de 390 px**,
+medindo por dentro o `scrollWidth` e o tamanho de cada alvo de toque, página a página.
+
+### Site público — o transbordo não existia
+**Zero transbordo horizontal em todas as páginas.** O problema real eram os **alvos de
+toque**:
+
+| | Antes | Agora |
+|---|---|---|
+| Botões e campos (altura mínima) | 37–38 px | **44 px** (WCAG 2.5.8) |
+| Coração dos favoritos | 36 px | **44 px** de área (círculo bege na mesma) |
+| Caixas de consentimento | 16 px | **20 px** |
+| Botão do menu e seletor de idioma | 32–36 px | **44 px** |
+
+Alvos pequenos por página: home 25 → 18, comprar 33 → 20, contactos 19 → 16. Os que
+restam são ligações de texto dentro de parágrafos, onde a regra não se aplica.
+
+### Backoffice — aqui estavam os problemas
+- **Lista de imóveis** — doze colunas davam **1471 px de tabela** para arrastar de lado num
+  ecrã de 390 px. As colunas passam a aparecer por *breakpoint*: no telemóvel ficam
+  **Referência · Preço · Estado**, e a tabela desce para **450 px**. A partir de `sm` entra
+  a foto, de `md` o tipo e o concelho, de `lg` a zona, quartos, chaves e etiquetas, de `xl`
+  o angariador e o "Visualizar".
+- **Separadores da ficha** — a barra ficava cortada e **não se chegava ao "Detalhes"** num
+  telemóvel. Passa a deslizar na horizontal, com as extremidades esbatidas a indicar que há
+  mais para o lado.
+- **Calendário** — as células do mês ficavam com **46 px** e nenhum evento se lia. A grelha
+  ganha largura mínima e desliza; a barra de filtros deixava os dois seletores **espremidos
+  a 4 px** e passa a dois por linha, com os botões Mês/Semana/Dia a ocupar a largura toda.
+
+Dois testes novos guardam as duas correcções. **187 a passar**, Pint limpo.
+
+---
+
 ## Política de privacidade: fora a menção ao CRM da CASAFARI
 
 $${\color{#6B7248}\textsf{2026-08-24 · 16:27}}$$
