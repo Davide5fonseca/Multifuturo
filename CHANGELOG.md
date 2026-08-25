@@ -9,6 +9,56 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Contas da equipa e processo das filas
+
+$${\color{#5D6348}\textsf{2026-08-25 · 12:06}}$$
+
+**Commit:** `32eb6da` — `Backoffice: contas da equipa e processo das filas`
+
+Duas coisas que não dependiam dos dados que faltam do cliente.
+
+### Os avisos por email não estavam a sair
+Descoberto ao rever o que faltava para o sistema estar operacional: o aviso à agência de
+cada pedido do site **é enviado em fila**, e **não havia nenhum processo a tratá-la**.
+
+Na prática: o pedido ficava guardado e o sino do painel tocava, mas **o email nunca saía**.
+Uma equipa que contasse com o email para reagir perderia contactos sem dar por isso.
+
+- Serviço **`queue`** novo no `compose.yaml` (`queue:work`, 3 tentativas, reinício
+  automático se cair). Verificado de ponta a ponta: pedido → fila → caixa de correio.
+- **Em produção tem de haver um processo equivalente sempre a correr** — ficou escrito no
+  README, em destaque.
+- O sino **não** depende da fila: é escrito no próprio pedido. Mesmo com a fila parada, a
+  equipa vê o pedido ao entrar no painel; o que se perde é o email.
+
+### Contas da equipa
+Não havia forma de criar contas sem ser por linha de comandos, nem de recuperar uma
+palavra-passe esquecida. Só existia a conta criada por comando durante o desenvolvimento.
+
+Secção **Equipa** (`/admin/users`), visível só a administradores:
+
+| | |
+|---|---|
+| Criar conta | nome, email e palavra-passe (mínimo 8 caracteres) |
+| **Administrador** | gere as contas da equipa; os restantes usam o backoffice como até aqui |
+| Palavra-passe | ao editar, em branco mantém a atual — e nunca volta preenchida ao formulário |
+| **Proteções** | ninguém se apaga nem se despromove a si próprio |
+
+A última linha não é detalhe: sem ela, o único administrador podia retirar-se o acesso ou
+apagar-se, e a agência ficaria **sem forma de criar contas** — só com acesso ao servidor
+se resolveria.
+
+Cada pessoa passa a mudar o seu nome e a sua palavra-passe no **perfil**, e quem se
+esquecer dela **recupera-a por email** (exige o `MAIL_*` configurado em produção).
+
+**Não é um sistema de permissões** — é a distinção mínima para a equipa poder crescer.
+Se um dia forem precisos mais níveis (um consultor ver só os imóveis dele, por exemplo),
+constrói-se sobre isto.
+
+Seis testes novos, **194 a passar**, Pint limpo.
+
+---
+
 ## Smartview e Portais fora do cabeçalho da ficha
 
 $${\color{#5D6348}\textsf{2026-08-25 · 10:39}}$$
