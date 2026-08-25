@@ -6,6 +6,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Carbon;
 
 /**
  * Detalhe de um pedido do site — só leitura: os dados vêm do formulário público
@@ -19,6 +20,7 @@ class LeadForm
             ->components([
                 Section::make('Contacto')
                     ->columns(3)
+                    ->columnSpanFull()
                     ->components([
                         TextInput::make('name')->label('Nome')->disabled(),
                         TextInput::make('email')->label('Email')->disabled(),
@@ -26,6 +28,7 @@ class LeadForm
                     ]),
                 Section::make('Pedido')
                     ->columns(2)
+                    ->columnSpanFull()
                     ->components([
                         TextInput::make('source')
                             ->label('Origem')
@@ -52,7 +55,8 @@ class LeadForm
                             ->visible(fn ($record) => filled($record?->payload)),
                     ]),
                 Section::make('RGPD')
-                    ->columns(3)
+                    ->columns(4)
+                    ->columnSpanFull()
                     ->components([
                         TextInput::make('consent_contact')
                             ->label('Consentiu contacto')
@@ -67,7 +71,13 @@ class LeadForm
                             ->disabled(),
                         TextInput::make('created_at')
                             ->label('Recebido em')
-                            ->formatStateUsing(fn ($state) => $state?->format('d/m/Y H:i'))
+                            // O formulário entrega a data em texto e em UTC, não
+                            // como objeto — daí o parse, e a reposição do fuso da
+                            // aplicação: sem ela mostrava-se menos uma hora no
+                            // horário de verão.
+                            ->formatStateUsing(fn ($state) => filled($state)
+                                ? Carbon::parse($state)->timezone(config('app.timezone'))->translatedFormat('d/m/Y H:i')
+                                : null)
                             ->disabled(),
                     ]),
             ]);
