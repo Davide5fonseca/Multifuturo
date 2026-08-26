@@ -9,6 +9,42 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Passagem visual completa do site
+
+$${\color{#5D6348}\textsf{2026-08-26 · 09:46}}$$
+
+**Commit:** `1f55051` — `Site: passagem visual completa — galeria, cartões, herói, filtros e formulários`
+
+Auditoria página a página com conteúdo de demonstração e fotografias reais (a pedido do
+cliente — sem imagens não se avalia nada).
+
+### Um defeito real: a galeria da ficha
+Com menos de 4 fotografias, as miniaturas viravam **torres esticadas**: a coluna da
+direita tinha duas colunas e uma só linha, e cada célula esticava até à altura da capa.
+Passa a **duas linhas empilhadas** à altura da capa; no desktop mostram-se duas e a
+segunda ganha o **"+N"** quando há mais; no telemóvel mantém-se a fila de quatro.
+
+### Afinações
+| Onde | O quê |
+|---|---|
+| **Cartões** | aro fino que escurece no hover, cantos maiores, zoom mais suave — e o **preço alinha pelo fundo em toda a grelha**, mesmo com títulos de alturas diferentes |
+| **Herói** | véu plano → **gradiente com o meio mais escuro**, onde o texto está; a pesquisa sobrepõe-se mais e ganha elevação (sombra + aro), com campos mais altos |
+| **Selects** | todos com a **mesma seta** (SVG inline), em vez da de cada browser; Concelho/Freguesia empilham-se nos filtros |
+| **Listagem** | filtros **fixos ao rolar**; caixas das características ao tamanho de toque |
+| **Ficha** | consultor num cartão alinhado com o formulário; detalhes com mais respiro |
+| **Navegação** | o menu móvel ganha o **estado ativo** que o desktop já tinha |
+| **Contactos** | nota de tempo de resposta (pt e en) |
+| **"Porquê"** | numeração discreta 01/02/03 a acompanhar o filete |
+
+### Conteúdo de demonstração
+Ficam no ambiente local **8 imóveis `MF-DEMO-*`** com fotografias (guardadas no nosso
+storage, servidas por nós), para o site ter vida enquanto se revê. Removem-se num comando
+quando os imóveis reais entrarem. A **AP/001 não foi tocada**.
+
+212 testes a passar, Pint limpo.
+
+---
+
 ## Cópias de segurança diárias
 
 $${\color{#5D6348}\textsf{2026-08-25 · 16:41}}$$
