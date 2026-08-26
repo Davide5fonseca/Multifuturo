@@ -27,9 +27,10 @@ use Filament\Tables\Table;
  * Referência · Foto · Tipo · Concelho · Zona · Quarto(s) · Preço · Chaves ·
  * Angariador · Visualizar · Estado · Etiquetas.
  *
- * As colunas que a grelha do CRM não tinha (título, finalidade, destaque,
- * publicado, atualizado) continuam disponíveis no menu "Colunas", escondidas
- * por omissão — não se perde nada, mas a lista abre limpa.
+ * TODAS as colunas podem ser escondidas no menu "Colunas" — a pedido do
+ * cliente, sem predefinição trancada. As doze do CRM abrem visíveis; as que a
+ * grelha do CRM não tinha (título, finalidade, destaque, publicado,
+ * atualizado) abrem escondidas. "Repor" volta a este arranjo.
  *
  * No telemóvel ficam só Referência, Foto, Preço e Estado; as restantes vão
  * aparecendo à medida que há largura (md, lg, xl). Doze colunas num ecrã de
@@ -50,12 +51,14 @@ class PropertiesTable
             ->columns([
                 TextColumn::make('reference')
                     ->label('Referência')
+                    ->toggleable()
                     ->searchable()
                     ->sortable()
                     ->weight('medium'),
 
                 ImageColumn::make('cover_photo.url')
                     ->label('Foto')
+                    ->toggleable()
                     ->disk(null)
                     ->defaultImageUrl(asset('images/placeholder-property.jpg'))
                     ->square()
@@ -63,18 +66,21 @@ class PropertiesTable
 
                 TextColumn::make('property_type')
                     ->label('Tipo')
+                    ->toggleable()
                     ->searchable()
                     ->sortable()
                     ->visibleFrom('md'),
 
                 TextColumn::make('city')
                     ->label('Concelho')
+                    ->toggleable()
                     ->searchable()
                     ->sortable()
                     ->visibleFrom('md'),
 
                 TextColumn::make('locality')
                     ->label('Zona')
+                    ->toggleable()
                     ->placeholder('—')
                     ->searchable()
                     ->sortable()
@@ -82,6 +88,7 @@ class PropertiesTable
 
                 TextColumn::make('bedrooms')
                     ->label('Quarto(s)')
+                    ->toggleable()
                     ->placeholder('—')
                     ->alignEnd()
                     ->sortable()
@@ -89,12 +96,14 @@ class PropertiesTable
 
                 TextColumn::make('price')
                     ->label('Preço')
+                    ->toggleable()
                     ->state(fn (Property $record) => Format::price($record->price, $record->currency, $record->business_type, $record->price_visible))
                     ->alignEnd()
                     ->sortable(),
 
                 IconColumn::make('keys')
                     ->label('Chaves')
+                    ->toggleable()
                     ->state(fn (Property $record) => (bool) data_get($record->admin, 'keys.has'))
                     ->boolean()
                     ->tooltip(fn (Property $record) => data_get($record->admin, 'keys.notes'))
@@ -105,12 +114,14 @@ class PropertiesTable
 
                 TextColumn::make('broker.name')
                     ->label('Angariador')
+                    ->toggleable()
                     ->state(fn (Property $record) => data_get($record->broker, 'name'))
                     ->placeholder('—')
                     ->visibleFrom('xl'),
 
                 TextColumn::make('view')
                     ->label('Visualizar')
+                    ->toggleable()
                     // Só abre o que o site mostra: vendidas, retiradas ou fora de
                     // mercado respondem 410, não vale a pena oferecer o link.
                     ->state(fn (Property $record) => $record->isPublishable() ? 'Ver no site' : '—')
@@ -121,6 +132,7 @@ class PropertiesTable
 
                 TextColumn::make('status')
                     ->label('Estado')
+                    ->toggleable()
                     ->badge()
                     ->state(fn (Property $record) => match (true) {
                         $record->trashed() => 'Na reciclagem',
@@ -141,6 +153,7 @@ class PropertiesTable
 
                 TextColumn::make('tags')
                     ->label('Etiquetas')
+                    ->toggleable()
                     ->state(fn (Property $record) => data_get($record->admin, 'tags', []))
                     ->badge()
                     ->color('gray')

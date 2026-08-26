@@ -510,3 +510,16 @@ it('as coordenadas continuam escondidas quando o mapa não é visível', functio
         ->assertDontSee('40.5762594')
         ->assertDontSee('-8.449049');
 });
+
+it('todas as colunas da lista de imóveis podem ser escondidas', function () {
+    // A pedido do cliente: sem predefinição trancada. Cada coluna aparece no
+    // menu "Colunas" e pode ser desmarcada — as doze do CRM incluídas.
+    $lista = Livewire::test(ListProperties::class)->instance();
+
+    $colunas = $lista->getTable()->getColumns();
+    expect($colunas)->not->toBeEmpty();
+
+    foreach ($colunas as $nome => $coluna) {
+        expect($coluna->isToggleable())->toBeTrue("A coluna '{$nome}' devia poder ser escondida.");
+    }
+});
