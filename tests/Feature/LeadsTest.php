@@ -7,7 +7,6 @@
  */
 
 use App\Enums\LeadSource;
-use App\Enums\LeadStatus;
 use App\Http\Requests\StoreLeadRequest;
 use App\Models\Lead;
 use App\Models\Property;
@@ -169,12 +168,6 @@ it('aplica rate limiting por IP', function () {
 | Modelo
 |--------------------------------------------------------------------------
 */
-
-it('as leads novas ficam pending (coluna mantida para histórico/backoffice)', function () {
-    $this->post(route('leads.store'), leadPayload());
-
-    expect(Lead::first()->crm_status)->toBe(LeadStatus::Pending);
-});
 
 /*
 |--------------------------------------------------------------------------

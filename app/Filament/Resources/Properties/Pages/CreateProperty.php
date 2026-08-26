@@ -68,7 +68,6 @@ class CreateProperty extends CreateRecord
             $data['internal_id']
         );
         $data['payload_hash'] = hash('sha256', json_encode($data));
-        $data['synced_at'] = now();
 
         return $data;
     }

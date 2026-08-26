@@ -1,11 +1,10 @@
 <?php
 
 /*
- * Fase 7 — casos-limite transversais: robustez do sync a itens maus, escape de
- * conteúdo vindo do feed nas views, casafari:inspect, leads em JSON, listagem.
+ * Casos-limite transversais: escape de conteúdo nas views, leads em JSON,
+ * listagem e zonas.
  */
 
-use App\Enums\LeadStatus;
 use App\Http\Requests\StoreLeadRequest;
 use App\Livewire\PropertyListing;
 use App\Models\Lead;
@@ -15,50 +14,11 @@ use Livewire\Livewire;
 
 /*
 |--------------------------------------------------------------------------
-| Sync — itens maus não param o resto
+| Conteúdo é escapado nas views (XSS)
 |--------------------------------------------------------------------------
 */
 
-it('um imóvel sem finalidade conta como erro e os outros são criados', function () {
-    $xml = '<?xml version="1.0"?><Feed><Properties>
-        <Property><ID>1</ID><BusinessType>sale</BusinessType><Title lang="pt">Ok</Title></Property>
-        <Property><ID>2</ID><BusinessType>???</BusinessType><Title lang="pt">Sem finalidade</Title></Property>
-        <Property><ID>3</ID><BusinessType>rent</BusinessType><Title lang="pt">Ok 2</Title></Property>
-    </Properties></Feed>';
-    $path = tempnam(sys_get_temp_dir(), 'mf').'.xml';
-    file_put_contents($path, $xml);
-
-    $this->artisan('casafari:sync', ['--file' => $path])
-        ->expectsOutputToContain('Erros')
-        ->assertFailed();   // exit code denuncia o erro…
-
-    expect(Property::count())->toBe(2)   // …mas os bons entraram
-        ->and(Property::where('internal_id', '2')->exists())->toBeFalse();
-});
-
-it('um feed com centenas de imóveis sincroniza numa passagem e pagina bem', function () {
-    $items = '';
-    for ($i = 1; $i <= 300; $i++) {
-        $items .= "<Property><ID>{$i}</ID><Reference>R-{$i}</Reference><BusinessType>sale</BusinessType><Price>".($i * 1000).'</Price>
-            <Location><City>Cidade '.($i % 7)."</City></Location><Title lang=\"pt\">Imóvel {$i}</Title></Property>";
-    }
-    $path = tempnam(sys_get_temp_dir(), 'mf').'.xml';
-    file_put_contents($path, "<?xml version=\"1.0\"?><Feed><Properties>{$items}</Properties></Feed>");
-
-    $this->artisan('casafari:sync', ['--file' => $path])->assertSuccessful();
-
-    expect(Property::count())->toBe(300);
-    $this->get(route('buy', ['page' => 25]))->assertOk();
-    $this->get('/sitemap.xml')->assertOk()->assertSee('r-300', false);
-});
-
-/*
-|--------------------------------------------------------------------------
-| Conteúdo do feed é escapado nas views (XSS)
-|--------------------------------------------------------------------------
-*/
-
-it('escapa HTML vindo do CRM em título, descrição, características e broker', function () {
+it('escapa HTML em título, descrição, características e broker', function () {
     $p = Property::factory()->create([
         'translations' => ['pt' => ['title' => 'Casa <script>alert(1)</script>', 'description' => 'Linda <img src=x onerror=alert(2)>']],
         'features' => ['<b>garagem</b>'],
@@ -90,28 +50,6 @@ it('o JSON-LD escapa "</script>" para não fechar o bloco', function () {
 
 /*
 |--------------------------------------------------------------------------
-| casafari:inspect
-|--------------------------------------------------------------------------
-*/
-
-it('casafari:inspect descreve a fixture: hierarquia, contagem, primeiro imóvel e lang', function () {
-    $this->artisan('casafari:inspect', ['--file' => 'tests/Fixtures/casafari-feed.xml'])
-        ->expectsOutputToContain('Feed/Properties/Property')
-        ->expectsOutputToContain('Total de imóveis')
-        ->expectsOutputToContain('Como atributo')
-        ->expectsOutputToContain('Owner')          // aparece na hierarquia: o inspect mostra tudo (só o sync o ignora)
-        ->assertSuccessful();
-});
-
-it('casafari:inspect falha com mensagem clara sem URL e sem ficheiro', function () {
-    config(['casafari.feed_url' => null]);
-
-    $this->artisan('casafari:inspect')->expectsOutputToContain('CASAFARI_FEED_URL')->assertFailed();
-    $this->artisan('casafari:inspect', ['--file' => 'nao-existe.xml'])->expectsOutputToContain('não encontrado')->assertFailed();
-});
-
-/*
-|--------------------------------------------------------------------------
 | Leads — resposta JSON e limites
 |--------------------------------------------------------------------------
 */
@@ -124,7 +62,7 @@ it('aceita pedidos JSON e responde 201 com mensagem', function () {
         'form_ts' => StoreLeadRequest::signedTimestamp(time() - 20),
     ])->assertCreated()->assertJson(['ok' => true]);
 
-    expect(Lead::count())->toBe(1)->and(Lead::first()->crm_status)->toBe(LeadStatus::Pending);
+    expect(Lead::count())->toBe(1);
 });
 
 it('rejeita mensagens demasiado longas e nomes de 1 carácter em JSON com 422', function () {

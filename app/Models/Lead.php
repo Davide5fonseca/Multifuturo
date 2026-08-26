@@ -7,16 +7,14 @@ use App\Enums\LeadKind;
 use App\Enums\LeadPriority;
 use App\Enums\LeadSource;
 use App\Enums\LeadStage;
-use App\Enums\LeadStatus;
 use Database\Factories\LeadFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
- * Lead captada no site. Grava-se localmente primeiro; o envio ao CASAFARI é
- * feito pelo job SendLeadToCasafari, que atualiza crm_status/crm_response.
+ * Dúvida chegada pelo site. Grava-se localmente e fica no backoffice; a
+ * equipa é avisada por email e pelo sino do painel.
  *
  * @property int $id
  * @property string $name
@@ -32,11 +30,6 @@ use Illuminate\Support\Carbon;
  * @property string $policy_version
  * @property ?string $ip_hash
  * @property ?string $user_agent
- * @property LeadStatus $crm_status
- * @property ?array<string, mixed> $crm_response
- * @property ?Carbon $sent_at
- * @property int $attempts
- * @property ?string $last_error
  */
 class Lead extends Model
 {
@@ -74,15 +67,11 @@ class Lead extends Model
             'kind' => LeadKind::class,
             'status' => LeadStage::class,
             'priority' => LeadPriority::class,
-            'crm_status' => LeadStatus::class,
             'payload' => 'array',
-            'crm_response' => 'array',
             'replies' => 'array',
             'replied_at' => 'datetime',
             'consent_contact' => 'boolean',
             'consent_marketing' => 'boolean',
-            'sent_at' => 'datetime',
-            'attempts' => 'integer',
         ];
     }
 

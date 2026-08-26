@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Enums\LeadKind;
 use App\Enums\LeadSource;
 use App\Enums\LeadStage;
-use App\Enums\LeadStatus;
 use App\Models\Lead;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -37,8 +36,6 @@ class LeadFactory extends Factory
             'policy_version' => '2026-08-18',
             'ip_hash' => hash('sha256', fake()->ipv4()),
             'user_agent' => 'PestPHP',
-            'crm_status' => LeadStatus::Pending,
-            'attempts' => 0,
         ];
     }
 }

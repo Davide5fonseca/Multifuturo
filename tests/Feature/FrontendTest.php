@@ -5,12 +5,9 @@
  * favoritos, sitemap e cache.
  */
 
-use App\Events\PropertiesSynced;
 use App\Livewire\PropertyListing;
 use App\Models\Property;
 use App\Models\Zone;
-use App\Services\Casafari\SyncResult;
-use App\Support\PropertyCache;
 use Livewire\Livewire;
 
 /*
@@ -265,27 +262,4 @@ it('o sitemap inclui só imóveis ativos e as zonas', function () {
         ->toContain(route('zones.city', 'cascais'))
         ->toContain(route('zones.locality', ['cascais', 'estoril']))
         ->not->toContain('faro');
-});
-
-it('a cache das listagens é limpa quando o sync altera imóveis', function () {
-    Property::factory()->create();
-    $this->get(route('buy'))->assertOk();          // aquece a cache
-
-    $new = Property::factory()->create();
-    $this->get(route('buy'))->assertDontSee($new->slug);   // ainda em cache
-
-    $r = new SyncResult(dryRun: false, force: false);
-    $r->created = 1;
-    event(new PropertiesSynced($r));
-
-    $this->get(route('buy'))->assertSee($new->slug);        // cache invalidada
-});
-
-it('um sync sem alterações não esvazia a cache', function () {
-    Property::factory()->create();
-    PropertyCache::remember('sentinel', fn () => 'ok');
-
-    event(new PropertiesSynced(new SyncResult(dryRun: false, force: false)));
-
-    expect(PropertyCache::store()->get('props:sentinel'))->toBe('ok');
 });

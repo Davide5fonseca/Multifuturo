@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\LeadSource;
-use App\Enums\LeadStatus;
 use App\Http\Requests\StoreLeadRequest;
 use App\Models\Lead;
 use App\Models\Property;
@@ -48,7 +47,6 @@ class LeadController extends Controller
             'policy_version' => (string) config('agency.privacy_policy_version'),
             'ip_hash' => Lead::hashIp($request->ip()),
             'user_agent' => mb_substr((string) $request->userAgent(), 0, 255),
-            'crm_status' => LeadStatus::Pending,
         ]);
 
         // Aviso à agência (sem CRM: a lead vive na nossa BD e no backoffice).

@@ -8,15 +8,15 @@ use Illuminate\Support\Facades\Cache;
 
 /**
  * Cache das leituras de imóveis (listagens, filtros, destaques, zonas, sitemap).
- * Tudo debaixo da mesma tag para ser invalidado de uma vez no fim do sync
- * (ver FlushPropertyCache). Redis e array suportam tags; ficheiro/BD não —
+ * Tudo debaixo da mesma tag para ser invalidado de uma vez sempre que o
+ * backoffice grava (flush()). Redis e array suportam tags; ficheiro/BD não —
  * nesse caso cai para cache sem tags (invalidação por TTL apenas).
  */
 final class PropertyCache
 {
     public const TAG = 'properties';
 
-    /** TTL por defeito: 1 h (o sync corre de hora a hora e limpa mais cedo se houver mudanças). */
+    /** TTL por defeito: 1 h — na prática o backoffice limpa a cache a cada gravação. */
     public const TTL = 3600;
 
     public static function store(): TaggedCache|Repository

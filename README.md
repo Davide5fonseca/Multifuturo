@@ -36,9 +36,8 @@
 
 ## 🧭 Arquitetura
 
-> **Desde 2026-08-19 não há CRM externo:** a equipa gere a carteira no **backoffice
-> próprio (`/admin`, Filament)**, que escreve na mesma base de dados que o site lê.
-> O código CASAFARI mantém-se apenas para importações pontuais de ficheiro.
+> **Não há CRM externo:** a equipa gere a carteira no **backoffice próprio
+> (`/admin`, Filament)**, que escreve na mesma base de dados que o site lê.
 
 ```mermaid
 flowchart LR
@@ -52,11 +51,9 @@ flowchart LR
 
     E(("👩‍💼 equipa"))
     V(("👤 visitante"))
-    X[/"exportação XML do CRM<br><sub>casafari:sync --file (pontual)</sub>"/]
 
     E --> BO
     BO -->|"CRUD imóveis · zonas<br>upload de fotos"| DB
-    X -.-> DB
     DB --> SITE
     CACHE <--> SITE
     V --> SITE
@@ -174,7 +171,6 @@ Copiar `.env.example` → `.env` e preencher por grupo:
 
 | Grupo | Variáveis | Config |
 |---|---|---|
-| 📦 Importação pontual | `CASAFARI_*` — só para `casafari:sync --file=` (exportações XML do antigo CRM) | `config/casafari.php` |
 | 🏢 Agência | `AGENCY_NAME` · **`AGENCY_AMI`** · `AGENCY_PHONE/EMAIL/ADDRESS` · redes sociais · `AGENCY_COMPLAINTS_BOOK_URL` · `AGENCY_PRIVACY_POLICY_VERSION` · `AGENCY_HERO_IMAGE` | `config/agency.php` |
 | 🍪 Cookies | `CONSENT_COOKIE` · `CONSENT_DAYS` · `CONSENT_VERSION` | `config/consent.php` |
 
@@ -213,30 +209,6 @@ Automatismos: `internal_id` (`BO-…`), `slug` (estável — nunca recalculado a
 Cada lead nova dispara um **email à agência** (`NewLeadReceived` → `AGENCY_EMAIL`, via
 queue) e fica na caixa de entrada. Requer `php artisan storage:link` (fotos) e
 `queue:work` (emails).
-
-## 📦 Importação pontual do antigo CRM
-
-```powershell
-.\sail.ps1 artisan casafari:inspect --file=storage/app/casafari/export.xml   # descreve o XML
-.\sail.ps1 artisan casafari:sync --file=…                                    # importa (upsert)
-```
-
-O motor (`app/Services/Casafari/`) fica disponível apenas para estas importações — não
-há agendamento. Regras que continuam a valer:
-
-|  | Regra |
-|---|---|
-| 🔑 | **Upsert por `internal_id`** — chave única do CRM; parsing em streaming (`XMLReader`) |
-| #️⃣ | **sha256 por nó XML** — imóvel inalterado só toca em `synced_at` (nem o `updated_at` mexe) |
-| 🔗 | **Slug estável** — `tipo-concelho-referência`, gerado uma vez, nunca recalculado |
-| 🗄️ | **Nunca se apaga** — desaparecido do feed ⇒ `is_active=false` (ficha responde **410** com semelhantes); reaparece ⇒ reativa |
-| 🛑 | **Guard crítico** — feed com 0 imóveis (ou < `CASAFARI_MIN_ITEMS`) aborta **antes** de desativar; erros de mapeamento também suspendem a desativação |
-| 🔒 | **`Owner` nunca é lido** — removido do DOM antes de qualquer mapeamento |
-
-> [!NOTE]
-> O mapeamento em `config/casafari.php` ajusta-se ao XML de cada exportação (blocos
-> `feed`/`mapping`). Os ficheiros em `storage/app/casafari/` contêm dados reais
-> (incluindo de proprietários) e estão fora do git.
 
 ## ✉️ Leads
 
@@ -281,7 +253,6 @@ Cache de leituras: `App\Support\PropertyCache` (tag `properties`, TTL 1 h), limp
 | Zero pedidos externos sem consentimento | fontes locais; mapa OSM só ao clicar; scripts de terceiros via `<x-consent-script>` (`type="text/plain"` até opt-in); teste garante que nenhuma página chama fora |
 | Banner de cookies granular | necessários / análise / marketing; recusa com o mesmo peso visual; cookie first-party 180 dias; "Gerir cookies" no rodapé |
 | Rodapé legal | AMI · Livro de Reclamações eletrónico · políticas |
-| Feed tratado como não confiável | tipos forçados e limitados, escape nas views, `LIBXML_NONET` (sem XXE), URLs validados |
 
 Textos legais em `lang/pt/legal.php` — **minutas**, carecem de revisão jurídica.
 
@@ -350,29 +321,26 @@ Os ficheiros restauram-se com `tar -xzf ficheiros.tar.gz -C storage/app/`.
 - PostgreSQL obrigatório nos testes (o schema usa `jsonb` + GIN; SQLite não serve).
 - CI: [`.github/workflows/tests.yml`](.github/workflows/tests.yml) — Pint + Pest com
   PostgreSQL 16 e Redis em cada push/PR; em falha, as linhas do log saem como annotations.
-- Regras críticas cobertas: guard do feed vazio · Owner · slugs estáveis · `gmap_visible` ·
-  lead local com CRM em baixo · `status=false` em HTTP 200 · AMI em produção · XSS/XXE · rate limiting.
+- Regras críticas cobertas: slugs estáveis · `gmap_visible` · lead gravada antes do email ·
+  AMI em produção · XSS · rate limiting · reciclagem e 410 · cópias de segurança.
 
 <details>
 <summary><h2>🗺️ Mapa do código</h2></summary>
 
 ```
 app/
-├── Console/Commands/     CasafariInspect (diagnóstico do feed) · CasafariSync (sincronização)
-├── Enums/                BusinessType · LeadSource · LeadStatus
-├── Events/               PropertiesSynced (fim do sync → invalida cache)
+├── Console/Commands/     BackupRun (cópia diária) · ZonesImport
+├── Enums/                BusinessType · LeadSource · LeadKind · LeadStage · EventType · …
 ├── Http/
 │   ├── Controllers/      Page · Property (ficha, JSON-LD, 410) · Zone · Favorites · Lead · Sitemap · Robots
 │   └── Requests/         StoreLeadRequest (validação + anti-spam)
-├── Jobs/                 SendLeadToCasafari (queue, retries, status===true)
-├── Listeners/            FlushPropertyCache
 ├── Livewire/             PropertyListing (filtros na query string, paginação, cache)
 ├── Models/               Property (scopes, coordinates, generateSlug) · Lead · Zone
-├── Notifications/        LeadDeliveryFailed
-├── Services/Casafari/    FeedClient · FeedReader · PropertyMapper · PropertySyncer · SyncResult
-└── Support/              AppUrl · AgencyCompliance (AMI) · Format · PropertyCache · Zones · helpers
+├── Notifications/        NewLeadReceived · LeadReply
+├── Observers/            PropertyObserver (histórico das fichas)
+└── Support/              AppUrl · AgencyCompliance (AMI) · Format · Geocoder · Locales · PropertyCache · Zones
 
-config/    casafari.php (feed/mapping PROVISÓRIO) · agency.php · consent.php
+config/    agency.php · consent.php · locales.php · backup.php
 lang/pt/   ui.php (toda a UI) · legal.php (políticas) · validation/pagination/auth/passwords
 resources/
 ├── css/app.css           tokens da marca (@theme) · fontes locais
@@ -385,9 +353,8 @@ resources/
     │                     favorites · contact · valuation · legal
     └── errors/           404 (com pesquisa) · 500 · 503
 tests/
-├── Feature/              AgencyConfig · PublicPages · SeoFiles · PropertySchema ·
-│                         CasafariSync · Leads · Frontend · Legal · PropertyMapper · EdgeCases
-└── Fixtures/             casafari-feed.xml (PROVISÓRIA — substituir por excerto real anonimizado)
+└── Feature/              AgencyConfig · PublicPages · SeoFiles · PropertySchema · Leads ·
+                          Frontend · Legal · EdgeCases · Backoffice* · Localization · …
 ```
 
 </details>

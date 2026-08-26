@@ -9,8 +9,8 @@ use Illuminate\Support\Str;
 
 /**
  * Factory de Property — APENAS para testes automatizados. Os dados são
- * fictícios e nunca devem servir de seed em ambientes reais: a única fonte
- * de imóveis é o feed do CASAFARI.
+ * fictícios e nunca devem servir de seed em ambientes reais: os imóveis
+ * entram pelo backoffice.
  *
  * @extends Factory<Property>
  */
@@ -72,7 +72,6 @@ class PropertyFactory extends Factory
             'is_active' => true,
             'is_exclusive' => fake()->boolean(20),
             'is_featured' => false,
-            'synced_at' => now(),
         ];
     }
 

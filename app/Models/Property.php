@@ -14,9 +14,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
- * Imóvel — réplica local de um registo do CASAFARI CRM.
- *
- * Só o comando de sync escreve nesta tabela. O site lê daqui e nunca do CRM.
+ * Imóvel — gerido no backoffice (/admin), que escreve nesta tabela; o site
+ * lê daqui.
  *
  * @property int $id
  * @property string $internal_id
@@ -68,7 +67,6 @@ use Illuminate\Support\Str;
  * @property bool $is_active
  * @property bool $is_exclusive
  * @property bool $is_featured
- * @property ?Carbon $synced_at
  */
 class Property extends Model
 {
@@ -120,7 +118,6 @@ class Property extends Model
             'admin' => 'array',
             'documents' => 'array',
             'crm_updated_at' => 'datetime',
-            'synced_at' => 'datetime',
         ];
     }
 

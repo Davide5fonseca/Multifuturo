@@ -17,7 +17,7 @@ it('cria a tabela properties com as colunas previstas', function () {
         'country', 'district', 'city', 'locality', 'zone', 'zipcode', 'lat', 'lon', 'gmap_visible',
         'floor_number', 'build_year', 'energy_rating', 'crm_property_url', 'video_url',
         'virtual_tour_url', 'floorplan_url', 'translations', 'photos', 'features', 'broker',
-        'slug', 'payload_hash', 'crm_updated_at', 'is_active', 'is_exclusive', 'is_featured', 'synced_at',
+        'slug', 'payload_hash', 'crm_updated_at', 'is_active', 'is_exclusive', 'is_featured',
     ];
 
     foreach ($expected as $column) {
