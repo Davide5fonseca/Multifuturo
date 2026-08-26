@@ -9,6 +9,47 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Código morto do CRM removido
+
+$${\color{#5D6348}\textsf{2026-08-26 · 15:26}}$$
+
+**Commit:** `9549779` — `Remover o código morto do CRM da CASAFARI`
+
+O site nunca chegou a ligar-se ao CRM (decisão de 2026-08-19). O motor de sincronização,
+o diagnóstico do feed e o envio de leads ficaram no repositório "para importações
+pontuais" que nunca aconteceram — e quem abrisse um desses ficheiros não tinha forma de
+saber que era código morto.
+
+### Apagado
+| | |
+|---|---|
+| **Comandos** | `casafari:sync` · `casafari:inspect` |
+| **Motor** | `app/Services/Casafari/` inteiro (6 classes) |
+| **Evento/listener** | `PropertiesSynced` · `FlushPropertyCache` — o backoffice já limpa a cache a cada gravação |
+| **Enum e config** | `LeadStatus` · `config/casafari.php` · variáveis `CASAFARI_*` do `.env` |
+| **Testes** | `CasafariSyncTest` · `PropertyMapperTest` · a fixture XML · os troços de sync noutros três ficheiros |
+
+### Base de dados (migração)
+Nas **leads** saem `crm_status`, `crm_response`, `sent_at`, `attempts` e `last_error` —
+só existiam para o envio ao CRM. Nos **imóveis** sai `synced_at`, que só o sync escrevia.
+
+### README
+Fora a secção de importação, o nó do diagrama, a linha da tabela de configuração e as
+entradas do mapa do código. O mapa passa a reflectir o que existe hoje.
+
+### O que fica, de propósito
+Os comentários que dizem que as listas do formulário são "as do CRM, pela mesma ordem".
+Não são código morto — são a razão de ser dessas listas, e quem as for mudar precisa de
+saber de onde vieram.
+
+**183 testes a passar** (menos 31, todos do sync), Pint limpo. O repositório perde ~1 800
+linhas que já não faziam nada.
+
+> A exportação XML do CRM em `storage/app/casafari/` **não foi tocada**: é um ficheiro de
+> dados, fora do git, e foi de lá que se recuperou a AP/001.
+
+---
+
 ## Lista de imóveis: todas as colunas escondíveis
 
 $${\color{#5D6348}\textsf{2026-08-26 · 12:13}}$$
