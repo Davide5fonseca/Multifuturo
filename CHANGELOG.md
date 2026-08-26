@@ -9,6 +9,32 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Simulador de crédito habitação na ficha
+
+$${\color{#5D6348}\textsf{2026-08-26 · 17:49}}$$
+
+**Commit:** `1b21910` — `Site: simulador de crédito habitação na ficha do imóvel`
+
+A pedido do cliente. Na ficha de cada **venda**, a seguir às características: três
+cursores — **entrada**, **prazo** e **taxa anual** — e, ao lado, a **prestação mensal
+estimada**, o valor a financiar, os juros totais e o custo total do crédito. Já vem com o
+preço do imóvel; arrasta-se e o resultado muda na hora.
+
+### Decisões
+- **Corre inteiramente no browser.** Nenhum valor sai para o servidor, não há pedidos
+  externos, e funciona mesmo com o site em cache. Também não há nada a guardar: é uma
+  conta, não um pedido.
+- **Só em vendas com preço público.** Num arrendamento não faz sentido; e com "preço sob
+  consulta" o simulador **revelaria o preço escondido** — há um teste a impedi-lo.
+- **Aviso permanente** por baixo do resultado: valores indicativos, prestação constante,
+  sem seguros nem comissões; a taxa, o spread e a TAEG dependem do banco. Não é proposta
+  de crédito — a frase que protege a agência.
+- Valores por omissão: 10 % de entrada, 30 anos, TAN 3,50 % — todos ajustáveis.
+
+Quatro testes novos, **187 a passar**, Pint limpo.
+
+---
+
 ## Código morto do CRM removido
 
 $${\color{#5D6348}\textsf{2026-08-26 · 15:26}}$$
