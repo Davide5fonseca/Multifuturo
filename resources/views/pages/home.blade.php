@@ -11,7 +11,7 @@
             <img src="{{ $heroImage }}" alt="" width="1920" height="1080" fetchpriority="high" decoding="async"
                  class="absolute inset-0 -z-20 h-full w-full object-cover" data-fallback="{{ asset('images/placeholder-property.jpg') }}"
                  onerror="this.onerror=null;this.src=this.dataset.fallback">
-            <div class="absolute inset-0 -z-10 bg-ink/45" aria-hidden="true"></div>
+            <div class="absolute inset-0 -z-10 bg-gradient-to-t from-ink/75 via-ink/55 to-ink/30" aria-hidden="true"></div>
         @endif
         <div class="container-site py-24 text-center">
             <p @class(['label', 'text-sand-200!' => $heroImage])>{{ __('ui.home.eyebrow') }}</p>
@@ -24,8 +24,8 @@
     </section>
 
     {{-- 2. Pesquisa rápida --}}
-    <section class="container-site -mt-8 relative z-10">
-        <x-site.search-form class="mx-auto max-w-3xl bg-sand-50 p-2 shadow-hairline" />
+    <section class="container-site relative z-10 -mt-12">
+        <x-site.search-form class="mx-auto max-w-3xl rounded-2xl bg-sand-50 p-2.5 shadow-xl shadow-ink/10 ring-1 ring-sand-200" />
     </section>
 
     {{-- 3. Destaques --}}
@@ -68,7 +68,7 @@
             <div class="mt-14 grid gap-12 text-left sm:grid-cols-3">
                 @foreach ([1, 2, 3] as $n)
                     <div>
-                        <span class="block h-px w-10 bg-olive-600" aria-hidden="true"></span>
+                        <span class="flex items-center gap-3" aria-hidden="true"><span class="font-serif text-sm text-olive-700">0{{ $n }}</span><span class="h-px w-10 bg-olive-600"></span></span>
                         <h3 class="mt-5 font-sans text-lg font-medium">{{ __("ui.home_sections.why_{$n}_title") }}</h3>
                         <p class="mt-3 text-sm leading-relaxed text-ink-muted">{{ __("ui.home_sections.why_{$n}_text") }}</p>
                     </div>

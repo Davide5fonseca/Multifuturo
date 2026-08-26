@@ -231,4 +231,17 @@
     .field {
         @apply min-h-11 w-full rounded-md border border-sand-200 bg-white px-4 py-3 text-ink placeholder:text-ink-muted focus:border-olive-600 focus:outline-none;
     }
+    /*
+     * Selects nativos com a mesma seta em todo o site (a de cada browser
+     * destoava). O SVG é inline para não haver mais um pedido.
+     */
+    select.field,
+    .select-chevron {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236F6C60' stroke-width='1.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.9rem center;
+        background-size: 1rem;
+        padding-right: 2.6rem;
+    }
 }

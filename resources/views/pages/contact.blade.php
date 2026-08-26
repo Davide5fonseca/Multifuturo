@@ -9,6 +9,7 @@
                 @if (config('agency.phone'))<p><a class="link" href="tel:{{ preg_replace('/\s+/', '', config('agency.phone')) }}">{{ config('agency.phone') }}</a></p>@endif
                 @if (config('agency.email'))<p><a class="link" href="mailto:{{ config('agency.email') }}">{{ config('agency.email') }}</a></p>@endif
             </div>
+            <p class="mt-8 max-w-sm text-sm leading-relaxed text-ink-muted">{{ __('ui.contact.note') }}</p>
         </div>
         <x-lead-form source="contact" />
     </section>

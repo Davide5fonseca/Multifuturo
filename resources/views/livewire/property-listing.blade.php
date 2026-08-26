@@ -27,7 +27,7 @@
 
     <div class="mt-8 grid gap-10 lg:grid-cols-[280px_minmax(0,1fr)]">
         {{-- Filtros: coluna lateral em desktop, painel colapsável em mobile. Funciona sem JS (form GET). --}}
-        <aside id="lst-filters" :class="filtersOpen ? '' : 'max-lg:hidden'">
+        <aside id="lst-filters" class="lg:sticky lg:top-8 lg:self-start" :class="filtersOpen ? '' : 'max-lg:hidden'">
             <form method="get" action="{{ url()->current() }}" wire:submit.prevent class="grid gap-6">
                 <div>
                     <label for="lst-q" class="label">{{ __('ui.listing.search') }}</label>
@@ -54,7 +54,7 @@
                     </select>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid gap-3">
                     <div>
                         <label for="lst-city" class="label">{{ __('ui.listing.city') }}</label>
                         <select id="lst-city" name="concelho" wire:model.live="city" class="field mt-2 py-2 text-sm">
@@ -97,7 +97,7 @@
                         <div class="mt-3 grid gap-2 text-sm">
                             @foreach ($opts['features'] as $f)
                                 <label class="flex items-center gap-2">
-                                    <input type="checkbox" name="caracteristicas[]" value="{{ $f }}" wire:model.live="features" class="h-4 w-4 accent-olive-600">
+                                    <input type="checkbox" name="caracteristicas[]" value="{{ $f }}" wire:model.live="features" class="h-5 w-5 shrink-0 accent-olive-600">
                                     <span class="capitalize">{{ $f }}</span>
                                 </label>
                             @endforeach

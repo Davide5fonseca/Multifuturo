@@ -53,7 +53,7 @@
                         {{ __('ui.property.reference') }} {{ $p->reference ?? $p->internal_id }} · {{ $p->business_type->label() }}
                         @if ($p->is_exclusive) · <span class="text-olive-700">{{ __('ui.property.exclusive') }}</span> @endif
                     </p>
-                    <h1 class="mt-3 text-3xl leading-tight sm:text-5xl">{{ $title }}</h1>
+                    <h1 class="mt-3 text-3xl leading-tight tracking-tight sm:text-5xl">{{ $title }}</h1>
                     <p class="mt-3 text-ink-muted">{{ $location }}</p>
                     <p class="price mt-6 text-3xl sm:text-4xl">{{ Format::price($p->price, $p->currency, $p->business_type, $p->price_visible) }}</p>
 
@@ -77,7 +77,7 @@
                 @if ($details)
                     <section class="mt-12">
                         <h2 class="label">{{ __('ui.property.details') }}</h2>
-                        <dl class="mt-4 grid grid-cols-2 gap-x-8 gap-y-4 border-t border-sand-200 pt-4 text-sm sm:grid-cols-3">
+                        <dl class="mt-4 grid grid-cols-2 gap-x-8 gap-y-5 border-t border-sand-200 pt-5 text-sm leading-relaxed sm:grid-cols-3">
                             @foreach ($details as $label => $value)
                                 <div>
                                     <dt class="text-ink-muted">{{ $label }}</dt>
@@ -134,7 +134,7 @@
 
             <aside class="lg:sticky lg:top-8 lg:self-start">
                 @if ($p->broker && ($p->broker['name'] ?? null))
-                    <div class="mb-6 flex items-center gap-4">
+                    <div class="mb-4 flex items-center gap-4 rounded-xl border border-sand-200 bg-sand-100 px-5 py-4">
                         @if ($p->broker['photo'] ?? null)
                             <img src="{{ $p->broker['photo'] }}" alt="" width="56" height="56" class="h-14 w-14 rounded-full object-cover" loading="lazy" onerror="this.style.display='none'">
                         @endif

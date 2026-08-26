@@ -24,10 +24,16 @@
             @endif
         </a>
         @if ($thumbs)
-            <div class="grid grid-cols-4 gap-2 lg:grid-cols-2">
+            {{-- Desktop: duas miniaturas empilhadas (2 linhas), à altura da capa.
+                 Telemóvel: fila de até 4. As restantes ficam no lightbox. --}}
+            <div class="grid grid-cols-4 gap-2 lg:grid-cols-1 lg:grid-rows-2">
                 @foreach ($thumbs as $k => $ph)
-                    <a href="{{ $ph['url'] }}" @click.prevent="show({{ $k + 1 }})" class="block overflow-hidden rounded-lg bg-sand-200">
+                    <a href="{{ $ph['url'] }}" @click.prevent="show({{ $k + 1 }})"
+                       @class(['relative block overflow-hidden rounded-lg bg-sand-200', 'lg:hidden' => $k >= 2])>
                         <x-property.image :src="$ph['url']" :alt="__('ui.property.photo_n', ['n' => $k + 2, 'total' => $total])" ratio="4/3" sizes="(min-width: 1024px) 16vw, 25vw" />
+                        @if ($k === 1 && $total > 3)
+                            <span class="absolute inset-0 hidden items-center justify-center bg-ink/45 font-serif text-2xl text-sand-50 lg:flex" aria-hidden="true">+{{ $total - 3 }}</span>
+                        @endif
                     </a>
                 @endforeach
             </div>

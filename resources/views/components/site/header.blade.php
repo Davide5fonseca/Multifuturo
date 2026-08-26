@@ -50,7 +50,9 @@
     <nav id="menu-movel" x-show="open" x-cloak x-transition.opacity class="border-t border-sand-200 bg-sand-100 lg:hidden" aria-label="{{ __('ui.nav.main') }}">
         <div class="container-site flex flex-col py-4">
             @foreach ($links as $link)
-                <a href="{{ route($link['route']) }}" class="py-3 text-base text-ink hover:text-olive-700 border-b border-sand-200 last:border-0">
+                <a href="{{ route($link['route']) }}"
+                   @class(['py-3 text-base hover:text-olive-700 border-b border-sand-200 last:border-0', 'text-olive-700 font-medium' => request()->routeIs($link['route']), 'text-ink' => ! request()->routeIs($link['route'])])
+                   @if (request()->routeIs($link['route'])) aria-current="page" @endif>
                     {{ $link['label'] }}
                 </a>
             @endforeach

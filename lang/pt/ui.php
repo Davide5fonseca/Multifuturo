@@ -50,6 +50,10 @@ return [
         'rent' => 'Arrendar',
     ],
 
+    'contact' => [
+        'note' => 'Respondemos, em regra, no próprio dia útil. Se preferir, deixe o número de telefone e ligamos nós.',
+    ],
+
     'errors' => [
         '404_title' => 'Página não encontrada',
         '404_lead' => 'O endereço que procura não existe ou o imóvel já não está disponível. Experimente pesquisar a carteira.',

@@ -51,6 +51,10 @@ return [
         'rent' => 'Rent',
     ],
 
+    'contact' => [
+        'note' => 'As a rule, we reply within the same working day. If you prefer, leave your phone number and we will call you.',
+    ],
+
     'errors' => [
         '404_title' => 'Page not found',
         '404_lead' => 'This address does not exist, or the property is no longer available. Try searching our portfolio.',
