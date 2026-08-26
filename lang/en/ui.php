@@ -55,6 +55,20 @@ return [
         'note' => 'As a rule, we reply within the same working day. If you prefer, leave your phone number and we will call you.',
     ],
 
+    'simulator' => [
+        'title' => 'Mortgage simulator',
+        'lead' => 'An estimate of the monthly instalment for this property. Adjust the deposit, the term and the rate.',
+        'down_payment' => 'Deposit',
+        'term' => 'Term',
+        'years' => 'years',
+        'rate' => 'Annual rate (nominal)',
+        'monthly' => 'Estimated monthly instalment',
+        'loan' => 'Amount to finance',
+        'interest' => 'Total interest',
+        'total' => 'Total cost of credit',
+        'note' => 'Indicative figures only, calculated with a constant instalment and excluding insurance and fees. The rate, spread and APRC depend on the bank and on each situation. This is not a credit offer.',
+    ],
+
     'errors' => [
         '404_title' => 'Page not found',
         '404_lead' => 'This address does not exist, or the property is no longer available. Try searching our portfolio.',

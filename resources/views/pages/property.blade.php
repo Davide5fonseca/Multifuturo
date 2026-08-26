@@ -88,6 +88,17 @@
                     </section>
                 @endif
 
+                {{-- Simulador de crédito: só faz sentido numa venda com preço público. --}}
+                @if ($p->price && $p->price_visible && ! $p->business_type->isRent())
+                    <section class="mt-12">
+                        <h2 class="label">{{ __('ui.simulator.title') }}</h2>
+                        <p class="mt-2 max-w-xl text-sm text-ink-muted">{{ __('ui.simulator.lead') }}</p>
+                        <div class="mt-4">
+                            <x-property.mortgage-simulator :price="$p->price" />
+                        </div>
+                    </section>
+                @endif
+
                 @if ($p->description)
                     <section class="mt-12">
                         <h2 class="label">{{ __('ui.property.description') }}</h2>
