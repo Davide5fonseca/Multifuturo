@@ -9,6 +9,36 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Favoritos: o fantasma que não saía
+
+$${\color{#5D6348}\textsf{2026-08-26 · 10:45}}$$
+
+**Commit:** `07fbf1c` — `Favoritos: os que já não existem no site deixam de ficar presos`
+
+Encontrado pelo cliente: um favorito que não havia forma de tirar.
+
+### A causa
+Os favoritos vivem no browser do visitante (sem conta, sem registo — é essa a graça). Mas
+quando um imóvel guardado era entretanto **vendido, retirado ou apagado**, o slug ficava
+preso no browser **para sempre**: o servidor ignorava-o ao desenhar a página, o coração do
+cabeçalho continuava a contá-lo, e o visitante não tinha nenhum sítio onde clicar para o
+remover — o cartão dele já nem aparecia.
+
+### A correcção — favoritos que se limpam a si próprios
+- A página de favoritos passa a devolver ao browser **a lista dos imóveis que o servidor
+  confirmou existirem**; tudo o que ficou pelo caminho é **podado do localStorage** nesse
+  momento.
+- A **contagem passa a ser viva**: desmarcar um coração na própria página atualiza o
+  número — e ao desmarcar tudo, o **estado vazio aparece sem recarregar**.
+
+Teste novo garante que a poda vai com os slugs válidos — e só esses. **213 a passar**,
+Pint limpo.
+
+> Para o fantasma sair do seu browser, basta **visitar a página de favoritos uma vez** —
+> ela limpa-o sozinha.
+
+---
+
 ## Passagem visual completa do site
 
 $${\color{#5D6348}\textsf{2026-08-26 · 09:46}}$$
