@@ -37,6 +37,20 @@ document.addEventListener('alpine:init', () => {
             this.persist();
         },
 
+        /*
+         * Poda os favoritos que já não existem no site (imóveis vendidos,
+         * retirados ou apagados). Sem isto, um slug morto ficava preso no
+         * localStorage para sempre: o coração contava-o e ele nunca saía.
+         * Chamado pela página de favoritos com a lista que o servidor devolveu.
+         */
+        prune(valid) {
+            const keep = this.slugs.filter((s) => valid.includes(s));
+            if (keep.length !== this.slugs.length) {
+                this.slugs = keep;
+                this.persist();
+            }
+        },
+
         get count() {
             return this.slugs.length;
         },

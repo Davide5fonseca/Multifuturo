@@ -230,6 +230,24 @@ it('/favoritos renderiza os cartões pedidos por slug, só ativos, e ignora lixo
     $this->get(route('favorites'))->assertOk()->assertSee(__('ui.favorites.empty'));
 });
 
+it('a página de favoritos poda os que já não existem no site', function () {
+    // Um favorito de um imóvel vendido/retirado/apagado ficava preso no
+    // browser para sempre: o coração contava-o e ele nunca saía. A página
+    // passa a devolver ao Alpine a lista dos que o servidor confirmou, e o
+    // resto é removido do localStorage.
+    $ativo = Property::factory()->create();
+    $retirado = Property::factory()->inactive()->create();
+
+    $html = $this->get(route('favorites', ['slugs' => "{$ativo->slug},{$retirado->slug},fantasma-apagado"]))
+        ->assertOk()
+        ->getContent();
+
+    // A chamada de poda vai com os slugs válidos — e só esses.
+    expect($html)->toContain('$store.favorites.prune(')
+        ->toContain($ativo->slug)
+        ->not->toContain('data-slug="'.$retirado->slug.'"');
+});
+
 /*
 |--------------------------------------------------------------------------
 | SEO e cache
