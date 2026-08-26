@@ -9,6 +9,25 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Lista de imóveis: todas as colunas escondíveis
+
+$${\color{#5D6348}\textsf{2026-08-26 · 12:13}}$$
+
+**Commit:** `2ca441c` — `Backoffice: todas as colunas da lista de imóveis podem ser escondidas`
+
+No menu **"Colunas"** da lista de imóveis, as doze colunas da grelha do CRM apareciam
+**trancadas** — marcadas a cinzento, sem forma de as desmarcar. Só as colunas extra
+(título, finalidade, publicado…) se podiam esconder.
+
+A pedido do cliente, **sem predefinição trancada**: todas as colunas passam a poder ser
+escondidas. As doze do CRM abrem visíveis, as extra abrem escondidas, e **"Repor"** volta
+a esse arranjo. A escolha de cada pessoa fica guardada no browser dela.
+
+Teste novo percorre as colunas da lista e exige que cada uma seja escondível.
+**214 a passar**, Pint limpo.
+
+---
+
 ## Favoritos: o fantasma que não saía
 
 $${\color{#5D6348}\textsf{2026-08-26 · 10:45}}$$
