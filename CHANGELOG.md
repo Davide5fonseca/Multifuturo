@@ -9,6 +9,56 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Valores por m² do INE, com freguesias, no simulador
+
+$${\color{#5D6348}\textsf{2026-08-27 · 10:07}}$$
+
+**Commit:** `6408558` — `Site: valores por m² do INE, com freguesias, no simulador de estimativa`
+
+O cliente perguntou se não havia uma API que desse logo o valor do m² por concelho e
+zona. Há: a do **INE**, gratuita e sem chave. O simulador passa a ter os **308 concelhos**
+e as **freguesias** com dados, sem ninguém escrever nada.
+
+### De onde vêm os números
+- **Avaliação bancária** (INE 0012248): valor mediano por m², por concelho, **separado
+  em apartamentos e moradias**, mensal. Confidencial nos concelhos pequenos.
+- **Vendas dos últimos 12 meses** (INE 0012246): valor mediano por m² por concelho
+  **e por freguesia**, trimestral. Cobre praticamente tudo, sem separar o tipo.
+- Regra: por concelho e tipo, a avaliação bancária se existir, senão as vendas; cada
+  freguesia com vendas recebe o seu valor. **Terrenos nunca vêm do INE** — ficam para
+  a agência. Cada linha guarda a fonte e o período ("INE — avaliação bancária,
+  julho de 2026").
+
+### Como entra
+- Comando `valuation:import-ine`, **agendado à segunda-feira às 04:30**, e botão
+  **"Importar do INE"** no separador Valores de referência (com confirmação e
+  resumo no fim). Hoje: 1 308 valores, 304 concelhos, 350 freguesias.
+- **O que a agência escreve à mão vale mais**: a importação nunca pisa linhas
+  "manuais", e editar uma linha do INE torna-a manual. A origem aparece na lista
+  (INE / Manual) e é filtrável.
+- Se o INE não responder, nada muda e fica registado no log.
+
+### No simulador
+- Campo **"Freguesia (opcional)"** que só aparece quando o concelho tem freguesias com
+  valor; sugestões ao escrever. "Queluz" encontra "União das freguesias de Queluz e
+  Belas" — as freguesias agregadas respondem por qualquer das partes.
+- A freguesia só conta quando tem valor para o tipo escolhido; senão usa-se o concelho.
+  Por baixo do resultado diz-se de onde veio: "valor mediano do INE para Colares, Sintra".
+- A freguesia segue na morada do pedido de avaliação.
+
+### Pormenores técnicos
+- `reference_prices` ganha `locality` (191 caracteres: o INE traz nomes como "União
+  das freguesias de Almargem do Bispo, Pêro Pinheiro e Montelavar") e `source`;
+  índice único passa a concelho + freguesia + tipo.
+- Nenhum pedido externo é feito pelo visitante: o INE é chamado só pelo servidor,
+  na importação. A tabela embutida na página cresceu, mas é uma vez por visita.
+
+Cinco testes novos (respostas do INE simuladas: tipos, confidencialidade, freguesias,
+regiões ignoradas, idempotência, manuais preservados, falha sem estragos), **199 a
+passar**, Pint limpo.
+
+---
+
 ## Concelho escrito livremente no simulador
 
 $${\color{#5D6348}\textsf{2026-08-27 · 09:51}}$$
