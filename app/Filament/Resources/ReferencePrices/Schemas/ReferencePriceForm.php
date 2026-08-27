@@ -18,8 +18,8 @@ class ReferencePriceForm
         return $schema
             ->components([
                 Section::make('Valor por m²')
-                    ->description('O simulador multiplica este valor pela área que o visitante indica. Um valor por concelho e tipo; o mesmo par não pode repetir-se.')
-                    ->columns(3)
+                    ->description('O simulador multiplica este valor pela área que o visitante indica. Um valor por concelho (ou freguesia) e tipo; o mesmo trio não pode repetir-se. O que se grava aqui é "manual" e a importação do INE nunca o pisa.')
+                    ->columns(2)
                     ->columnSpanFull()
                     ->components([
                         TextInput::make('city')
@@ -28,8 +28,14 @@ class ReferencePriceForm
                             ->helperText('Escreva o nome como está nas fichas dos imóveis.')
                             ->required()
                             ->maxLength(96)
-                            ->unique(ignoreRecord: true, modifyRuleUsing: fn (Unique $rule, Get $get) => $rule->where('property_type', $get('property_type')))
-                            ->validationMessages(['unique' => 'Já existe um valor para este concelho e tipo — edite esse.']),
+                            ->unique(ignoreRecord: true, modifyRuleUsing: fn (Unique $rule, Get $get) => $rule
+                                ->where('property_type', $get('property_type'))
+                                ->where('locality', trim((string) $get('locality'))))
+                            ->validationMessages(['unique' => 'Já existe um valor para este concelho, freguesia e tipo — edite esse.']),
+                        TextInput::make('locality')
+                            ->label('Freguesia')
+                            ->placeholder('vazio = o concelho inteiro')
+                            ->maxLength(191),
                         Select::make('property_type')
                             ->label('Tipo')
                             ->options(ReferencePriceResource::TYPES)

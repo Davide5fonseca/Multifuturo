@@ -9,9 +9,11 @@ use Illuminate\Database\Eloquent\Model;
  * Valor de referência por m² (concelho × tipo) para a estimativa imediata.
  *
  * @property string $city
+ * @property string $locality '' = concelho inteiro; senão, a freguesia
  * @property string $property_type apartment | house | land
  * @property string $price_per_m2
  * @property ?string $notes
+ * @property string $source manual | ine
  */
 class ReferencePrice extends Model
 {

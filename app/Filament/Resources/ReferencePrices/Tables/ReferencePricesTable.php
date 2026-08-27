@@ -8,6 +8,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class ReferencePricesTable
@@ -22,6 +23,11 @@ class ReferencePricesTable
                     ->searchable()
                     ->sortable()
                     ->weight('medium'),
+                TextColumn::make('locality')
+                    ->label('Freguesia')
+                    ->placeholder('— concelho inteiro —')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('property_type')
                     ->label('Tipo')
                     ->badge()
@@ -32,6 +38,12 @@ class ReferencePricesTable
                     ->label('Valor')
                     ->formatStateUsing(fn ($state) => number_format((float) $state, 0, ',', ' ').' €/m²')
                     ->alignEnd()
+                    ->sortable(),
+                TextColumn::make('source')
+                    ->label('Origem')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state) => $state === 'ine' ? 'INE' : 'Manual')
+                    ->color(fn (string $state) => $state === 'ine' ? 'gray' : 'primary')
                     ->sortable(),
                 TextColumn::make('notes')
                     ->label('Fonte e data')
@@ -48,6 +60,19 @@ class ReferencePricesTable
                 SelectFilter::make('property_type')
                     ->label('Tipo')
                     ->options(ReferencePriceResource::TYPES),
+                SelectFilter::make('source')
+                    ->label('Origem')
+                    ->options(['manual' => 'Manual', 'ine' => 'INE']),
+                TernaryFilter::make('locality')
+                    ->label('Nível')
+                    ->placeholder('Concelhos e freguesias')
+                    ->trueLabel('Só freguesias')
+                    ->falseLabel('Só concelhos')
+                    ->queries(
+                        true: fn ($query) => $query->where('locality', '<>', ''),
+                        false: fn ($query) => $query->where('locality', ''),
+                        blank: fn ($query) => $query,
+                    ),
             ])
             ->recordActions([
                 EditAction::make(),

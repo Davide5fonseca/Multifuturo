@@ -10,6 +10,15 @@ class EditReferencePrice extends EditRecord
 {
     protected static string $resource = ReferencePriceResource::class;
 
+    /** Editar um valor do INE torna-o manual: a próxima importação já não o pisa. */
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $data['locality'] = trim((string) ($data['locality'] ?? ''));
+        $data['source'] = 'manual';
+
+        return $data;
+    }
+
     protected function getHeaderActions(): array
     {
         return [

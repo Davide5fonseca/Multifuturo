@@ -36,7 +36,7 @@ it('sem valor de referência usa a mediana das vendas publicadas no concelho, co
     )->create(['city' => 'Cascais', 'property_type' => 'Apartamento', 'house_area' => 100, 'price_visible' => true]);
     Property::factory()->count(2)->create(['city' => 'Cascais', 'property_type' => 'Moradia', 'price_visible' => true]);
 
-    $cascais = Valuation::table()['Cascais'];
+    $cascais = Valuation::table()['Cascais']['types'];
 
     expect($cascais['apartment'])->toMatchArray(['ppm2' => 3300.0, 'source' => 'portfolio', 'n' => 3])
         ->and($cascais)->not->toHaveKey('house');
@@ -54,7 +54,7 @@ it('o valor de referência do backoffice sobrepõe-se à carteira', function () 
     Property::factory()->count(3)->create(['city' => 'Lisboa', 'property_type' => 'Apartamento', 'house_area' => 100, 'price' => 500000, 'price_visible' => true]);
     ReferencePrice::create(['city' => 'Lisboa', 'property_type' => 'apartment', 'price_per_m2' => 4000]);
 
-    expect(Valuation::table()['Lisboa']['apartment'])->toMatchArray(['ppm2' => 4000.0, 'source' => 'reference']);
+    expect(Valuation::table()['Lisboa']['types']['apartment'])->toMatchArray(['ppm2' => 4000.0, 'source' => 'reference']);
 });
 
 it('a página mostra o simulador com os concelhos disponíveis, ou o aviso quando não há valores', function () {
@@ -74,6 +74,17 @@ it('a página mostra o simulador com os concelhos disponíveis, ou o aviso quand
     $this->get('/en/quanto-vale-a-minha-casa')->assertOk()
         ->assertSee('Instant estimate')
         ->assertSee('Request a valuation with these details');
+});
+
+it('uma freguesia com valor próprio sobrepõe-se ao concelho; sem ele, usa-se o concelho', function () {
+    ReferencePrice::create(['city' => 'Sintra', 'property_type' => 'house', 'price_per_m2' => 2800]);
+    ReferencePrice::create(['city' => 'Sintra', 'locality' => 'Colares', 'property_type' => 'house', 'price_per_m2' => 4000]);
+
+    expect(Valuation::estimate('Sintra', 'house', 100, 'good', 'Colares'))->toMatchArray(['mid' => 400000, 'place' => 'Colares, Sintra'])
+        ->and(Valuation::estimate('Sintra', 'house', 100, 'good', 'Algueirão'))->toMatchArray(['mid' => 280000, 'place' => 'Sintra'])
+        ->and(Valuation::estimate('Sintra', 'apartment', 100, 'good', 'Colares'))->toBeNull();
+
+    $this->get(route('valuation'))->assertOk()->assertSee('id="val-localities"', false);
 });
 
 it('o pedido de avaliação guarda a estimativa que a pessoa viu', function () {
@@ -106,5 +117,9 @@ it('o backoffice lista e cria valores de referência, sem repetir concelho e tip
         ->call('create')
         ->assertHasNoFormErrors();
 
-    expect(ReferencePrice::where('property_type', 'house')->value('price_per_m2'))->toBe('3800.00');
+    $casa = ReferencePrice::where('property_type', 'house')->first();
+
+    expect($casa->price_per_m2)->toBe('3800.00')
+        ->and($casa->source)->toBe('manual')
+        ->and($casa->locality)->toBe('');
 });

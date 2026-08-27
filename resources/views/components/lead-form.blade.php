@@ -28,6 +28,7 @@
         x-data="{ fill(d) {
             const set = (n, v) => { const el = document.getElementById('{{ $formId }}-' + n); if (el) el.value = v ?? ''; };
             set('city', d.city); set('ptype', d.type); set('area', d.area); set('condition', d.condition); set('estimate', d.estimate);
+            const a = document.getElementById('{{ $formId }}-address'); if (a && d.locality && ! a.value.trim()) a.value = d.locality;
             const m = document.getElementById('{{ $formId }}-message'); if (m && ! m.value.trim()) m.value = d.message;
         } }"
         x-on:valuation-estimate.window="fill($event.detail)"

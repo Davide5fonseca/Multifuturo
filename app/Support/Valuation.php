@@ -8,15 +8,19 @@ use App\Models\ReferencePrice;
 /**
  * Estimativa imediata de valor ("Quanto vale a minha casa?").
  *
- * valor = €/m² (concelho × tipo) × área × fator do estado, com margem de
- * ±10 % e arredondado ao milhar. O €/m² vem, por esta ordem:
- *   1. valores de referência escritos no backoffice (reference_prices);
- *   2. mediana das nossas vendas publicadas com preço público no concelho,
+ * valor = €/m² × área × fator do estado, com margem de ±10 % e arredondado
+ * ao milhar. O €/m² procura-se por esta ordem:
+ *   1. valor de referência da freguesia (reference_prices com locality), se
+ *      a pessoa a indicou e existe para o tipo;
+ *   2. valor de referência do concelho (manual ou importado do INE);
+ *   3. mediana das nossas vendas publicadas com preço público no concelho,
  *      desde que haja pelo menos MIN_COMPARABLES.
- * Sem nenhum dos dois, não há estimativa — o site convida ao pedido.
+ * Sem nenhum dos três, não há estimativa — o site convida ao pedido.
  *
- * A tabela inteira é pequena (concelhos × 3 tipos) e vai embutida na página;
- * a conta repete-se em JavaScript no browser (ver o componente Blade).
+ * A tabela inteira vai embutida na página e a conta repete-se em JavaScript
+ * no browser (ver o componente Blade). Estrutura:
+ *   concelho → ['types' => tipo → base, 'localities' => freguesia → tipo → base]
+ *   base = ['ppm2' => float, 'source' => portfolio|reference|ine, 'n' => int]
  */
 final class Valuation
 {
@@ -39,15 +43,27 @@ final class Valuation
     ];
 
     /**
-     * @return array<string, array<string, array{ppm2: float, source: string, n: int}>> concelho → tipo → base
+     * @return array<string, array{types: array<string, array{ppm2: float, source: string, n: int}>, localities: array<string, array<string, array{ppm2: float, source: string, n: int}>>}>
      */
     public static function table(): array
     {
         return PropertyCache::remember('valuation:table', function () {
-            $table = self::fromPortfolio();
+            $table = [];
 
-            foreach (ReferencePrice::query()->get() as $row) {
-                $table[$row->city][$row->property_type] = ['ppm2' => (float) $row->price_per_m2, 'source' => 'reference', 'n' => 0];
+            foreach (self::fromPortfolio() as $city => $types) {
+                $table[$city] = ['types' => $types, 'localities' => []];
+            }
+
+            // Os valores de referência sobrepõem-se à carteira.
+            foreach (ReferencePrice::query()->orderBy('city')->orderBy('locality')->get() as $row) {
+                $base = ['ppm2' => (float) $row->price_per_m2, 'source' => $row->source === 'ine' ? 'ine' : 'reference', 'n' => 0];
+                $table[$row->city] ??= ['types' => [], 'localities' => []];
+
+                if ($row->locality === '') {
+                    $table[$row->city]['types'][$row->property_type] = $base;
+                } else {
+                    $table[$row->city]['localities'][$row->locality][$row->property_type] = $base;
+                }
             }
 
             ksort($table, SORT_NATURAL | SORT_FLAG_CASE);
@@ -57,13 +73,27 @@ final class Valuation
     }
 
     /**
-     * @return array{min: int, mid: int, max: int, ppm2: float, source: string, n: int}|null
+     * @return array{min: int, mid: int, max: int, ppm2: float, source: string, n: int, place: string}|null
      */
-    public static function estimate(string $city, string $type, float $area, string $condition = 'good'): ?array
+    public static function estimate(string $city, string $type, float $area, string $condition = 'good', ?string $locality = null): ?array
     {
-        $base = self::table()[$city][$type] ?? null;
+        $entry = self::table()[$city] ?? null;
 
-        if (! $base || $area <= 0 || ! isset(self::CONDITIONS[$condition])) {
+        if (! $entry || $area <= 0 || ! isset(self::CONDITIONS[$condition])) {
+            return null;
+        }
+
+        $base = null;
+        $place = $city;
+
+        if ($locality !== null && $locality !== '' && isset($entry['localities'][$locality][$type])) {
+            $base = $entry['localities'][$locality][$type];
+            $place = $locality.', '.$city;
+        } elseif (isset($entry['types'][$type])) {
+            $base = $entry['types'][$type];
+        }
+
+        if (! $base) {
             return null;
         }
 
@@ -76,6 +106,7 @@ final class Valuation
             'ppm2' => $base['ppm2'],
             'source' => $base['source'],
             'n' => $base['n'],
+            'place' => $place,
         ];
     }
 
