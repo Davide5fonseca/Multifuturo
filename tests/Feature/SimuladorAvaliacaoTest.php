@@ -66,7 +66,8 @@ it('a página mostra o simulador com os concelhos disponíveis, ou o aviso quand
 
     $this->get(route('valuation'))->assertOk()
         ->assertSee('data-valuation', false)
-        ->assertSee('<option value="Sintra">Sintra</option>', false)
+        ->assertSee('<datalist id="val-cities">', false)
+        ->assertSee('<option value="Sintra">', false)
         ->assertSee('Estimativa imediata')
         ->assertSee('Pedir avaliação com estes dados');
 
