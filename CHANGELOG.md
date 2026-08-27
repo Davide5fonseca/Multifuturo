@@ -9,6 +9,29 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## INE: apartamento e moradia diferenciados em todo o lado
+
+$${\color{#5D6348}\textsf{2026-08-27 · 10:18}}$$
+
+**Commit:** `9e499a2` — `INE: apartamento e moradia diferenciados também onde só há vendas`
+
+O cliente reparou que, em muitos sítios, apartamento e moradia davam o mesmo valor.
+Tinha razão: em **177 concelhos** e em **todas as freguesias** o único dado do INE era
+o valor das vendas, que não separa o tipo — só a avaliação bancária o faz, e essa é
+confidencial nos concelhos pequenos.
+
+**Como ficou:** os valores que vêm das vendas são ajustados pela **proporção
+apartamento/total e moradia/total** da avaliação bancária do próprio concelho ou, na
+falta, da região (NUTS III). Em Sintra, Colares passa a 3 916 €/m² para apartamentos
+e 3 783 para moradias em vez de 3 900 para ambos; em Vimioso, sem avaliação bancária
+própria, entra a proporção de Terras de Trás-os-Montes. Só onde não há nenhuma das
+duas ficam iguais. A nota de cada valor diz quando foi ajustado e por quanto.
+
+Continua a ser uma estimativa: a proporção do concelho aplicada a uma freguesia é uma
+aproximação, e o aviso na página mantém-se.
+
+---
+
 ## Correção: o simulador aparecia como texto
 
 $${\color{#5D6348}\textsf{2026-08-27 · 10:10}}$$
