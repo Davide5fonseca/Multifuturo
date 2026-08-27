@@ -9,6 +9,19 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Simulador de crédito retirado da ficha
+
+$${\color{#5D6348}\textsf{2026-08-27 · 14:40}}$$
+
+**Commit:** `b09a89c` — `Site: simulador de crédito habitação retirado da ficha do imóvel`
+
+A pedido do cliente. O simulador de crédito habitação (entrada, prazo, taxa →
+prestação) sai da ficha do imóvel: componente, secção, textos em pt e en e os quatro
+testes. Fica o simulador de estimativa em "Quanto vale a minha casa?", que era o que o
+cliente tinha em mente desde o início. **197 testes a passar**, Pint limpo.
+
+---
+
 ## Email a cada administrador por cada pedido do site
 
 $${\color{#5D6348}\textsf{2026-08-27 · 11:38}}$$
