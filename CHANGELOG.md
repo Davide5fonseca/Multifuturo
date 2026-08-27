@@ -9,6 +9,28 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Simulador e pedido de avaliação num só cartão
+
+$${\color{#5D6348}\textsf{2026-08-27 · 10:41}}$$
+
+**Commit:** `968c3cf` — `Site: simulador e pedido de avaliação num só cartão`
+
+A pedido do cliente. A página "Quanto vale a minha casa?" passa a ter **um único
+cartão**, lido como um fluxo: **"1 · O seu imóvel"** — o simulador, com a estimativa a
+aparecer à medida que se preenche — e **"2 · Os seus dados"** — o contacto — com um só
+botão "Enviar pedido". A introdução fica à esquerda, fixa ao rolar; no telemóvel vem
+primeiro e o cartão a seguir.
+
+- O botão "Pedir avaliação com estes dados" desapareceu: era redundante, o passo 2 está
+  logo abaixo.
+- A mensagem é proposta com a estimativa a cada alteração, mas **só enquanto a pessoa
+  não a escreveu à mão** — um texto próprio nunca é substituído.
+- Os dados do imóvel continuam a seguir escondidos e sincronizados com o simulador.
+
+**199 testes a passar**, Pint limpo.
+
+---
+
 ## Formulário de avaliação sem campos repetidos
 
 $${\color{#5D6348}\textsf{2026-08-27 · 10:26}}$$
