@@ -1,12 +1,13 @@
 {{--
     Simulador "Quanto vale a minha casa?" — estimativa imediata.
 
-    Os €/m² vêm de App\Support\Valuation: valores de referência por concelho
-    e freguesia (escritos no backoffice ou importados do INE) ou, na falta
-    deles, a mediana das nossas vendas publicadas. A tabela inteira vem
-    embutida na página e a conta faz-se no browser: nada sai para o servidor
-    até a pessoa carregar em "Pedir avaliação", e aí o formulário ao lado
-    recebe os mesmos dados e a estimativa que ela viu.
+    Vive dentro do formulário de pedido de avaliação (passo 1). Os €/m² vêm
+    de App\Support\Valuation: valores de referência por concelho e freguesia
+    (escritos no backoffice ou importados do INE) ou, na falta deles, a
+    mediana das nossas vendas publicadas. A tabela inteira vem embutida na
+    página e a conta faz-se no browser: nada sai para o servidor até a pessoa
+    enviar o pedido — e aí seguem os mesmos dados e a estimativa que ela viu
+    (evento 'valuation-change', ouvido pelo formulário).
 
     Concelho e freguesia escrevem-se livremente (com sugestões); a
     correspondência ignora maiúsculas e acentos. A freguesia só conta quando
@@ -23,7 +24,7 @@
 @endphp
 
 @if (empty($table))
-    <p class="rounded-xl border border-sand-200 bg-sand-100 px-5 py-4 text-sm text-ink-muted">{{ __('ui.valuation.unavailable') }}</p>
+    <p class="rounded-xl bg-sand-50 px-5 py-4 text-sm text-ink-muted ring-1 ring-sand-200">{{ __('ui.valuation.unavailable') }}</p>
 @else
 <div
     x-data="{
@@ -74,7 +75,7 @@
         int(v) { return new Intl.NumberFormat('{{ $intl }}', { maximumFractionDigits: 0, useGrouping: 'always' }).format(v); },
         // Ao mudar de sítio, um tipo sem valor lá salta para o primeiro que tenha.
         syncType() { if (this.entry && !this.hasType(this.type)) { const t = Object.keys(this.types).find(t => this.hasType(t)); if (t) this.type = t; } },
-        // O que segue para o formulário ao lado (campos escondidos do pedido).
+        // O que segue para o formulário (campos escondidos do pedido).
         get detail() {
             return {
                 city: this.cityKey ?? this.city.trim(), locality: this.localityKey ?? this.locality.trim(),
@@ -84,13 +85,8 @@
             };
         },
         emit() { window.dispatchEvent(new CustomEvent('valuation-change', { detail: this.detail })); },
-        request() {
-            window.dispatchEvent(new CustomEvent('valuation-estimate', { detail: this.detail }));
-            document.getElementById('lead-valuation')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        },
     }"
     x-effect="emit()"
-    class="rounded-2xl border border-sand-200 bg-sand-100 p-6 sm:p-8"
     data-valuation
 >
     <div class="grid gap-5 sm:grid-cols-2">
@@ -136,13 +132,12 @@
         </div>
     </div>
 
-    <div class="mt-6" aria-live="polite">
+    <div class="mt-5" aria-live="polite">
         <template x-if="ready">
             <div class="rounded-xl bg-sand-50 p-6 ring-1 ring-sand-200">
                 <p class="label">{{ __('ui.valuation.result') }}</p>
                 <p class="price mt-2 text-3xl sm:text-4xl" x-text="range"></p>
                 <p class="mt-2 text-sm text-ink-muted"><span x-text="'≈ ' + int(base.ppm2) + ' €/m²'"></span> · <span x-text="basis"></span></p>
-                <button type="button" class="btn-primary mt-5" @click="request()">{{ __('ui.valuation.request') }}</button>
             </div>
         </template>
         <template x-if="city.trim() !== '' && !base">
@@ -150,6 +145,6 @@
         </template>
     </div>
 
-    <p class="mt-5 text-xs leading-relaxed text-ink-muted">{{ __('ui.valuation.note') }}</p>
+    <p class="mt-4 text-xs leading-relaxed text-ink-muted">{{ __('ui.valuation.note') }}</p>
 </div>
 @endif

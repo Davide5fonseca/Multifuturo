@@ -2,9 +2,9 @@
     Formulário de lead — um componente para as três origens:
       source="property"   ficha de imóvel (passar :property)
       source="contact"    contacto geral
-      source="valuation"  "Quanto vale a minha casa?" — os dados do imóvel vêm do
-                          simulador ao lado (campos escondidos payload[...], sempre
-                          sincronizados); o visitante só deixa o contacto e a morada
+      source="valuation"  "Quanto vale a minha casa?" — o simulador entra pelo slot
+                          "simulator" como passo 1; os dados do imóvel seguem em
+                          campos escondidos payload[...], sempre sincronizados
 
     Server-rendered, funciona sem JavaScript. Anti-spam: honeypot "website"
     (escondido por CSS) + timestamp assinado "form_ts". RGPD: duas checkboxes
@@ -27,24 +27,20 @@
 <div {{ $attributes->merge(['class' => 'rounded-xl bg-sand-100 border border-sand-200 p-6 sm:p-8']) }} id="{{ $formId }}"
     @if ($isValuation)
         {{--
-            O simulador (mesma página) emite 'valuation-change' a cada alteração e
-            'valuation-estimate' quando se carrega em "Pedir avaliação". Os campos
-            escondidos acompanham sempre o simulador; o botão ainda propõe a
-            mensagem e leva a pessoa ao formulário.
+            O simulador emite 'valuation-change' a cada alteração. Os campos
+            escondidos acompanham-no sempre, e a mensagem é proposta com a
+            estimativa — só enquanto a pessoa não a escreveu à mão.
         --}}
         x-data="{
+            auto: '',
             sync(d) {
                 const set = (n, v) => { const el = document.getElementById('{{ $formId }}-' + n); if (el) el.value = v ?? ''; };
                 set('city', d.city); set('locality', d.locality); set('ptype', d.type); set('area', d.area); set('condition', d.condition); set('estimate', d.estimate);
-            },
-            request(d) {
-                this.sync(d);
-                const m = document.getElementById('{{ $formId }}-message'); if (m && ! m.value.trim()) m.value = d.message;
-                document.getElementById('{{ $formId }}-name')?.focus({ preventScroll: true });
+                const m = document.getElementById('{{ $formId }}-message');
+                if (m && d.message && (! m.value.trim() || m.value === this.auto)) { m.value = d.message; this.auto = d.message; }
             },
         }"
         x-on:valuation-change.window="sync($event.detail)"
-        x-on:valuation-estimate.window="request($event.detail)"
     @endif
 >
     <h2 class="text-2xl">{{ __('ui.lead.'.($isValuation ? 'form_title_valuation' : 'title_'.$source)) }}</h2>
@@ -71,6 +67,13 @@
             <label for="{{ $formId }}-website">Website</label>
             <input type="text" id="{{ $formId }}-website" name="website" tabindex="-1" autocomplete="off">
         </div>
+
+        @if ($isValuation && isset($simulator))
+            {{-- Passo 1: o imóvel e a estimativa. --}}
+            <p class="label text-olive-700">{{ __('ui.valuation.step_property') }}</p>
+            {{ $simulator }}
+            <p class="label mt-4 text-olive-700">{{ __('ui.valuation.step_contact') }}</p>
+        @endif
 
         <div class="grid gap-5 sm:grid-cols-2">
             <div>

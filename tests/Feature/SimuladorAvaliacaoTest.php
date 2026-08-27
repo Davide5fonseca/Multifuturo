@@ -68,10 +68,10 @@ it('a página mostra o simulador com os concelhos disponíveis, ou o aviso quand
         ->assertSee('data-valuation', false)
         ->assertSee('<datalist id="val-cities">', false)
         ->assertSee('<option value="Sintra">', false)
-        ->assertSee('Estimativa imediata')
-        ->assertSee('Pedir avaliação com estes dados')
-        // O formulário já não repete o imóvel: só contacto e morada; o resto segue escondido.
-        ->assertSee('Peça a avaliação gratuita')
+        ->assertSee('Estimativa imediata e avaliação gratuita')
+        // Um só cartão: o simulador é o passo 1 do formulário; o imóvel segue escondido.
+        ->assertSee('1 · O seu imóvel')
+        ->assertSee('2 · Os seus dados')
         ->assertSee('<input type="hidden" id="lead-valuation-city" name="payload[city]"', false)
         ->assertSee('<input type="hidden" id="lead-valuation-locality" name="payload[locality]"', false)
         ->assertDontSee('name="payload[bedrooms]"', false)
@@ -85,8 +85,8 @@ it('a página mostra o simulador com os concelhos disponíveis, ou o aviso quand
 '.'    x-effect="emit()"');
 
     $this->get('/en/quanto-vale-a-minha-casa')->assertOk()
-        ->assertSee('Instant estimate')
-        ->assertSee('Request a valuation with these details');
+        ->assertSee('Instant estimate and free valuation')
+        ->assertSee('1 · Your property');
 });
 
 it('uma freguesia com valor próprio sobrepõe-se ao concelho; sem ele, usa-se o concelho', function () {

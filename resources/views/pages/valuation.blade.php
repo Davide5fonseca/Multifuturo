@@ -1,21 +1,21 @@
 <x-layouts.app :title="__('ui.lead.title_valuation')" :canonical="route('valuation')">
     {{--
-        Lead magnet: à esquerda a estimativa imediata (conta no browser, sem
-        pedidos), à direita o pedido de avaliação. O botão do simulador
-        preenche o formulário com os dados e a estimativa vista.
+        Um só cartão, lido como um fluxo: 1 · o imóvel (simulador, com a
+        estimativa a aparecer) → 2 · os dados de contacto → um único botão.
+        A introdução fica à esquerda, fixa. O simulador entra no formulário
+        pelo slot "simulator"; a conta faz-se no browser, sem pedidos.
     --}}
-    <section class="container-site grid gap-12 pt-16 pb-16 lg:grid-cols-2">
-        <div>
+    <section class="container-site grid gap-12 pt-16 pb-16 lg:grid-cols-[2fr_3fr]">
+        <div class="lg:sticky lg:top-8 lg:self-start">
             <p class="label">{{ __('ui.nav.valuation') }}</p>
             <h1 class="mt-3 text-4xl sm:text-5xl">{{ __('ui.lead.title_valuation') }}</h1>
             <p class="mt-6 max-w-md text-ink-muted">{{ __('ui.lead.lead_valuation') }}</p>
-
-            <div class="mt-12">
-                <h2 class="label">{{ __('ui.valuation.title') }}</h2>
-                <p class="mt-2 max-w-md text-sm text-ink-muted">{{ __('ui.valuation.lead') }}</p>
-                <div class="mt-4"><x-valuation-simulator :table="$table" /></div>
-            </div>
+            <p class="mt-4 max-w-md text-sm text-ink-muted">{{ __('ui.valuation.lead') }}</p>
         </div>
-        <x-lead-form source="valuation" class="lg:sticky lg:top-8 lg:self-start" />
+        <x-lead-form source="valuation">
+            <x-slot:simulator>
+                <x-valuation-simulator :table="$table" />
+            </x-slot:simulator>
+        </x-lead-form>
     </section>
 </x-layouts.app>
