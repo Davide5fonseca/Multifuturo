@@ -33,6 +33,39 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Lead extends Model
 {
+    /**
+     * Campos do pedido de avaliação (payload), com os nomes que o site mostra.
+     * Usado no email à equipa e no backoffice.
+     */
+    public const PAYLOAD_LABELS = [
+        'address' => 'Morada',
+        'city' => 'Concelho',
+        'locality' => 'Freguesia',
+        'property_type' => 'Tipo de imóvel',
+        'bedrooms' => 'Tipologia',
+        'area' => 'Área (m²)',
+        'condition' => 'Estado de conservação',
+        'estimate' => 'Estimativa mostrada no site',
+    ];
+
+    /**
+     * Payload preenchido, pela ordem do site (os campos desconhecidos vão para o fim).
+     *
+     * @return array<string, string> rótulo → valor
+     */
+    public function payloadLabelled(): array
+    {
+        $payload = is_array($this->payload) ? array_filter($this->payload, fn ($v) => filled($v)) : [];
+        $ordered = array_merge(array_intersect_key(self::PAYLOAD_LABELS, $payload), array_diff_key($payload, self::PAYLOAD_LABELS));
+        $out = [];
+
+        foreach (array_keys($ordered) as $key) {
+            $out[self::PAYLOAD_LABELS[$key] ?? ucfirst(str_replace('_', ' ', $key))] = (string) $payload[$key];
+        }
+
+        return $out;
+    }
+
     /** @use HasFactory<LeadFactory> */
     use HasFactory;
 

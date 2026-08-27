@@ -10,6 +10,7 @@ use App\Enums\LeadSource;
 use App\Http\Requests\StoreLeadRequest;
 use App\Models\Lead;
 use App\Models\Property;
+use App\Models\User;
 use App\Notifications\NewLeadReceived;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;
@@ -61,13 +62,54 @@ it('grava a lead localmente e avisa a agência por email', function () {
     Notification::assertSentOnDemand(NewLeadReceived::class, fn ($n, $channels, $notifiable) => $notifiable->routes['mail'] === 'geral@multifuturo.test');
 });
 
-it('sem email da agência configurado, a lead grava na mesma e nada é enviado', function () {
+it('sem email da agência nem administradores, a lead grava na mesma e nada é enviado', function () {
     config(['agency.email' => null]);
 
     $this->post(route('leads.store'), leadPayload())->assertRedirect();
 
     expect(Lead::count())->toBe(1);
     Notification::assertNothingSent();
+});
+
+it('cada administrador do backoffice recebe o email, nas três origens; os outros utilizadores não', function () {
+    $admin = User::factory()->create(['is_admin' => true, 'email' => 'chefe@multifuturo.test']);
+    $admin2 = User::factory()->create(['is_admin' => true, 'email' => 'socio@multifuturo.test']);
+    $consultor = User::factory()->create(['is_admin' => false]);
+    $property = Property::factory()->create(['reference' => 'MF-321']);
+
+    $this->post(route('leads.store'), leadPayload(['source' => 'property', 'property_slug' => $property->slug]));
+    $this->post(route('leads.store'), leadPayload(['source' => 'valuation', 'payload' => ['city' => 'Sintra', 'locality' => 'Colares', 'area' => 120, 'estimate' => '300 000 € – 360 000 €']]));
+    $this->post(route('leads.store'), leadPayload(['source' => 'contact']));
+
+    Notification::assertSentToTimes($admin, NewLeadReceived::class, 3);
+    Notification::assertSentToTimes($admin2, NewLeadReceived::class, 3);
+    Notification::assertNotSentTo($consultor, NewLeadReceived::class);
+    // O email geral da agência continua a receber, além dos administradores.
+    Notification::assertSentOnDemandTimes(NewLeadReceived::class, 3);
+
+    // O da avaliação leva os dados do simulador com os nomes do site e a ligação ao backoffice.
+    Notification::assertSentTo($admin, NewLeadReceived::class, function ($notification) use ($admin) {
+        $mail = $notification->toMail($admin);
+        $text = implode(' ', array_map(fn ($l) => (string) $l, $mail->introLines));
+
+        if (! str_contains($mail->subject, 'avaliação')) {
+            return true;
+        }
+
+        return str_contains($mail->subject, 'Sintra')
+            && str_contains($text, 'Freguesia: Colares')
+            && str_contains($text, 'Estimativa mostrada no site: 300 000 € – 360 000 €')
+            && str_contains($mail->actionUrl, '/admin/leads/');
+    });
+});
+
+it('o email geral da agência não recebe em duplicado quando é o de um administrador', function () {
+    $admin = User::factory()->create(['is_admin' => true, 'email' => 'Geral@multifuturo.test']);
+
+    $this->post(route('leads.store'), leadPayload());
+
+    Notification::assertSentToTimes($admin, NewLeadReceived::class, 1);
+    Notification::assertSentOnDemandTimes(NewLeadReceived::class, 0);
 });
 
 it('o email do aviso identifica o imóvel e os consentimentos', function () {

@@ -49,16 +49,35 @@ class LeadController extends Controller
             'user_agent' => mb_substr((string) $request->userAgent(), 0, 255),
         ]);
 
-        // Aviso à agência (sem CRM: a lead vive na nossa BD e no backoffice).
+        // Aviso por email (sem CRM: a lead vive na nossa BD e no backoffice).
         // Só depois de gravada: se a queue/email falharem, o contacto já existe.
-        if ($email = config('agency.email')) {
-            Notification::route('mail', $email)->notify(new NewLeadReceived($lead));
-        }
+        $this->notifyByEmail($lead);
 
         // E no sino do backoffice, para toda a equipa.
         $this->notifyBackoffice($lead);
 
         return $this->accepted($request);
+    }
+
+    /**
+     * Email a cada administrador do backoffice e, se estiver configurado, ao
+     * email geral da agência (AGENCY_EMAIL) — sem repetir quem já recebeu.
+     * Vale para os três formulários: informação sobre um imóvel, avaliação e
+     * contacto geral.
+     */
+    private function notifyByEmail(Lead $lead): void
+    {
+        $admins = User::query()->where('is_admin', true)->get();
+
+        if ($admins->isNotEmpty()) {
+            Notification::send($admins, new NewLeadReceived($lead));
+        }
+
+        $agency = mb_strtolower(trim((string) config('agency.email')));
+
+        if ($agency !== '' && ! $admins->contains(fn (User $u) => mb_strtolower($u->email) === $agency)) {
+            Notification::route('mail', $agency)->notify(new NewLeadReceived($lead));
+        }
     }
 
     /** Notificação no sino do painel, com ligação directa ao pedido. */

@@ -9,9 +9,10 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
- * Aviso à agência: chegou um novo pedido pelo site (substitui o envio ao CRM).
- * Vai para agency.email por cada lead criada; a lead fica sempre guardada na
- * base de dados e visível no backoffice.
+ * Aviso à equipa: chegou um novo pedido pelo site (informação sobre um
+ * imóvel, avaliação ou contacto geral). Vai para cada administrador do
+ * backoffice e para agency.email, por cada lead criada; a lead fica sempre
+ * guardada na base de dados e visível no backoffice.
  */
 class NewLeadReceived extends Notification implements ShouldQueue
 {
@@ -31,7 +32,7 @@ class NewLeadReceived extends Notification implements ShouldQueue
 
         $subject = match ($lead->source->value) {
             'property' => 'Pedido de informação'.($lead->property?->reference ? " — {$lead->property->reference}" : ''),
-            'valuation' => 'Pedido de avaliação de imóvel',
+            'valuation' => 'Pedido de avaliação'.(filled($lead->payload['city'] ?? null) ? " — {$lead->payload['city']}" : ''),
             default => 'Novo contacto pelo website',
         };
 
@@ -50,17 +51,16 @@ class NewLeadReceived extends Notification implements ShouldQueue
             $mail->line('**Mensagem:**')->line($lead->message);
         }
 
-        if (is_array($lead->payload) && $lead->payload !== []) {
+        if ($lead->payloadLabelled() !== []) {
             $mail->line('**Dados do imóvel a avaliar:**');
-            foreach ($lead->payload as $key => $value) {
-                if (filled($value)) {
-                    $mail->line('· '.ucfirst(str_replace('_', ' ', $key)).": {$value}");
-                }
+            foreach ($lead->payloadLabelled() as $label => $value) {
+                $mail->line("· {$label}: {$value}");
             }
         }
 
         return $mail
             ->line('Consentimentos: contacto '.($lead->consent_contact ? 'sim' : 'não').' · comunicações '.($lead->consent_marketing ? 'sim' : 'não'))
-            ->line('O pedido está guardado no backoffice.');
+            ->action('Abrir o pedido no backoffice', route('filament.admin.resources.leads.edit', $lead))
+            ->line('Pode responder ao cliente a partir daí.');
     }
 }

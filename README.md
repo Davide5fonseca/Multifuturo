@@ -206,7 +206,7 @@ Automatismos: `internal_id` (`BO-…`), `slug` (estável — nunca recalculado a
 .\sail.ps1 artisan tinker --execute="App\Models\User::create(['name'=>'Nome','email'=>'pessoa@multifuturo.pt','password'=>bcrypt('palavra-passe')]);"
 ```
 
-Cada lead nova dispara um **email à agência** (`NewLeadReceived` → `AGENCY_EMAIL`, via
+Cada lead nova dispara um **email à equipa** (`NewLeadReceived` → cada administrador do backoffice e `AGENCY_EMAIL`, via
 queue) e fica na caixa de entrada. Requer `php artisan storage:link` (fotos) e
 `queue:work` (emails).
 
