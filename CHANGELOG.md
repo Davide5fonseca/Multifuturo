@@ -9,6 +9,20 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Concelho escrito livremente no simulador
+
+$${\color{#5D6348}\textsf{2026-08-27 · 09:51}}$$
+
+**Commit:** `edc7df4` — `Site: concelho escrito livremente no simulador de estimativa`
+
+A pedido do cliente: o concelho deixou de ser uma lista fechada e passou a um
+**campo de texto** onde se escreve qualquer concelho, com sugestões dos que já têm
+valores. A correspondência **ignora maiúsculas e acentos** ("sintra", "SINTRA" e
+"Sintra" são o mesmo; "agueda" encontra "Águeda"). Num concelho sem valores, o
+simulador mostra o convite ao pedido de avaliação — e o nome escrito segue no pedido.
+
+---
+
 ## Simulador de estimativa em "Quanto vale a minha casa?"
 
 $${\color{#5D6348}\textsf{2026-08-27 · 09:43}}$$
