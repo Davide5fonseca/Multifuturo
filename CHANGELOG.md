@@ -9,6 +9,29 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Formulário de avaliação sem campos repetidos
+
+$${\color{#5D6348}\textsf{2026-08-27 · 10:26}}$$
+
+**Commit:** `81d25e5` — `Site: formulário de avaliação sem os campos que o simulador já pergunta`
+
+O cliente reparou que a página perguntava duas vezes a mesma coisa: o simulador pedia
+concelho, tipo, área e estado, e o formulário ao lado repetia-os. Em vez de eliminar
+o formulário — é ele que traz o contacto — tiraram-se-lhe os campos repetidos.
+
+- O formulário passa a pedir só **nome, email, telefone, morada (opcional) e mensagem**.
+- Os dados do imóvel seguem em **campos escondidos, sempre sincronizados** com o
+  simulador (a cada alteração, não só ao carregar no botão). A **freguesia** passa a
+  seguir também e aparece no backoffice como "Freguesia".
+- O botão "Pedir avaliação com estes dados" continua a propor a mensagem com a
+  estimativa e a levar a pessoa ao formulário.
+- O título do formulário deixa de repetir o da página: **"Peça a avaliação gratuita"**,
+  com a nota de que o que se indicou no simulador segue com o pedido.
+
+**199 testes a passar**, Pint limpo.
+
+---
+
 ## INE: apartamento e moradia diferenciados em todo o lado
 
 $${\color{#5D6348}\textsf{2026-08-27 · 10:18}}$$
