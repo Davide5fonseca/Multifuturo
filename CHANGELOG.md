@@ -28,6 +28,7 @@ está vazio: na prática ninguém o recebia, só o sino do backoffice.
   no backoffice"** para responder a partir daí.
 - O molde de email passou a falar português ("Cumprimentos", "Todos os direitos
   reservados") e o remetente é "Multifuturo Propriedades".
+  (Um segundo commit pequeno corrigiu a chave da saudação — "Regards," leva vírgula.)
 - Verificado ao vivo: pedido enviado pelo browser, email recebido no Mailpit pelo
   administrador, com os dados certos.
 
