@@ -64,12 +64,20 @@ it('a página mostra o simulador com os concelhos disponíveis, ou o aviso quand
 
     ReferencePrice::create(['city' => 'Sintra', 'property_type' => 'apartment', 'price_per_m2' => 2500]);
 
-    $this->get(route('valuation'))->assertOk()
+    $html = $this->get(route('valuation'))->assertOk()
         ->assertSee('data-valuation', false)
         ->assertSee('<datalist id="val-cities">', false)
         ->assertSee('<option value="Sintra">', false)
         ->assertSee('Estimativa imediata')
-        ->assertSee('Pedir avaliação com estes dados');
+        ->assertSee('Pedir avaliação com estes dados')
+        ->getContent();
+
+    // O x-data vive num atributo HTML: uma aspa dupla lá dentro (num comentário,
+    // num nome de freguesia) fecha-o e o JavaScript aparece na página.
+    $inicio = strpos($html, 'x-data="{'.PHP_EOL.'        table:');
+    $fim = strpos($html, '"', $inicio + 9);
+    expect(substr($html, $fim - 5, 25))->toBe('    }"'.'
+'.'    class="rounded');
 
     $this->get('/en/quanto-vale-a-minha-casa')->assertOk()
         ->assertSee('Instant estimate')

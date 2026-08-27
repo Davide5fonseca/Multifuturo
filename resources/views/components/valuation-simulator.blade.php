@@ -37,7 +37,8 @@
 
         // 'Sintra', 'sintra' e 'SINTRA' são o mesmo concelho; 'Águeda' e 'agueda' também.
         fold(s) { return String(s ?? '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); },
-        // Uma freguesia agregada ("União das freguesias de Queluz e Belas") também se encontra por qualquer uma das partes.
+        // Uma freguesia agregada (União das freguesias de Queluz e Belas) também se encontra por qualquer uma das partes.
+        // Atenção: este bloco vive dentro de um atributo HTML — nada de aspas duplas aqui.
         parts(name) { return this.fold(name).replace(/^uniao d(as|e) freguesias d[eao]s? /, '').split(/, | e /); },
         match(list, wanted) {
             const w = this.fold(wanted);
