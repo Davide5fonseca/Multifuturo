@@ -22,8 +22,8 @@ confidencial nos concelhos pequenos.
 
 **Como ficou:** os valores que vêm das vendas são ajustados pela **proporção
 apartamento/total e moradia/total** da avaliação bancária do próprio concelho ou, na
-falta, da região (NUTS III). Em Sintra, Colares passa a 3 916 €/m² para apartamentos
-e 3 783 para moradias em vez de 3 900 para ambos; em Vimioso, sem avaliação bancária
+falta, da região (NUTS III). Em Sintra, Colares passa a 3 743 €/m² para apartamentos
+e 3 616 para moradias em vez de 3 728 para ambos; em Vimioso, sem avaliação bancária
 própria, entra a proporção de Terras de Trás-os-Montes. Só onde não há nenhuma das
 duas ficam iguais. A nota de cada valor diz quando foi ajustado e por quanto.
 
