@@ -20,9 +20,13 @@ use RuntimeException;
  *     nos pequenos) e dá o valor por freguesia — a "zona".
  *
  * Regras: um concelho recebe, por tipo, a avaliação bancária se existir,
- * senão o valor das vendas; cada freguesia com vendas recebe esse valor para
- * apartamentos e moradias. Terrenos nunca vêm do INE. Linhas escritas à mão
- * no backoffice (source = manual) não são tocadas.
+ * senão o valor das vendas; cada freguesia com vendas recebe esse valor.
+ * Como as vendas não separam o tipo, esses valores são ajustados pela
+ * proporção apartamento/moradia face ao total que a avaliação bancária dá
+ * para o concelho — ou, na falta, para a região (NUTS III). Sem nenhuma das
+ * duas, apartamento e moradia ficam iguais (e a nota diz-o por omissão).
+ * Terrenos nunca vêm do INE. Linhas escritas à mão no backoffice
+ * (source = manual) não são tocadas.
  *
  * Corre à segunda-feira de madrugada (routes/console.php) e a partir do
  * botão "Importar do INE" no backoffice.
@@ -36,7 +40,9 @@ class ValuationImportIne extends Command
     /** Tipo de construção do INE → tipo do simulador. 'T' (total) fica de fora. */
     private const APPRAISAL_TYPES = ['1' => 'apartment', '2' => 'house'];
 
-    /** Comprimento do código geográfico do INE: 7 = município, 9 = freguesia. */
+    /** Comprimento do código geográfico do INE: 3 = NUTS III, 7 = município, 9 = freguesia. */
+    private const REGION = 3;
+
     private const MUNICIPALITY = 7;
 
     private const PARISH = 9;
@@ -56,7 +62,7 @@ class ValuationImportIne extends Command
         $municipalities = []; // geocod → nome
         $salesByCity = [];    // geocod → €/m²
         $salesByParish = [];  // geocod (9) → [nome, €/m²]
-        $appraisalByCity = []; // geocod → [tipo → €/m²]
+        $appraisalByCode = []; // geocod (município ou NUTS III) → [tipo|T → €/m²]
 
         foreach ($sales['rows'] as $row) {
             if (($row['dim_3'] ?? null) !== 'T' || ! isset($row['valor'])) {
@@ -75,15 +81,35 @@ class ValuationImportIne extends Command
 
         foreach ($appraisal['rows'] as $row) {
             $code = (string) $row['geocod'];
-            $type = self::APPRAISAL_TYPES[$row['dim_3'] ?? ''] ?? null;
+            $dim = (string) ($row['dim_3'] ?? '');
+            $key = self::APPRAISAL_TYPES[$dim] ?? ($dim === 'T' ? 'T' : null);
 
-            if (strlen($code) !== self::MUNICIPALITY || ! $type || ! isset($row['valor'])) {
+            if (! in_array(strlen($code), [self::MUNICIPALITY, self::REGION], true) || ! $key || ! isset($row['valor'])) {
                 continue;
             }
 
-            $municipalities[$code] ??= trim((string) $row['geodsg']);
-            $appraisalByCity[$code][$type] = (float) $row['valor'];
+            if (strlen($code) === self::MUNICIPALITY) {
+                $municipalities[$code] ??= trim((string) $row['geodsg']);
+            }
+
+            $appraisalByCode[$code][$key] = (float) $row['valor'];
         }
+
+        // Peso do tipo face ao total na avaliação bancária do concelho ou, na
+        // falta, da região (NUTS III = os 3 primeiros caracteres do código).
+        $ratio = function (string $cityCode, string $type) use ($appraisalByCode): ?float {
+            foreach ([$cityCode, substr($cityCode, 0, self::REGION)] as $code) {
+                $a = $appraisalByCode[$code] ?? null;
+
+                if ($a && isset($a[$type], $a['T']) && $a['T'] > 0) {
+                    return $a[$type] / $a['T'];
+                }
+            }
+
+            return null;
+        };
+        $adjust = fn (float $value, ?float $r): float => $r === null ? $value : round($value * $r);
+        $ratioNote = fn (?float $r): string => $r === null ? '' : sprintf(' · ajustado ao tipo pela avaliação bancária (×%s)', number_format($r, 2, ',', ''));
 
         $rows = [];
         $now = now();
@@ -102,10 +128,11 @@ class ValuationImportIne extends Command
 
         foreach ($municipalities as $code => $city) {
             foreach (['apartment', 'house'] as $type) {
-                if (isset($appraisalByCity[$code][$type])) {
-                    $add($city, '', $type, $appraisalByCity[$code][$type], 'INE — valor mediano de avaliação bancária, '.$appraisal['period']);
+                if (isset($appraisalByCode[$code][$type])) {
+                    $add($city, '', $type, $appraisalByCode[$code][$type], 'INE — valor mediano de avaliação bancária, '.$appraisal['period']);
                 } elseif (isset($salesByCity[$code])) {
-                    $add($city, '', $type, $salesByCity[$code], 'INE — valor mediano das vendas nos últimos 12 meses, '.$sales['period']);
+                    $r = $ratio($code, $type);
+                    $add($city, '', $type, $adjust($salesByCity[$code], $r), 'INE — valor mediano das vendas nos últimos 12 meses, '.$sales['period'].$ratioNote($r));
                 }
             }
         }
@@ -113,7 +140,8 @@ class ValuationImportIne extends Command
         $parishes = 0;
 
         foreach ($salesByParish as $code => [$locality, $value]) {
-            $city = $municipalities[substr($code, 0, self::MUNICIPALITY)] ?? null;
+            $cityCode = substr($code, 0, self::MUNICIPALITY);
+            $city = $municipalities[$cityCode] ?? null;
 
             if (! $city) {
                 continue;
@@ -122,7 +150,8 @@ class ValuationImportIne extends Command
             $parishes++;
 
             foreach (['apartment', 'house'] as $type) {
-                $add($city, $locality, $type, $value, 'INE — valor mediano das vendas nos últimos 12 meses (freguesia), '.$sales['period']);
+                $r = $ratio($cityCode, $type);
+                $add($city, $locality, $type, $adjust($value, $r), 'INE — valor mediano das vendas nos últimos 12 meses (freguesia), '.$sales['period'].$ratioNote($r));
             }
         }
 
