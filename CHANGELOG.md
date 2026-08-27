@@ -9,6 +9,49 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Simulador de estimativa em "Quanto vale a minha casa?"
+
+$${\color{#5D6348}\textsf{2026-08-27 · 09:43}}$$
+
+**Commit:** `377e533` — `Site: simulador de estimativa em Quanto vale a minha casa`
+
+O simulador que o cliente tinha em mente (o de crédito da entrada anterior foi
+uma leitura errada; fica, por ser útil, até haver ordem em contrário). Na página
+**"Quanto vale a minha casa?"**, o visitante escolhe **concelho, tipo, área e
+estado de conservação** e vê logo um **intervalo de valor**; o botão "Pedir
+avaliação com estes dados" preenche o formulário ao lado e leva a estimativa
+vista, que a equipa encontra no pedido, no backoffice.
+
+### Como se calcula
+`valor = €/m² (concelho × tipo) × área × fator do estado`, ±10 %, arredondado
+ao milhar. Fatores: novo ou renovado 1,08 · bom estado 1,00 · para recuperar 0,85.
+
+### De onde vêm os €/m²
+1. **Valores de referência** — novo separador no backoffice: concelho, tipo
+   (apartamento, moradia, terreno), €/m² e a fonte/data. É aqui que a agência
+   põe o que acompanha (INE, portais, as suas vendas).
+2. Sem valor para um concelho, a **mediana das nossas vendas publicadas** com
+   preço público nesse concelho — só com **3 ou mais** comparáveis, para um
+   imóvel isolado não virar "o preço de Sintra".
+3. Sem nenhum dos dois, **não estima**: mostra o convite ao pedido gratuito.
+   Hoje a tabela está vazia — o simulador só aparece quando houver valores.
+
+### Decisões
+- **Conta no browser, nada sai para o servidor** até a pessoa pedir a avaliação.
+  A tabela inteira (poucas linhas) vai embutida na página.
+- Preço sob consulta, arrendamentos e fichas retiradas **nunca entram** nos
+  comparáveis — o simulador não pode ser uma porta lateral para um preço escondido.
+- Aviso permanente: estimativa automática, meramente indicativa; só a visita de
+  um consultor dá um valor rigoroso.
+- Os dados do pedido de avaliação aparecem no backoffice com nomes em português
+  ("Concelho", "Estimativa mostrada no site", …).
+
+Sete testes novos, **194 a passar**, Pint limpo. Um teste antigo que falhava de
+vez em quando (números aleatórios da factory a colidir com "12500" e "4567")
+passou a usar valores fixos.
+
+---
+
 ## Simulador de crédito habitação na ficha
 
 $${\color{#5D6348}\textsf{2026-08-26 · 17:49}}$$
