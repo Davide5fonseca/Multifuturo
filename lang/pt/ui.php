@@ -122,6 +122,8 @@ return [
         'lead_property' => 'Envie-nos o seu pedido e um consultor entrará em contacto.',
         'lead_contact' => 'Deixe-nos a sua mensagem e respondemos o mais depressa possível.',
         'lead_valuation' => 'Diga-nos onde fica e como é o seu imóvel. Preparamos uma avaliação sem compromisso.',
+        'form_title_valuation' => 'Peça a avaliação gratuita',
+        'form_lead_valuation' => 'Deixe-nos o seu contacto. O que indicou no simulador segue com o pedido.',
         'name' => 'Nome',
         'email' => 'Email',
         'phone' => 'Telefone',

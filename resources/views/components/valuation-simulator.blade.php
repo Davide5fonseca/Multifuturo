@@ -74,16 +74,22 @@
         int(v) { return new Intl.NumberFormat('{{ $intl }}', { maximumFractionDigits: 0, useGrouping: 'always' }).format(v); },
         // Ao mudar de sítio, um tipo sem valor lá salta para o primeiro que tenha.
         syncType() { if (this.entry && !this.hasType(this.type)) { const t = Object.keys(this.types).find(t => this.hasType(t)); if (t) this.type = t; } },
-        request() {
-            window.dispatchEvent(new CustomEvent('valuation-estimate', { detail: {
+        // O que segue para o formulário ao lado (campos escondidos do pedido).
+        get detail() {
+            return {
                 city: this.cityKey ?? this.city.trim(), locality: this.localityKey ?? this.locality.trim(),
                 type: this.types[this.type], area: this.area,
-                condition: this.conditions[this.condition], estimate: this.range,
-                message: @js(__('ui.valuation.message')).replace(':estimate', this.range),
-            } }));
+                condition: this.conditions[this.condition], estimate: this.ready ? this.range : '',
+                message: this.ready ? @js(__('ui.valuation.message')).replace(':estimate', this.range) : '',
+            };
+        },
+        emit() { window.dispatchEvent(new CustomEvent('valuation-change', { detail: this.detail })); },
+        request() {
+            window.dispatchEvent(new CustomEvent('valuation-estimate', { detail: this.detail }));
             document.getElementById('lead-valuation')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         },
     }"
+    x-effect="emit()"
     class="rounded-2xl border border-sand-200 bg-sand-100 p-6 sm:p-8"
     data-valuation
 >

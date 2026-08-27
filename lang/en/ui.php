@@ -123,6 +123,8 @@ return [
         'lead_property' => 'Send us your request and an adviser will get in touch.',
         'lead_contact' => 'Leave us your message and we will reply as soon as possible.',
         'lead_valuation' => 'Tell us where your property is and what it is like. We will prepare a valuation, with no obligation.',
+        'form_title_valuation' => 'Request your free valuation',
+        'form_lead_valuation' => 'Leave us your details. What you entered in the simulator goes with the request.',
         'name' => 'Name',
         'email' => 'Email',
         'phone' => 'Phone',

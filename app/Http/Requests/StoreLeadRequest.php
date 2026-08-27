@@ -46,9 +46,10 @@ class StoreLeadRequest extends FormRequest
             'consent_marketing' => ['nullable', 'boolean'],
 
             // Campos extra (avaliação). Só chaves conhecidas; valores curtos.
-            'payload' => ['nullable', 'array:address,city,property_type,bedrooms,area,condition,estimate'],
+            'payload' => ['nullable', 'array:address,city,locality,property_type,bedrooms,area,condition,estimate'],
             'payload.address' => ['nullable', 'string', 'max:255'],
             'payload.city' => ['nullable', 'string', 'max:96'],
+            'payload.locality' => ['nullable', 'string', 'max:191'],
             'payload.property_type' => ['nullable', 'string', 'max:64'],
             'payload.bedrooms' => ['nullable', 'integer', 'min:0', 'max:20'],
             'payload.area' => ['nullable', 'numeric', 'min:0', 'max:100000'],

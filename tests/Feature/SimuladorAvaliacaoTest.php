@@ -70,14 +70,19 @@ it('a página mostra o simulador com os concelhos disponíveis, ou o aviso quand
         ->assertSee('<option value="Sintra">', false)
         ->assertSee('Estimativa imediata')
         ->assertSee('Pedir avaliação com estes dados')
+        // O formulário já não repete o imóvel: só contacto e morada; o resto segue escondido.
+        ->assertSee('Peça a avaliação gratuita')
+        ->assertSee('<input type="hidden" id="lead-valuation-city" name="payload[city]"', false)
+        ->assertSee('<input type="hidden" id="lead-valuation-locality" name="payload[locality]"', false)
+        ->assertDontSee('name="payload[bedrooms]"', false)
         ->getContent();
 
     // O x-data vive num atributo HTML: uma aspa dupla lá dentro (num comentário,
     // num nome de freguesia) fecha-o e o JavaScript aparece na página.
     $inicio = strpos($html, 'x-data="{'.PHP_EOL.'        table:');
     $fim = strpos($html, '"', $inicio + 9);
-    expect(substr($html, $fim - 5, 25))->toBe('    }"'.'
-'.'    class="rounded');
+    expect(substr($html, $fim - 5, 28))->toBe('    }"'.'
+'.'    x-effect="emit()"');
 
     $this->get('/en/quanto-vale-a-minha-casa')->assertOk()
         ->assertSee('Instant estimate')
@@ -103,10 +108,10 @@ it('o pedido de avaliação guarda a estimativa que a pessoa viu', function () {
         'name' => 'Rui Teste',
         'email' => 'rui@example.test',
         'form_ts' => StoreLeadRequest::signedTimestamp(time() - 30),
-        'payload' => ['city' => 'Sintra', 'property_type' => 'Apartamento', 'area' => 100, 'condition' => 'Bom estado', 'estimate' => '225 000 € – 275 000 €'],
+        'payload' => ['city' => 'Sintra', 'locality' => 'Colares', 'property_type' => 'Apartamento', 'area' => 100, 'condition' => 'Bom estado', 'estimate' => '225 000 € – 275 000 €'],
     ])->assertRedirect();
 
-    expect(Lead::first()->payload)->toMatchArray(['city' => 'Sintra', 'estimate' => '225 000 € – 275 000 €']);
+    expect(Lead::first()->payload)->toMatchArray(['city' => 'Sintra', 'locality' => 'Colares', 'estimate' => '225 000 € – 275 000 €']);
 });
 
 it('o backoffice lista e cria valores de referência, sem repetir concelho e tipo', function () {

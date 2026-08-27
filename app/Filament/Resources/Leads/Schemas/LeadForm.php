@@ -18,6 +18,7 @@ class LeadForm
     private const PAYLOAD_LABELS = [
         'address' => 'Morada',
         'city' => 'Concelho',
+        'locality' => 'Freguesia',
         'property_type' => 'Tipo de imóvel',
         'bedrooms' => 'Tipologia',
         'area' => 'Área (m²)',
