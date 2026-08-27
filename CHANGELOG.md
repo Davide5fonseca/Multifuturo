@@ -9,6 +9,32 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Email a cada administrador por cada pedido do site
+
+$${\color{#5D6348}\textsf{2026-08-27 · 11:38}}$$
+
+**Commit:** `7f4a632` — `Pedidos do site: email a cada administrador, nas três origens`
+
+A pedido do cliente: sempre que alguém faz uma pergunta no site, o administrador recebe
+um email com a informação — no **"Pedir informação"** de um imóvel, no **pedido de
+avaliação** e no contacto geral. Até aqui o email só ia para `AGENCY_EMAIL`, que ainda
+está vazio: na prática ninguém o recebia, só o sino do backoffice.
+
+- O email vai a **cada utilizador administrador** do backoffice e, se estiver preenchido,
+  também ao email geral da agência — sem repetir quando é o mesmo endereço.
+- O assunto identifica a origem ("Pedido de informação — AP/001", "Pedido de avaliação —
+  Sintra"). Os dados do simulador seguem com os nomes do site e pela ordem do site
+  (concelho, freguesia, tipo, área, estado, estimativa), e há um botão **"Abrir o pedido
+  no backoffice"** para responder a partir daí.
+- O molde de email passou a falar português ("Cumprimentos", "Todos os direitos
+  reservados") e o remetente é "Multifuturo Propriedades".
+- Verificado ao vivo: pedido enviado pelo browser, email recebido no Mailpit pelo
+  administrador, com os dados certos.
+
+Três testes novos, **201 a passar**, Pint limpo.
+
+---
+
 ## Simulador e pedido de avaliação num só cartão
 
 $${\color{#5D6348}\textsf{2026-08-27 · 10:41}}$$
