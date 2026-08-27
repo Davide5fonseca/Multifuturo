@@ -46,13 +46,14 @@ class StoreLeadRequest extends FormRequest
             'consent_marketing' => ['nullable', 'boolean'],
 
             // Campos extra (avaliação). Só chaves conhecidas; valores curtos.
-            'payload' => ['nullable', 'array:address,city,property_type,bedrooms,area,condition'],
+            'payload' => ['nullable', 'array:address,city,property_type,bedrooms,area,condition,estimate'],
             'payload.address' => ['nullable', 'string', 'max:255'],
             'payload.city' => ['nullable', 'string', 'max:96'],
             'payload.property_type' => ['nullable', 'string', 'max:64'],
             'payload.bedrooms' => ['nullable', 'integer', 'min:0', 'max:20'],
             'payload.area' => ['nullable', 'numeric', 'min:0', 'max:100000'],
             'payload.condition' => ['nullable', 'string', 'max:64'],
+            'payload.estimate' => ['nullable', 'string', 'max:64'],   // intervalo mostrado pelo simulador
 
             // Anti-spam. O honeypot ("website") não tem regra: é lido em looksLikeSpam().
             'form_ts' => ['nullable', 'string', 'max:96'],       // timestamp assinado, opcional

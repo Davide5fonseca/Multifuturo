@@ -22,7 +22,17 @@
     $formId = 'lead-'.$source.($property?->id ? '-'.$property->id : '');
 @endphp
 
-<div {{ $attributes->merge(['class' => 'rounded-xl bg-sand-100 border border-sand-200 p-6 sm:p-8']) }} id="{{ $formId }}">
+<div {{ $attributes->merge(['class' => 'rounded-xl bg-sand-100 border border-sand-200 p-6 sm:p-8']) }} id="{{ $formId }}"
+    @if ($isValuation)
+        {{-- Recebe os dados do simulador de estimativa (mesma página) e preenche os campos. --}}
+        x-data="{ fill(d) {
+            const set = (n, v) => { const el = document.getElementById('{{ $formId }}-' + n); if (el) el.value = v ?? ''; };
+            set('city', d.city); set('ptype', d.type); set('area', d.area); set('condition', d.condition); set('estimate', d.estimate);
+            const m = document.getElementById('{{ $formId }}-message'); if (m && ! m.value.trim()) m.value = d.message;
+        } }"
+        x-on:valuation-estimate.window="fill($event.detail)"
+    @endif
+>
     <h2 class="text-2xl">{{ __('ui.lead.title_'.$source) }}</h2>
     <p class="mt-2 text-sm text-ink-muted">{{ __('ui.lead.lead_'.$source) }}</p>
 
@@ -94,6 +104,8 @@
                     <input id="{{ $formId }}-condition" name="payload[condition]" type="text" value="{{ old('payload.condition') }}" class="field mt-2">
                 </div>
             </div>
+            {{-- Estimativa que o simulador mostrou (se a pessoa passou por ele). --}}
+            <input type="hidden" id="{{ $formId }}-estimate" name="payload[estimate]" value="{{ old('payload.estimate') }}">
         @endif
 
         <div>

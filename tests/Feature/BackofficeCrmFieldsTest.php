@@ -60,7 +60,16 @@ it('guarda os dados internos (contrato, chaves, finanças, licenças, comissão)
 });
 
 it('nada do separador Interna aparece no site', function () {
+    // Valores fixos nos campos aleatórios da factory: um preço de 125 000
+    // contém "12500" e um código postal pode conter "4567" — o teste
+    // falhava de vez em quando sem culpa do código.
     $p = Property::factory()->create([
+        'price' => 350000,
+        'reference' => 'MF-11111',
+        'internal_id' => '111111',
+        'zipcode' => '2710-000',
+        'lat' => '38.700000',
+        'lon' => '-9.300000',
         'internal_name' => 'Casa da esquina (Sr. Silva)',
         'status_reason' => 'Proprietário em viagem',
         'admin' => [

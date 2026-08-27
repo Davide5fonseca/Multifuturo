@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\BusinessType;
 use App\Models\Property;
 use App\Support\PropertyCache;
+use App\Support\Valuation;
 use App\Support\Zones;
 use Illuminate\Contracts\View\View;
 
@@ -58,7 +59,7 @@ class PageController extends Controller
 
     public function valuation(): View
     {
-        return view('pages.valuation');
+        return view('pages.valuation', ['table' => Valuation::table()]);
     }
 
     public function about(): View

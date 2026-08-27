@@ -14,6 +14,17 @@ use Illuminate\Support\Carbon;
  */
 class LeadForm
 {
+    /** Campos do pedido de avaliação, com os nomes que o site mostra. */
+    private const PAYLOAD_LABELS = [
+        'address' => 'Morada',
+        'city' => 'Concelho',
+        'property_type' => 'Tipo de imóvel',
+        'bedrooms' => 'Tipologia',
+        'area' => 'Área (m²)',
+        'condition' => 'Estado de conservação',
+        'estimate' => 'Estimativa mostrada no site',
+    ];
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -53,7 +64,9 @@ class LeadForm
                             ->columnSpanFull(),
                         Textarea::make('payload')
                             ->label('Dados do imóvel a avaliar')
-                            ->formatStateUsing(fn ($state) => is_array($state) ? collect($state)->map(fn ($v, $k) => ucfirst(str_replace('_', ' ', $k)).': '.$v)->implode("\n") : (string) $state)
+                            ->formatStateUsing(fn ($state) => is_array($state)
+                                ? collect($state)->filter(fn ($v) => filled($v))->map(fn ($v, $k) => (self::PAYLOAD_LABELS[$k] ?? ucfirst(str_replace('_', ' ', $k))).': '.$v)->implode("\n")
+                                : (string) $state)
                             ->rows(4)
                             ->disabled()
                             ->columnSpanFull()
