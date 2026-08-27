@@ -9,6 +9,20 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Correção: o simulador aparecia como texto
+
+$${\color{#5D6348}\textsf{2026-08-27 · 10:10}}$$
+
+**Commit:** `2fe861a` — `Correção: aspas num comentário rebentavam o simulador de estimativa`
+
+Na entrada anterior, um comentário dentro do JavaScript do simulador tinha aspas
+duplas. Esse código vive dentro de um atributo HTML, e a aspa fechava-o: o resto
+aparecia como texto na página, em vez do simulador. Os testes passavam — nenhum
+olhava para a integridade do atributo — e foi a captura de ecrã que o apanhou.
+Corrigido, e agora há um teste que verifica que o atributo fecha onde deve.
+
+---
+
 ## Valores por m² do INE, com freguesias, no simulador
 
 $${\color{#5D6348}\textsf{2026-08-27 · 10:07}}$$
