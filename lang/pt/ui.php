@@ -54,20 +54,6 @@ return [
         'note' => 'Respondemos, em regra, no próprio dia útil. Se preferir, deixe o número de telefone e ligamos nós.',
     ],
 
-    'simulator' => [
-        'title' => 'Simulador de crédito habitação',
-        'lead' => 'Uma estimativa da prestação mensal para este imóvel. Ajuste a entrada, o prazo e a taxa.',
-        'down_payment' => 'Entrada',
-        'term' => 'Prazo',
-        'years' => 'anos',
-        'rate' => 'Taxa anual (TAN)',
-        'monthly' => 'Prestação mensal estimada',
-        'loan' => 'Valor a financiar',
-        'interest' => 'Juros totais',
-        'total' => 'Custo total do crédito',
-        'note' => 'Valores meramente indicativos, calculados com prestação constante e sem seguros nem comissões. A taxa, o spread e a TAEG dependem do banco e de cada situação. Não constitui proposta de crédito.',
-    ],
-
     'valuation' => [
         'title' => 'Estimativa imediata',
         'lead' => 'Uma primeira ideia do valor, a partir dos preços por m² que acompanhamos. A avaliação rigorosa é feita por um consultor, sem compromisso.',

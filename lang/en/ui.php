@@ -55,20 +55,6 @@ return [
         'note' => 'As a rule, we reply within the same working day. If you prefer, leave your phone number and we will call you.',
     ],
 
-    'simulator' => [
-        'title' => 'Mortgage simulator',
-        'lead' => 'An estimate of the monthly instalment for this property. Adjust the deposit, the term and the rate.',
-        'down_payment' => 'Deposit',
-        'term' => 'Term',
-        'years' => 'years',
-        'rate' => 'Annual rate (nominal)',
-        'monthly' => 'Estimated monthly instalment',
-        'loan' => 'Amount to finance',
-        'interest' => 'Total interest',
-        'total' => 'Total cost of credit',
-        'note' => 'Indicative figures only, calculated with a constant instalment and excluding insurance and fees. The rate, spread and APRC depend on the bank and on each situation. This is not a credit offer.',
-    ],
-
     'valuation' => [
         'title' => 'Instant estimate',
         'lead' => 'A first idea of the value, based on the prices per m² we track. A rigorous valuation is done by an adviser, with no obligation.',
