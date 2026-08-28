@@ -9,6 +9,35 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Auditoria visual do site
+
+$${\color{#5D6348}\textsf{2026-08-28 · 10:46}}$$
+
+**Commit:** `d95aa1b` — `Site: auditoria visual — cabeçalho, hero, galeria, zonas, textos com dados em falta`
+
+A pedido do cliente: ronda de capturas de todas as páginas públicas em desktop (1440),
+tablet (1024 e 768) e telemóvel (477), com tudo o que se encontrou corrigido e
+confirmado numa segunda ronda de capturas.
+
+- **Cabeçalho:** entre 1024 e 1280 px os itens do menu partiam-se em duas linhas
+  ("Quanto vale a / minha casa?"). O menu completo aparece só a partir de 1280 px; abaixo
+  disso, o botão de menu.
+- **Página inicial:** o hero tem agora um teto de altura — num ecrã alto era um mural de
+  quase 4 000 px antes de se ver o primeiro imóvel.
+- **Galeria da ficha:** sem fotografias, ou só com uma, a capa ocupa a largura toda (ficava
+  um terço vazio à direita); com duas, a miniatura fica à altura da capa.
+- **Zonas:** a célula vazia da grelha ficava pintada de escuro; passam a cartões separados.
+- **Página de zona:** o subtítulo repetia o título palavra por palavra.
+- **Ficha:** o tipo de imóvel leva maiúscula inicial.
+- **Textos legais e "A agência":** cada dado ainda por preencher produzia um buraco no
+  texto ("AMI n.º Licença AMI: por atribuir", "com sede em .", "Telefone: · Email"). A
+  frase é agora construída com o que existe, e os parágrafos que ficam vazios não se mostram.
+- Alerta sem filtros: "Venda · todos os imóveis" em vez de "Venda" sozinho.
+
+**205 testes a passar**, Pint limpo.
+
+---
+
 ## Botão "Avise-me" quando não há resultados
 
 $${\color{#5D6348}\textsf{2026-08-28 · 10:25}}$$
