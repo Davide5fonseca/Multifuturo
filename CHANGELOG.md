@@ -9,6 +9,36 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Terrenos no simulador: valor por omissão
+
+$${\color{#5D6348}\textsf{2026-08-28 · 09:34}}$$
+
+**Commit:** `d6c10ee` — `Simulador: terrenos com valor por omissão e sem estado de conservação`
+
+A pedido do cliente. O INE não publica €/m² de terrenos e não existe outra fonte pública
+por concelho — confirmado. Por isso é a agência que os define, mas sem ter de o fazer
+concelho a concelho:
+
+- No separador **Valores de referência**, cada valor tem agora um **âmbito**: "um
+  concelho (ou freguesia)" ou **"todos os concelhos sem valor próprio"**. Este último é a
+  rede: qualquer concelho sem valor para o tipo usa-o. Basta **um valor de terrenos**
+  para o simulador passar a estimar terrenos em todo o lado; os concelhos onde a
+  agência quiser ser mais precisa recebem o seu próprio valor por cima.
+- Ordem de procura: freguesia → concelho → carteira → valor por omissão.
+- Num terreno o **estado de conservação não conta**: o campo desaparece e não segue no
+  pedido. Por baixo do resultado diz "valor de referência geral da agência". Sem valor,
+  a mensagem explica que o valor de um terreno depende da localização e do que lá se
+  pode construir, e convida ao pedido.
+
+Verificado no browser: terreno em Bragança usa o valor geral, o estado desaparece e não
+altera a conta, e voltar a apartamento volta ao valor do INE. **198 testes a passar.**
+
+**Fica do lado da agência:** escrever o valor de terrenos "Todos os concelhos" (e, se
+quiser, por concelho) — hoje a tabela não tem nenhum, por isso os terrenos continuam a
+mostrar o convite ao pedido.
+
+---
+
 ## Simulador de crédito retirado da ficha
 
 $${\color{#5D6348}\textsf{2026-08-27 · 14:40}}$$
