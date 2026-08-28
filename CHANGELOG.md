@@ -9,6 +9,19 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Barra de pesquisa empilhada no telemóvel
+
+$${\color{#5D6348}\textsf{2026-08-28 · 10:48}}$$
+
+**Commit:** `81056a1` — `Site: barra de pesquisa empilhada em ecrãs pequenos`
+
+Último achado da auditoria: no telemóvel, a barra de pesquisa da página inicial (e da
+página 404) cortava o campo de texto ("Concelho, fregues…") entre o seletor e o botão.
+Abaixo de 640 px o botão "Procurar" passa para uma linha própria, a toda a largura, e o
+campo ganha o espaço. Confirmado em captura.
+
+---
+
 ## Auditoria visual do site
 
 $${\color{#5D6348}\textsf{2026-08-28 · 10:46}}$$
