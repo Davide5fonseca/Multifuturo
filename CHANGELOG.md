@@ -9,6 +9,28 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Mapa da ficha sem o rodapé do OpenStreetMap
+
+$${\color{#5D6348}\textsf{2026-08-28 · 12:06}}$$
+
+**Commit:** `6f88713` — `Ficha: mapa em Leaflet local, só com a linha de atribuição obrigatória`
+
+O cliente pediu para tirar do mapa a barra "Reportar um problema | © Contribuidores do
+OpenStreetMap ❤ Faça um donativo. Termos do website e da API". Ela vinha do iframe do
+openstreetmap.org, que não se pode alterar. O mapa passa a ser desenhado pelo **Leaflet
+servido do nosso próprio storage** (o mesmo já usado no backoffice), criado só ao
+clicar em "Mostrar mapa" — continua a não haver nenhum pedido externo até lá.
+
+O que fica é o mínimo que a licença do OpenStreetMap exige para usar os mapas
+gratuitamente: **"© OpenStreetMap"**, discreto, no canto, com ligação à página de
+direitos. Sem a bandeira do Leaflet, sem donativos, sem termos. O backoffice recebe o
+mesmo rodapé.
+
+Verificado no browser: nenhum pedido externo antes do clique; depois, mapa com marcador
+e só "© OpenStreetMap". **205 testes a passar.**
+
+---
+
 ## Deploy preparado: produção com Docker
 
 $${\color{#5D6348}\textsf{2026-08-28 · 11:57}}$$
