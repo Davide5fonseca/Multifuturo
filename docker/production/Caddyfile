@@ -1,0 +1,51 @@
+# Caddy à frente da aplicação: HTTPS automático (Let's Encrypt), ficheiros
+# estáticos e encaminhamento do PHP para o php-fpm do serviço "app".
+#
+# SITE_DOMAIN vem do .env (ex.: multifuturo.pt). Para testar localmente,
+# SITE_DOMAIN=localhost dá um certificado interno, sem Let's Encrypt.
+{
+    email {$ACME_EMAIL:admin@example.com}
+}
+
+{$SITE_DOMAIN} {
+    root * /var/www/html/public
+    encode zstd gzip
+
+    # Cabeçalhos de segurança. O CSP fica no Laravel, se um dia for preciso.
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+        -Server
+    }
+
+    # Estáticos com nome "hashed" (Vite) podem ficar em cache um ano.
+    @assets path /build/* /vendor/leaflet/* /images/* /favicon.ico /favicon.svg /apple-touch-icon.png
+    header @assets Cache-Control "public, max-age=31536000, immutable"
+
+    # Fotografias carregadas: cache curta, mudam quando a agência as troca.
+    @uploads path /storage/*
+    header @uploads Cache-Control "public, max-age=86400"
+
+    # Nada do que não deva ser servido: ficheiros escondidos, .env, etc.
+    @blocked path /.* /storage/framework/* /storage/logs/*
+    respond @blocked 404
+
+    php_fastcgi app:9000 {
+        # Pedidos grandes (upload de fotografias) e alguns segundos de margem.
+        read_timeout 120s
+    }
+    file_server
+
+    log {
+        output stderr
+        format console
+    }
+}
+
+# www → sem www (ou o contrário, à escolha do domínio final).
+www.{$SITE_DOMAIN} {
+    redir https://{$SITE_DOMAIN}{uri} permanent
+}

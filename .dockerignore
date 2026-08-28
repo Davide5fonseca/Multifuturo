@@ -1,0 +1,36 @@
+# O que NÃO entra na imagem de produção (docker/production/Dockerfile).
+# vendor e public/build são construídos dentro da imagem; o resto é
+# desenvolvimento, dados locais ou segredos.
+.git
+.github
+.idea
+.vscode
+.fleet
+node_modules
+vendor
+public/build
+public/hot
+public/storage
+storage/app/public/*
+storage/app/private/*
+storage/app/demo
+storage/app/casafari
+storage/app/design
+storage/backups
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/logs/*
+# Caches do ambiente local (package:discover corre na imagem, sem os pacotes de desenvolvimento).
+bootstrap/cache/*
+tests
+docker/nginx
+docker/php-dev.ini
+compose.yaml
+.env
+.env.*
+!.env.production.example
+*.md
+!README.md
+Thumbs.db
+.DS_Store

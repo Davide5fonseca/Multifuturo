@@ -1,0 +1,142 @@
+# Multifuturo Propriedades — produção.
+#
+#   docker compose -f compose.production.yaml up -d --build
+#
+# Seis serviços, os mesmos que correm em desenvolvimento, sem o Mailpit:
+#   caddy      HTTPS automático, estáticos, encaminha o PHP para o app
+#   app        PHP-FPM (a aplicação)
+#   queue      fila: emails dos pedidos, alertas, confirmações
+#   scheduler  agendador: cópias de segurança, importação do INE, alertas
+#   pgsql      PostgreSQL 16
+#   redis      cache, sessões e fila
+#
+# Só o Caddy expõe portas (80 e 443). A base de dados e o Redis ficam na
+# rede interna. Os dados vivem em volumes com nome (ver o fim do ficheiro).
+# As variáveis vêm do .env do servidor (ver .env.production.example).
+
+services:
+    caddy:
+        build:
+            context: .
+            dockerfile: docker/production/Dockerfile
+            target: web
+        image: multifuturo/web
+        restart: unless-stopped
+        ports:
+            - '${HTTP_PORT:-80}:80'
+            - '${HTTPS_PORT:-443}:443'
+            - '${HTTPS_PORT:-443}:443/udp'
+        environment:
+            SITE_DOMAIN: '${SITE_DOMAIN:?SITE_DOMAIN em falta no .env}'
+            ACME_EMAIL: '${ACME_EMAIL:-}'
+        volumes:
+            # As fotografias carregadas ficam no mesmo volume que o app escreve.
+            - 'storage_public:/var/www/html/public/storage:ro'
+            - 'caddy_data:/data'
+            - 'caddy_config:/config'
+        depends_on:
+            app:
+                condition: service_healthy
+        networks:
+            - multifuturo
+
+    app:
+        build:
+            context: .
+            dockerfile: docker/production/Dockerfile
+            target: app
+        image: multifuturo/app
+        restart: unless-stopped
+        env_file: '${ENV_FILE:-.env}'
+        volumes:
+            - 'storage_public:/var/www/html/storage/app/public'
+            - 'storage_private:/var/www/html/storage/app/private'
+            - 'backups:/var/www/html/storage/backups'
+        depends_on:
+            pgsql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        networks:
+            - multifuturo
+
+    queue:
+        image: multifuturo/app
+        restart: unless-stopped
+        env_file: '${ENV_FILE:-.env}'
+        command: ['php', 'artisan', 'queue:work', '--tries=3', '--max-time=3600', '--sleep=1', '--memory=128']
+        # A verificação de saúde da imagem é a do PHP-FPM (porta 9000); não se aplica aqui.
+        healthcheck:
+            disable: true
+        volumes:
+            - 'storage_public:/var/www/html/storage/app/public'
+            - 'storage_private:/var/www/html/storage/app/private'
+            - 'backups:/var/www/html/storage/backups'
+        depends_on:
+            app:
+                condition: service_healthy
+        networks:
+            - multifuturo
+
+    scheduler:
+        image: multifuturo/app
+        restart: unless-stopped
+        env_file: '${ENV_FILE:-.env}'
+        command: ['php', 'artisan', 'schedule:work']
+        healthcheck:
+            disable: true
+        volumes:
+            - 'storage_public:/var/www/html/storage/app/public'
+            - 'storage_private:/var/www/html/storage/app/private'
+            - 'backups:/var/www/html/storage/backups'
+        depends_on:
+            app:
+                condition: service_healthy
+        networks:
+            - multifuturo
+
+    pgsql:
+        image: 'postgres:16-alpine'
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: '${DB_DATABASE:?DB_DATABASE em falta no .env}'
+            POSTGRES_USER: '${DB_USERNAME:?DB_USERNAME em falta no .env}'
+            POSTGRES_PASSWORD: '${DB_PASSWORD:?DB_PASSWORD em falta no .env}'
+        volumes:
+            - 'pgsql:/var/lib/postgresql/data'
+        healthcheck:
+            test: ['CMD', 'pg_isready', '-q', '-d', '${DB_DATABASE}', '-U', '${DB_USERNAME}']
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        networks:
+            - multifuturo
+
+    redis:
+        image: 'redis:7-alpine'
+        restart: unless-stopped
+        # appendonly: a fila sobrevive a um reinício do servidor.
+        command: ['redis-server', '--appendonly', 'yes', '--maxmemory', '256mb', '--maxmemory-policy', 'noeviction']
+        volumes:
+            - 'redis:/data'
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'ping']
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        networks:
+            - multifuturo
+
+networks:
+    multifuturo:
+        driver: bridge
+
+# Os dados. Apagar um destes volumes é apagar dados de produção.
+volumes:
+    pgsql:            # base de dados
+    redis:            # fila e sessões
+    storage_public:   # fotografias das fichas
+    storage_private:  # documentos das fichas (nunca servidos diretamente)
+    backups:          # cópias de segurança diárias (copiar para fora do servidor!)
+    caddy_data:       # certificados HTTPS
+    caddy_config:

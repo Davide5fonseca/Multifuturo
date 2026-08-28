@@ -69,6 +69,13 @@ flowchart LR
 | Server-rendered, sem SPA | SEO — cada listagem, ficha e zona é indexável |
 | Cache Redis com tag | limpa automaticamente ao gravar no backoffice |
 
+## 🌍 Produção
+
+O deploy está preparado e testado: Docker em produção com Caddy (HTTPS automático),
+PHP-FPM, fila, agendador, PostgreSQL e Redis — `compose.production.yaml`,
+`docker/production/`, `deploy/deploy.sh` e `deploy/restore.sh`. O guia completo, do
+servidor vazio ao site no ar e às atualizações, está em **[DEPLOY.md](DEPLOY.md)**.
+
 ## 🚀 Começar
 
 > [!IMPORTANT]
