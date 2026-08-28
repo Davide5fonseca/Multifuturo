@@ -9,6 +9,20 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Botão "Avise-me" quando não há resultados
+
+$${\color{#5D6348}\textsf{2026-08-28 · 10:25}}$$
+
+**Commit:** `14dad63` — `Listagem: botão "Avise-me" quando a pesquisa não dá resultados`
+
+O momento certo para oferecer o alerta é quando a pessoa procurou e não há nada. A caixa
+"Não encontrámos imóveis…" ganha o botão **"Avise-me de novos imóveis"**, que desce até ao
+formulário; no telemóvel, onde os filtros estão recolhidos, abre-os primeiro. Apanhado nas
+capturas de ecrã: em desktop o formulário ficava no fundo de uma barra de filtros longa e
+no telemóvel nem se via.
+
+---
+
 ## Alertas de imóveis por email
 
 $${\color{#5D6348}\textsf{2026-08-28 · 10:22}}$$
