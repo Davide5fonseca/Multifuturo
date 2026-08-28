@@ -122,9 +122,15 @@
             @if ($results->isEmpty())
                 <div class="rounded-xl border border-sand-200 bg-sand-100 px-6 py-16 text-center">
                     <p class="text-lg">{{ __('ui.listing.empty') }}</p>
-                    @if ($this->hasFilters())
-                        <button type="button" wire:click="clearFilters" class="btn-secondary mt-6">{{ __('ui.listing.clear_filters') }}</button>
-                    @endif
+                    {{-- O momento certo para o alerta: a pessoa procurou e não há nada. --}}
+                    <div class="mt-6 flex flex-wrap justify-center gap-3">
+                        {{-- No telemóvel os filtros estão recolhidos: abre-os antes de descer até ao formulário. --}}
+                        <a href="#alert-{{ $businessTypeEnum->routeName() }}" class="btn-primary"
+                           @click="filtersOpen = true; $nextTick(() => document.getElementById('alert-{{ $businessTypeEnum->routeName() }}')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))">{{ __('ui.alerts.title') }}</a>
+                        @if ($this->hasFilters())
+                            <button type="button" wire:click="clearFilters" class="btn-secondary">{{ __('ui.listing.clear_filters') }}</button>
+                        @endif
+                    </div>
                 </div>
             @else
                 <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
