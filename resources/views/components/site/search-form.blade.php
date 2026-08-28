@@ -18,9 +18,10 @@
 
         <label class="sr-only" for="pesquisa-q">{{ __('ui.search.title') }}</label>
         <input id="pesquisa-q" name="q" type="search" value="{{ request('q') }}" placeholder="{{ __('ui.search.placeholder') }}"
-               class="min-w-0 flex-1 bg-white px-5 py-3.5 text-ink placeholder:text-ink-muted focus:outline-none" autocomplete="off">
+               class="min-w-0 flex-1 basis-40 bg-white px-4 py-3.5 text-sm text-ink placeholder:text-ink-muted focus:outline-none sm:px-5 sm:text-base" autocomplete="off">
 
-        <button type="submit" class="bg-olive-600 px-8 py-3.5 text-sm font-medium tracking-wide text-sand-50 transition-colors hover:bg-olive-700">
+        {{-- Em ecrãs pequenos o botão passa para uma linha própria, a toda a largura. --}}
+        <button type="submit" class="w-full bg-olive-600 px-8 py-3.5 text-sm font-medium tracking-wide text-sand-50 transition-colors hover:bg-olive-700 sm:w-auto">
             {{ __('ui.search.submit') }}
         </button>
     </fieldset>
