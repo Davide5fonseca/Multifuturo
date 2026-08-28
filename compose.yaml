@@ -41,10 +41,16 @@ services:
             - './docker/php-dev.ini:/etc/php/8.3/cli/conf.d/99-multifuturo.ini'
         networks:
             - sail
+        # Espera pelo PostgreSQL e pelo Redis saudáveis: no arranque do Docker
+        # o worker chegava a tentar ligar antes de o nome "redis" existir na
+        # rede e ficava em ciclo de reinícios até apanhar.
         depends_on:
-            - multifuturo.test
-            - pgsql
-            - redis
+            multifuturo.test:
+                condition: service_started
+            pgsql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
         restart: unless-stopped
 
     # Agendador. É o que faz a cópia de segurança diária acontecer; sem um
@@ -61,10 +67,16 @@ services:
             - './docker/php-dev.ini:/etc/php/8.3/cli/conf.d/99-multifuturo.ini'
         networks:
             - sail
+        # Espera pelo PostgreSQL e pelo Redis saudáveis: no arranque do Docker
+        # o worker chegava a tentar ligar antes de o nome "redis" existir na
+        # rede e ficava em ciclo de reinícios até apanhar.
         depends_on:
-            - multifuturo.test
-            - pgsql
-            - redis
+            multifuturo.test:
+                condition: service_started
+            pgsql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
         restart: unless-stopped
 
     # nginx à frente da aplicação, para servir o site em http://localhost/multifuturo.
