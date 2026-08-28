@@ -9,6 +9,36 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Cookies RGPD: prova do consentimento
+
+$${\color{#5D6348}\textsf{2026-08-28 · 14:46}}$$
+
+**Commit:** `53823bf` — `Cookies RGPD: registo das escolhas como prova do consentimento`
+
+A pedido do cliente ("mete cookies RGPD"). Antes de acrescentar, auditou-se o que já
+existia — e o aviso de cookies já estava completo: categorias (necessários, análise,
+marketing), **"Recusar não essenciais" com o mesmo peso que "Aceitar tudo"**, "Gerir
+cookies" no rodapé para mudar de ideias, scripts não essenciais bloqueados até ao
+opt-in, política de cookies com a lista do que existe (sessão, proteção dos formulários,
+preferências; favoritos só no browser). Nenhum script de terceiros carrega sem consentimento.
+
+**O que faltava era a prova.** O RGPD pede que a agência consiga demonstrar que houve
+consentimento (art. 7.º, n.º 1), e as escolhas viviam só no browser de cada pessoa.
+
+- Cada escolha no aviso fica agora **registada no servidor**: data, versão do aviso,
+  categorias, idioma e um identificador técnico derivado do IP (hash irreversível — nunca
+  o IP, nunca nome ou email). Não identifica ninguém por si só.
+- Os registos **apagam-se ao fim de 24 meses**, todos os dias às 04:10.
+- Se o registo falhar, a escolha vale na mesma: o cookie é a fonte de verdade, o
+  registo é a prova.
+- A política de cookies explica o registo, o que contém e quanto tempo dura.
+
+Verificado no browser: recusar → aviso escondido, cookie sem categorias, registo gravado;
+recarregar → continua escondido; "Gerir cookies" → personalizar → guardar com "Análise"
+→ cookie e registo atualizados. Quatro testes novos, **209 a passar**.
+
+---
+
 ## Fila e agendador esperam pela base de dados e pelo Redis
 
 $${\color{#5D6348}\textsf{2026-08-28 · 14:18}}$$
