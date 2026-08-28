@@ -33,7 +33,10 @@
                         <h2 class="font-sans text-lg font-medium">{{ $section['title'] }}</h2>
                         <div class="mt-3 space-y-3 text-ink/90 leading-relaxed">
                             @foreach ($section['paragraphs'] as $paragraph)
-                                <p>{{ $t($paragraph) }}</p>
+                                {{-- Um parágrafo que era só um dado ainda por preencher (morada, telefone) não se mostra vazio. --}}
+                                @if (trim($t($paragraph)) !== '')
+                                    <p>{{ $t($paragraph) }}</p>
+                                @endif
                             @endforeach
                         </div>
                     </section>

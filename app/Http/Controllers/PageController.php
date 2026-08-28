@@ -99,10 +99,16 @@ class PageController extends Controller
             'key' => $key,
             'replacements' => [
                 'name' => $agency['name'],
-                'ami' => filled($agency['ami']) ? $agency['ami'] : __('ui.footer.ami_missing'),
-                'address' => $agency['address'],
-                'email' => $agency['email'],
-                'phone' => $agency['phone'],
+                // Cada dado em falta produz a frase certa, não um buraco ("AMI n.º ", "com sede em .").
+                'ami' => filled($agency['ami']) ? 'n.º '.$agency['ami'] : '(número por atribuir)',
+                'address' => (string) $agency['address'],
+                'seat' => filled($agency['address']) ? ', com sede em '.$agency['address'] : '',
+                'email' => (string) $agency['email'],
+                'phone' => (string) $agency['phone'],
+                'contact_line' => implode(' · ', array_filter([
+                    filled($agency['phone']) ? 'Telefone: '.$agency['phone'] : null,
+                    filled($agency['email']) ? 'Email: '.$agency['email'] : null,
+                ])),
                 'version' => $agency['privacy_policy_version'],
                 'consent_cookie' => config('consent.cookie'),
             ],

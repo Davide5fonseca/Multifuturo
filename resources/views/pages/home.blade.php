@@ -6,7 +6,7 @@
 <x-layouts.app :title="__('ui.home.title')" :description="__('ui.home_sections.hero_lead')" :canonical="route('home')" :image="$heroImage">
     {{-- 1. Hero: fotografia grande a dominar; texto centrado sobre véu escuro suave --}}
     {{-- Sem fotografia, o hero é bege com texto escuro (nunca um bloco grande de azeitona). --}}
-    <section @class(['relative isolate flex min-h-[70vh] items-center justify-center overflow-hidden sm:min-h-[80vh]', 'bg-olive-900 text-sand-50' => $heroImage, 'bg-sand-100 text-ink' => ! $heroImage])>
+    <section @class(['relative isolate flex min-h-[520px] items-center justify-center overflow-hidden h-[min(80svh,760px)] sm:h-[min(85svh,820px)]', 'bg-olive-900 text-sand-50' => $heroImage, 'bg-sand-100 text-ink' => ! $heroImage])>
         @if ($heroImage)
             <img src="{{ $heroImage }}" alt="" width="1920" height="1080" fetchpriority="high" decoding="async"
                  class="absolute inset-0 -z-20 h-full w-full object-cover" data-fallback="{{ asset('images/placeholder-property.jpg') }}"

@@ -6,7 +6,7 @@
     $metaTitle = $title.($location ? " — {$location}" : '').' · '.($p->reference ?? $p->internal_id);
     $metaDescription = $p->description ? mb_substr(preg_replace('/\s+/', ' ', strip_tags($p->description)), 0, 155) : ($title.', '.$location.'. '.Format::price($p->price, $p->currency, $p->business_type, $p->price_visible));
     $details = array_filter([
-        __('ui.property.type') => $p->property_type,
+        __('ui.property.type') => $p->property_type ? \Illuminate\Support\Str::ucfirst($p->property_type) : null,
         __('ui.property.bedrooms') => Format::typology($p->bedrooms),
         __('ui.property.bathrooms') => $p->bathrooms,
         __('ui.property.house_area') => Format::area($p->house_area),

@@ -57,7 +57,7 @@
 
         <section class="mt-14">
             <div class="flex items-end justify-between gap-6">
-                <h2 class="text-3xl">{{ __('ui.zones.in_zone', ['zone' => $localityName ?? $cityName]) }}</h2>
+                <h2 class="text-3xl">{{ isset($localityName) ? __('ui.zones.in_zone', ['zone' => $localityName]) : __('ui.zones.portfolio') }}</h2>
                 <p class="text-sm text-ink-muted">{{ trans_choice('ui.zones.properties_count', $properties->total(), ['count' => $properties->total()]) }}</p>
             </div>
             @if ($properties->isEmpty())

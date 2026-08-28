@@ -7,7 +7,8 @@
 |
 | Política de privacidade, termos e condições, política de cookies e página
 | institucional. Cada documento é uma lista de secções (título + parágrafos).
-| Os dados da agência (:name, :email, :address, :ami) vêm de config('agency').
+| Os dados da agência (:name, :email, :address, :ami, :seat, :contact_line) vêm de
+| config('agency'), já com a frase certa quando um deles ainda está vazio.
 |
 | NOTA: são minutas de trabalho redigidas para o contexto do site (RGPD, Lei
 | n.º 15/2013, DL n.º 74/2017). Devem ser revistas por quem responde pela
@@ -27,7 +28,7 @@ return [
             [
                 'title' => '1. Responsável pelo tratamento',
                 'paragraphs' => [
-                    'A entidade responsável pelo tratamento dos dados pessoais recolhidos neste site é a :name, empresa de mediação imobiliária titular da licença AMI n.º :ami, com sede em :address. Para qualquer questão relacionada com os seus dados pode contactar-nos através de :email.',
+                    'A entidade responsável pelo tratamento dos dados pessoais recolhidos neste site é a :name, empresa de mediação imobiliária titular da licença AMI :ami:seat. Para qualquer questão relacionada com os seus dados pode contactar-nos através de :email.',
                 ],
             ],
             [
@@ -93,7 +94,7 @@ return [
             [
                 'title' => '1. Identificação',
                 'paragraphs' => [
-                    'Este site é propriedade da :name, empresa de mediação imobiliária licenciada pelo IMPIC com o número AMI :ami, com sede em :address, contactável através de :email.',
+                    'Este site é propriedade da :name, empresa de mediação imobiliária licenciada pelo IMPIC (licença AMI :ami):seat, contactável através de :email.',
                 ],
             ],
             [
@@ -181,7 +182,7 @@ return [
             [
                 'title' => 'Quem somos',
                 'paragraphs' => [
-                    'A :name é uma empresa de mediação imobiliária licenciada (AMI :ami), dedicada à compra, venda e arrendamento de imóveis residenciais e comerciais.',
+                    'A :name é uma empresa de mediação imobiliária licenciada (licença AMI :ami), dedicada à compra, venda e arrendamento de imóveis residenciais e comerciais.',
                     'Trabalhamos com uma carteira própria, atualizada diariamente, e com consultores que conhecem o mercado local e acompanham cada cliente de forma pessoal e transparente.',
                 ],
             ],
@@ -195,7 +196,7 @@ return [
                 'title' => 'Onde estamos',
                 'paragraphs' => [
                     ':address',
-                    'Telefone: :phone · Email: :email',
+                    ':contact_line',
                 ],
             ],
         ],

@@ -145,6 +145,11 @@ final class PropertyFilters
             $parts[] = implode(', ', $c['features']);
         }
 
+        // Sem nenhum filtro: "Venda · todos os imóveis", em vez de "Venda" sozinho.
+        if (count($parts) === 1) {
+            $parts[] = __('ui.alerts.all_properties');
+        }
+
         return implode(' · ', $parts);
     }
 

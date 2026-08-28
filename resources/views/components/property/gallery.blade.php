@@ -16,7 +16,8 @@
                next() { this.i = (this.i + 1) % this.total }, prev() { this.i = (this.i - 1 + this.total) % this.total } }"
      @keydown.escape.window="open && close()" @keydown.arrow-right.window="open && next()" @keydown.arrow-left.window="open && prev()">
 
-    <div class="grid gap-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+    {{-- Com menos de duas fotografias não há coluna de miniaturas: a capa leva a largura toda. --}}
+    <div @class(['grid gap-2', 'lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]' => $thumbs !== []])>
         <a href="{{ $cover ?: '#' }}" @click.prevent="total && show(0)" class="relative block overflow-hidden rounded-xl bg-sand-200" @if(!$cover) aria-hidden="true" tabindex="-1" @endif>
             <x-property.image :src="$cover" :alt="$title" ratio="4/3" :eager="true" sizes="(min-width: 1024px) 66vw, 100vw" />
             @if ($total > 1)
@@ -26,7 +27,7 @@
         @if ($thumbs)
             {{-- Desktop: duas miniaturas empilhadas (2 linhas), à altura da capa.
                  Telemóvel: fila de até 4. As restantes ficam no lightbox. --}}
-            <div class="grid grid-cols-4 gap-2 lg:grid-cols-1 lg:grid-rows-2">
+            <div @class(['grid grid-cols-4 gap-2 lg:grid-cols-1', 'lg:grid-rows-2' => count($thumbs) >= 2, 'lg:grid-rows-1' => count($thumbs) === 1])>
                 @foreach ($thumbs as $k => $ph)
                     <a href="{{ $ph['url'] }}" @click.prevent="show({{ $k + 1 }})"
                        @class(['relative block overflow-hidden rounded-lg bg-sand-200', 'lg:hidden' => $k >= 2])>
