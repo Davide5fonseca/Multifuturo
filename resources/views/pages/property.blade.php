@@ -110,22 +110,56 @@
                     </section>
                 @endif
 
-                {{-- Mapa: só se gmap_visible (compromisso contratual). O iframe do OSM só é criado ao clicar — zero pedidos externos até lá. --}}
+                {{--
+                    Mapa: só se gmap_visible (compromisso contratual). Leaflet servido do
+                    nosso storage e criado só ao clicar — zero pedidos externos até lá; a
+                    partir daí só os quadrados do mapa vêm do openstreetmap.org. Rodapé
+                    reduzido à linha que a licença do OpenStreetMap exige.
+                --}}
                 <section class="mt-12">
                     <h2 class="label">{{ __('ui.property.map') }}</h2>
                     @if ($coords)
-                        @php
-                            $lat = (float) $coords['lat']; $lon = (float) $coords['lon']; $d = 0.008;
-                            $osm = sprintf('https://www.openstreetmap.org/export/embed.html?bbox=%F,%F,%F,%F&layer=mapnik&marker=%F,%F', $lon - $d, $lat - $d, $lon + $d, $lat + $d, $lat, $lon);
-                        @endphp
-                        <div x-data="{ show: false }" class="mt-4 overflow-hidden rounded-xl border border-sand-200 bg-sand-100">
+                        @php $lat = (float) $coords['lat']; $lon = (float) $coords['lon']; @endphp
+                        <div x-data="{
+                                show: false,
+                                map: null,
+                                async open() {
+                                    this.show = true;
+                                    await this.loadLeaflet();
+                                    this.$nextTick(() => this.draw());
+                                },
+                                loadLeaflet() {
+                                    return new Promise((resolve) => {
+                                        if (window.L) return resolve();
+                                        const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = @js(asset('vendor/leaflet/leaflet.css')); document.head.appendChild(css);
+                                        const js = document.createElement('script'); js.src = @js(asset('vendor/leaflet/leaflet.js')); js.onload = resolve; document.head.appendChild(js);
+                                    });
+                                },
+                                draw() {
+                                    if (this.map || ! this.$refs.map) return;
+                                    const pos = [{{ $lat }}, {{ $lon }}];
+                                    this.map = L.map(this.$refs.map, { scrollWheelZoom: false, attributionControl: false }).setView(pos, 15);
+                                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(this.map);
+                                    // Sem aspas dentro do texto: este bloco vive num atributo HTML.
+                                    L.control.attribution({ prefix: false })
+                                        .addAttribution('&copy; <a href=' + @js('https://www.openstreetmap.org/copyright') + ' target=_blank rel=noopener>OpenStreetMap</a>')
+                                        .addTo(this.map);
+                                    L.marker(pos, { icon: L.icon({
+                                        iconUrl: @js(asset('vendor/leaflet/images/marker-icon.png')),
+                                        iconRetinaUrl: @js(asset('vendor/leaflet/images/marker-icon-2x.png')),
+                                        shadowUrl: @js(asset('vendor/leaflet/images/marker-shadow.png')),
+                                        iconSize: [25, 41], iconAnchor: [12, 41], shadowSize: [41, 41],
+                                    }) }).addTo(this.map);
+                                },
+                            }"
+                            class="mt-4 overflow-hidden rounded-xl border border-sand-200 bg-sand-100">
                             <div x-show="!show" class="flex flex-col items-start gap-3 p-6">
                                 <p class="text-sm text-ink-muted">{{ __('ui.property.map_notice') }}</p>
-                                <button type="button" class="btn-secondary py-2 text-xs" @click="show = true">{{ __('ui.property.show_map') }}</button>
+                                <button type="button" class="btn-secondary py-2 text-xs" @click="open()">{{ __('ui.property.show_map') }}</button>
                                 <noscript><a class="link text-sm" href="https://www.openstreetmap.org/?mlat={{ $lat }}&mlon={{ $lon }}#map=16/{{ $lat }}/{{ $lon }}" rel="noopener" target="_blank">OpenStreetMap</a></noscript>
                             </div>
                             <template x-if="show">
-                                <iframe src="{{ $osm }}" title="{{ __('ui.property.map') }}" class="block h-96 w-full" loading="lazy" referrerpolicy="no-referrer"></iframe>
+                                <div x-ref="map" class="h-96 w-full" role="img" aria-label="{{ __('ui.property.map') }}"></div>
                             </template>
                         </div>
                     @else

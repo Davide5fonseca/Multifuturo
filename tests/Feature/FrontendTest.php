@@ -149,8 +149,11 @@ it('com gmap_visible=true tem coordenadas no JSON-LD e o mapa só carrega ao cli
     expect($html)->toContain('GeoCoordinates')
         ->and($html)->toContain('38.7123456')
         ->and($html)->toContain(__('ui.property.show_map'))
-        // O iframe está dentro de <template x-if>: só existe no DOM depois do clique.
-        ->and(preg_match('~<template x-if="show">\s*<iframe~', $html))->toBe(1);
+        // O mapa está dentro de <template x-if>: só existe no DOM depois do clique — e o
+        // Leaflet vem do nosso storage, não de um CDN.
+        ->and(preg_match('~<template x-if="show">\s*<div x-ref="map"~', $html))->toBe(1)
+        ->and($html)->toContain('leaflet.js') // @js() escapa as barras: procura-se só o nome do ficheiro
+        ->and($html)->not->toContain('export/embed.html');
 });
 
 it('um imóvel desativado responde 410 com semelhantes, e não 404', function () {

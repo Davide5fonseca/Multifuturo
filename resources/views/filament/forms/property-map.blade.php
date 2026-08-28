@@ -35,12 +35,11 @@
                 ? [this.lat(), this.lon()]
                 : [39.5, -8.0]; // Portugal continental, quando ainda não há coordenadas
 
-            this.map = L.map(this.$refs.map).setView(start, Number.isFinite(this.lat()) ? 15 : 6);
+            this.map = L.map(this.$refs.map, { attributionControl: false }).setView(start, Number.isFinite(this.lat()) ? 15 : 6);
 
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap',
-            }).addTo(this.map);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(this.map);
+            // Só a linha que a licença do OpenStreetMap exige, sem a bandeira do Leaflet.
+            L.control.attribution({ prefix: false }).addAttribution('&copy; OpenStreetMap').addTo(this.map);
 
             if (Number.isFinite(this.lat())) this.place(this.lat(), this.lon(), false);
 
