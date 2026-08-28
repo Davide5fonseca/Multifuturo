@@ -170,6 +170,7 @@ return [
                 'title' => '5. Como gerir',
                 'paragraphs' => [
                     'Pode alterar as suas escolhas a qualquer momento através da ligação "Gerir cookies" no rodapé do site. Pode também bloquear ou apagar cookies nas definições do navegador; nesse caso, algumas funcionalidades (por exemplo, o envio de formulários) podem deixar de funcionar.',
+                    'Cada escolha que faz neste aviso (aceitar, recusar ou personalizar) fica registada nos nossos servidores como prova do consentimento, com a data, a versão do aviso, as categorias escolhidas e um identificador técnico derivado do seu endereço IP (um resumo criptográfico irreversível, não o IP em si). Este registo não contém nome, email nem qualquer outro dado que o identifique, e é apagado ao fim de 24 meses.',
                 ],
             ],
         ],

@@ -8,7 +8,8 @@
 | A carteira é gerida no backoffice (/admin) e escrita diretamente na base de
 | dados: não há sincronização com nenhum CRM. Três tarefas agendadas: a cópia
 | de segurança diária, a importação semanal dos valores por m² do INE e o
-| envio dos alertas de imóveis de hora a hora.
+| envio dos alertas de imóveis de hora a hora — e a limpeza diária dos
+| registos de consentimento com mais de 24 meses (model:prune).
 |
 */
 
@@ -47,3 +48,12 @@ Schedule::command('alerts:send')
     ->withoutOverlapping()
     ->runInBackground()
     ->onFailure(fn () => Log::error('O envio dos alertas de imóveis falhou.'));
+
+/*
+| Registos de consentimento de cookies: a prova guarda-se 24 meses
+| (ConsentLog::prunable) e depois apaga-se — dados a mais são risco a mais.
+*/
+Schedule::command('model:prune')
+    ->dailyAt('04:10')
+    ->withoutOverlapping()
+    ->onFailure(fn () => Log::error('A limpeza dos registos de consentimento falhou.'));

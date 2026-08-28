@@ -65,7 +65,7 @@
     <link rel="preload" href="{{ asset('fonts/inter-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
 
     {{-- Configuração do consentimento de cookies lida pelo consent.js (sem valores sensíveis). --}}
-    <script>window.MF_CONSENT = {!! json_encode(['cookie' => config('consent.cookie'), 'days' => config('consent.days'), 'version' => config('consent.version'), 'categories' => config('consent.categories')], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!};</script>
+    <script>window.MF_CONSENT = {!! json_encode(['cookie' => config('consent.cookie'), 'days' => config('consent.days'), 'version' => config('consent.version'), 'categories' => config('consent.categories'), 'endpoint' => route('consent.store')], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!};</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     {{-- Livewire (traz o Alpine) em TODAS as páginas — sem isto só era injetado onde havia um componente Livewire. --}}
     @livewireStyles

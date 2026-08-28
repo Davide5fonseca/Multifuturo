@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AlertController;
+use App\Http\Controllers\ConsentController;
 use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\PageController;
@@ -67,6 +68,9 @@ Route::prefix('{locale}')
 
         // Leads — POST único para os três formulários; rate limiting em AppServiceProvider (limiter "leads").
         Route::post('/leads', [LeadController::class, 'store'])->middleware('throttle:leads')->name('leads.store');
+
+        // Registo das escolhas do aviso de cookies (prova do consentimento, RGPD art. 7.º).
+        Route::post('/consentimento', [ConsentController::class, 'store'])->middleware('throttle:leads')->name('consent.store');
 
         // Alertas de imóveis — pedido (formulário nas listagens) e ligações
         // assinadas dos emails: confirmar (double opt-in) e cancelar.

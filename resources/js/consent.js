@@ -7,6 +7,10 @@
  * Scripts não essenciais ficam no HTML como <script type="text/plain"
  * data-consent="analytics"> e só são executados quando a categoria é aceite —
  * antes disso o navegador nunca os interpreta nem faz pedidos.
+ *
+ * Cada escolha é também registada no servidor (POST cfg.endpoint) como prova
+ * do consentimento. O cookie é a fonte de verdade; se o registo falhar, a
+ * escolha vale na mesma.
  */
 const cfg = window.MF_CONSENT ?? { cookie: 'mf_consent', days: 180, version: 1, categories: ['analytics', 'marketing'] };
 
@@ -26,6 +30,24 @@ function writeCookie(state) {
     const maxAge = cfg.days * 24 * 60 * 60;
     const secure = location.protocol === 'https:' ? '; Secure' : '';
     document.cookie = `${cfg.cookie}=${value}; Max-Age=${maxAge}; Path=/; SameSite=Lax${secure}`;
+}
+
+function xsrfToken() {
+    const raw = document.cookie.split('; ').find((c) => c.startsWith('XSRF-TOKEN='));
+    return raw ? decodeURIComponent(raw.slice('XSRF-TOKEN='.length)) : '';
+}
+
+function record(action, state) {
+    if (!cfg.endpoint) return;
+    const choices = {};
+    cfg.categories.forEach((c) => (choices[c] = !!state[c]));
+    fetch(cfg.endpoint, {
+        method: 'POST',
+        credentials: 'same-origin',
+        keepalive: true,
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-XSRF-TOKEN': xsrfToken(), 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ version: cfg.version, action, choices }),
+    }).catch(() => {});
 }
 
 function activateScripts(state) {
@@ -65,12 +87,13 @@ document.addEventListener('alpine:init', () => {
             return !!(this.state && this.state[category]);
         },
 
-        save(partial) {
+        save(partial, action = 'custom') {
             const state = { v: cfg.version, necessary: true, ts: Date.now() };
             cfg.categories.forEach((c) => (state[c] = !!partial[c]));
             this.state = state;
             this.choices = { analytics: state.analytics, marketing: state.marketing };
             writeCookie(state);
+            record(action, state);
             activateScripts(state);
             this.open = false;
             this.customizing = false;
@@ -79,15 +102,15 @@ document.addEventListener('alpine:init', () => {
         acceptAll() {
             const all = {};
             cfg.categories.forEach((c) => (all[c] = true));
-            this.save(all);
+            this.save(all, 'accept_all');
         },
 
         rejectAll() {
-            this.save({});
+            this.save({}, 'reject_all');
         },
 
         saveChoices() {
-            this.save(this.choices);
+            this.save(this.choices, 'custom');
         },
 
         manage() {
