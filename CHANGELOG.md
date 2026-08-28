@@ -9,6 +9,19 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Fila e agendador esperam pela base de dados e pelo Redis
+
+$${\color{#5D6348}\textsf{2026-08-28 · 14:18}}$$
+
+**Commit:** `4e53c25` — `Sail: fila e agendador esperam pelo PostgreSQL e Redis saudáveis`
+
+Ao ligar o ambiente local, o worker da fila ficou em ciclo de reinícios: tentava ligar ao
+Redis antes de o nome "redis" existir na rede. Recuperava sozinho passado um bocado, mas
+não tem de ser assim: a fila e o agendador passam a esperar pelo PostgreSQL e pelo Redis
+saudáveis antes de arrancar. (Em produção o `compose.production.yaml` já o fazia.)
+
+---
+
 ## Mapa da ficha sem o rodapé do OpenStreetMap
 
 $${\color{#5D6348}\textsf{2026-08-28 · 12:06}}$$
