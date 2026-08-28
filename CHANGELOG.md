@@ -9,6 +9,51 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Deploy preparado: produção com Docker
+
+$${\color{#5D6348}\textsf{2026-08-28 · 11:57}}$$
+
+**Commit:** `d0336ff` — `Deploy: produção com Docker (Caddy, PHP-FPM, fila, agendador, PostgreSQL, Redis)`
+
+A pedido do cliente: tudo o que é preciso para pôr o site num servidor ficou pronto e
+**testado de ponta a ponta neste computador**, antes de existir servidor. Quando houver
+alojamento, é seguir o **[DEPLOY.md](DEPLOY.md)** — cerca de uma hora, a maior parte à
+espera do DNS.
+
+### O que ficou
+- **Imagens Docker de produção** (`docker/production/`): PHP 8.3-FPM com as extensões
+  do projeto, Composer sem pacotes de desenvolvimento, CSS/JS compilados, OPcache sem
+  validação, limites de upload para fotografias. E uma imagem "web" com o **Caddy**:
+  HTTPS automático (Let's Encrypt), cabeçalhos de segurança, cache dos estáticos,
+  www → raiz, ficheiros escondidos a 404.
+- **`compose.production.yaml`**: os seis serviços (Caddy, aplicação, fila, agendador,
+  PostgreSQL, Redis); só o Caddy expõe portas; dados em volumes com nome; a fila
+  sobrevive a reinícios.
+- **`.env.production.example`** comentado campo a campo, com o que é obrigatório.
+- **`deploy/deploy.sh`**: atualização em um comando — traz o código, faz cópia de
+  segurança antes de mexer, reconstrói, corre migrações, reinicia a fila e confirma
+  que o site responde. **`deploy/restore.sh`** repõe uma cópia com confirmação.
+- **DEPLOY.md**: requisitos (VPS 2 vCPU/4 GB, ~10 €/mês), instalação, primeiro
+  arranque e primeiro utilizador, atualizações, cópias para fora do servidor, onde está
+  cada coisa, e o que fazer se algo correr mal.
+
+### O que se apanhou ao testar
+Três problemas que só apareceriam no servidor: o Filament exige a extensão `intl` para
+o Composer instalar; o tema do backoffice importa CSS de `vendor/` (o Vite precisa das
+dependências PHP primeiro); e as caches locais de `bootstrap/cache` traziam pacotes de
+desenvolvimento para a imagem. Todos resolvidos na própria imagem.
+
+### Verificado
+Pilha inteira a correr localmente com certificado interno: site e backoffice a 200,
+assets, HTTP → HTTPS, `.env` inacessível, HSTS, cópia de segurança a funcionar dentro
+da imagem, `APP_DEBUG=false`, e um email enfileirado a sair pelo worker de produção
+com a ligação assinada certa.
+
+**Continua do lado da agência:** servidor e domínio, SMTP, AMI e contactos — o guia diz
+onde entra cada um.
+
+---
+
 ## Barra de pesquisa empilhada no telemóvel
 
 $${\color{#5D6348}\textsf{2026-08-28 · 10:48}}$$
