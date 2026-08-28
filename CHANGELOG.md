@@ -9,6 +9,49 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Alertas de imóveis por email
+
+$${\color{#5D6348}\textsf{2026-08-28 · 10:22}}$$
+
+**Commit:** `bbf9498` — `Site: alertas de imóveis por email (avise-me quando entrar um imóvel assim)`
+
+Funcionalidade nova, escolhida com o cliente. Quem procura um T3 em Sintra até 300 000 €
+e não encontra deixa o email — e recebe cada imóvel que encaixe **antes de o ver nos
+portais**. Para a agência é uma lista de compradores ativos com o que procuram, e cada
+angariação nova já sai com quem avisar.
+
+### Como funciona
+- Nas listagens (/comprar e /arrendar), por baixo dos filtros: **"Avise-me de novos
+  imóveis"**, com o resumo dos filtros ativos ("Venda · Sintra · T3+ · ≤ 300 000 €"), o
+  email e o consentimento. Os filtros seguem escondidos e acompanham cada mudança.
+- **Confirmação por email** (double opt-in): nada é enviado antes de a pessoa carregar na
+  ligação. Todos os emails levam a ligação para cancelar; reconfirmar reativa. As
+  ligações são assinadas — adulteradas dão 403.
+- **De hora a hora**, cada alerta ativo recebe num só email os imóveis publicados desde
+  o último envio que encaixem (até 10; o resto vai no seguinte), no idioma do pedido.
+- "Novo" é a **primeira publicação** da ficha (`published_at`, escrito pelo observer e
+  nunca mais alterado): editar, mudar o preço ou retirar e voltar não reenviam nada. As
+  fichas já existentes não contam como novidade.
+- Mesmo anti-spam das leads, consentimento obrigatório, versão da política e IP em
+  hash; o mesmo email com os mesmos critérios não duplica.
+- No backoffice, separador **Alertas de imóveis**: email, critérios, estado (por
+  confirmar / ativo / cancelado), envios, último envio; filtros; apagar a pedido.
+
+### Por dentro
+- Os filtros da listagem passaram para `App\Support\PropertyFilters`, usado pela
+  pesquisa e pelos alertas — um filtro novo entra nos dois de uma vez.
+- O anti-spam saiu de `StoreLeadRequest` para um trait partilhado.
+
+### Nota de operação
+O worker da fila é um processo de longa duração e não apanha rotas novas sozinho —
+**depois de cada deploy, `php artisan queue:restart`**. Foi apanhado ao vivo: o primeiro
+email de confirmação falhou exatamente por isso.
+
+Sete testes novos, **205 a passar**, Pint limpo. Verificado no browser com o Mailpit,
+de ponta a ponta: pedido → confirmação → imóvel novo → email "1 imóvel novo para si".
+
+---
+
 ## Terrenos no simulador: valor por omissão
 
 $${\color{#5D6348}\textsf{2026-08-28 · 09:34}}$$
