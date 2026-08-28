@@ -100,6 +100,24 @@ it('uma freguesia com valor próprio sobrepõe-se ao concelho; sem ele, usa-se o
     $this->get(route('valuation'))->assertOk()->assertSee('id="val-localities"', false);
 });
 
+it('o valor "todos os concelhos" é a rede para o que não tem valor próprio, e nos terrenos o estado não conta', function () {
+    ReferencePrice::create(['city' => Valuation::DEFAULT_CITY, 'property_type' => 'land', 'price_per_m2' => 150]);
+    ReferencePrice::create(['city' => 'Sintra', 'property_type' => 'land', 'price_per_m2' => 200]);
+
+    expect(Valuation::estimate('Qualquer Concelho', 'land', 1000))->toMatchArray(['mid' => 150000, 'source' => 'default', 'place' => ''])
+        ->and(Valuation::estimate('Sintra', 'land', 1000))->toMatchArray(['mid' => 200000, 'source' => 'reference'])
+        ->and(Valuation::estimate('Sintra', 'land', 1000, 'renovate')['mid'])->toBe(200000)
+        ->and(Valuation::estimate('Sintra', 'apartment', 100, 'renovate'))->toBeNull()
+        ->and(Valuation::estimate(Valuation::DEFAULT_CITY, 'land', 1000))->toBeNull()
+        ->and(Valuation::estimate('', 'land', 1000))->toBeNull();
+
+    // O marcador nunca aparece como concelho sugerido; o valor por omissão vai à parte.
+    $html = $this->get(route('valuation'))->assertOk()->getContent();
+
+    expect($html)->not->toContain('<option value="*">')
+        ->and($html)->toContain('defaults:');
+});
+
 it('o pedido de avaliação guarda a estimativa que a pessoa viu', function () {
     Notification::fake();
 
@@ -135,4 +153,17 @@ it('o backoffice lista e cria valores de referência, sem repetir concelho e tip
     expect($casa->price_per_m2)->toBe('3800.00')
         ->and($casa->source)->toBe('manual')
         ->and($casa->locality)->toBe('');
+
+    // Âmbito "todos os concelhos": grava-se com o marcador, sem concelho nem freguesia.
+    Livewire::test(CreateReferencePrice::class)
+        ->fillForm(['scope' => 'default', 'property_type' => 'land', 'price_per_m2' => 120, 'locality' => 'ignorada'])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $terreno = ReferencePrice::where('property_type', 'land')->first();
+
+    expect($terreno->city)->toBe(Valuation::DEFAULT_CITY)
+        ->and($terreno->locality)->toBe('');
+
+    Livewire::test(ListReferencePrices::class)->assertSee('Todos os concelhos');
 });

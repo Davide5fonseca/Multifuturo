@@ -9,13 +9,17 @@ use App\Models\ReferencePrice;
  * Estimativa imediata de valor ("Quanto vale a minha casa?").
  *
  * valor = €/m² × área × fator do estado, com margem de ±10 % e arredondado
- * ao milhar. O €/m² procura-se por esta ordem:
+ * ao milhar. Nos terrenos o estado não conta (fator 1). O €/m² procura-se
+ * por esta ordem:
  *   1. valor de referência da freguesia (reference_prices com locality), se
  *      a pessoa a indicou e existe para o tipo;
  *   2. valor de referência do concelho (manual ou importado do INE);
  *   3. mediana das nossas vendas publicadas com preço público no concelho,
- *      desde que haja pelo menos MIN_COMPARABLES.
- * Sem nenhum dos três, não há estimativa — o site convida ao pedido.
+ *      desde que haja pelo menos MIN_COMPARABLES;
+ *   4. valor por omissão da agência (city = DEFAULT_CITY, "todos os
+ *      concelhos") — a rede para o que não tem valor próprio; existe
+ *      sobretudo para os terrenos, que o INE não publica.
+ * Sem nenhum dos quatro, não há estimativa — o site convida ao pedido.
  *
  * A tabela inteira vai embutida na página e a conta repete-se em JavaScript
  * no browser (ver o componente Blade). Estrutura:
@@ -25,6 +29,9 @@ use App\Models\ReferencePrice;
 final class Valuation
 {
     public const TYPES = ['apartment', 'house', 'land'];
+
+    /** Valor de reference_prices.city que significa "todos os concelhos sem valor próprio". */
+    public const DEFAULT_CITY = '*';
 
     /** Fator pelo estado de conservação. */
     public const CONDITIONS = ['new' => 1.08, 'good' => 1.0, 'renovate' => 0.85];
@@ -54,9 +61,15 @@ final class Valuation
                 $table[$city] = ['types' => $types, 'localities' => []];
             }
 
-            // Os valores de referência sobrepõem-se à carteira.
+            // Os valores de referência sobrepõem-se à carteira. Os "todos os
+            // concelhos" ficam na entrada DEFAULT_CITY, consultada em último.
             foreach (ReferencePrice::query()->orderBy('city')->orderBy('locality')->get() as $row) {
-                $base = ['ppm2' => (float) $row->price_per_m2, 'source' => $row->source === 'ine' ? 'ine' : 'reference', 'n' => 0];
+                $source = match (true) {
+                    $row->city === self::DEFAULT_CITY => 'default',
+                    $row->source === 'ine' => 'ine',
+                    default => 'reference',
+                };
+                $base = ['ppm2' => (float) $row->price_per_m2, 'source' => $source, 'n' => 0];
                 $table[$row->city] ??= ['types' => [], 'localities' => []];
 
                 if ($row->locality === '') {
@@ -77,27 +90,33 @@ final class Valuation
      */
     public static function estimate(string $city, string $type, float $area, string $condition = 'good', ?string $locality = null): ?array
     {
-        $entry = self::table()[$city] ?? null;
+        $table = self::table();
+        $entry = $table[$city] ?? null;
 
-        if (! $entry || $area <= 0 || ! isset(self::CONDITIONS[$condition])) {
+        if ($city === '' || $city === self::DEFAULT_CITY || $area <= 0 || ! isset(self::CONDITIONS[$condition])) {
             return null;
         }
 
         $base = null;
         $place = $city;
 
-        if ($locality !== null && $locality !== '' && isset($entry['localities'][$locality][$type])) {
+        if ($entry && $locality !== null && $locality !== '' && isset($entry['localities'][$locality][$type])) {
             $base = $entry['localities'][$locality][$type];
             $place = $locality.', '.$city;
         } elseif (isset($entry['types'][$type])) {
             $base = $entry['types'][$type];
+        } elseif (isset($table[self::DEFAULT_CITY]['types'][$type])) {
+            $base = $table[self::DEFAULT_CITY]['types'][$type];
+            $place = '';
         }
 
         if (! $base) {
             return null;
         }
 
-        $mid = $base['ppm2'] * $area * self::CONDITIONS[$condition];
+        // Num terreno o estado de conservação não diz nada.
+        $factor = $type === 'land' ? 1.0 : self::CONDITIONS[$condition];
+        $mid = $base['ppm2'] * $area * $factor;
 
         return [
             'min' => self::thousands($mid * (1 - self::MARGIN)),

@@ -18,15 +18,24 @@ class ReferencePriceForm
         return $schema
             ->components([
                 Section::make('Valor por m²')
-                    ->description('O simulador multiplica este valor pela área que o visitante indica. Um valor por concelho (ou freguesia) e tipo; o mesmo trio não pode repetir-se. O que se grava aqui é "manual" e a importação do INE nunca o pisa.')
+                    ->description('O simulador multiplica este valor pela área que o visitante indica. Um valor por concelho (ou freguesia) e tipo; o mesmo trio não pode repetir-se. O que se grava aqui é "manual" e a importação do INE nunca o pisa. Um valor com âmbito "Todos os concelhos" serve de rede para o que não tem valor próprio — útil para terrenos, que o INE não publica.')
                     ->columns(2)
                     ->columnSpanFull()
                     ->components([
+                        Select::make('scope')
+                            ->label('Âmbito')
+                            ->options(['city' => 'Um concelho (ou uma freguesia)', 'default' => 'Todos os concelhos sem valor próprio'])
+                            ->default('city')
+                            ->required()
+                            ->native(false)
+                            ->live()
+                            ->columnSpanFull(),
                         TextInput::make('city')
                             ->label('Concelho')
                             ->placeholder('Sintra')
                             ->helperText('Escreva o nome como está nas fichas dos imóveis.')
-                            ->required()
+                            ->required(fn (Get $get) => $get('scope') !== 'default')
+                            ->visible(fn (Get $get) => $get('scope') !== 'default')
                             ->maxLength(96)
                             ->unique(ignoreRecord: true, modifyRuleUsing: fn (Unique $rule, Get $get) => $rule
                                 ->where('property_type', $get('property_type'))
@@ -35,6 +44,7 @@ class ReferencePriceForm
                         TextInput::make('locality')
                             ->label('Freguesia')
                             ->placeholder('vazio = o concelho inteiro')
+                            ->visible(fn (Get $get) => $get('scope') !== 'default')
                             ->maxLength(191),
                         Select::make('property_type')
                             ->label('Tipo')

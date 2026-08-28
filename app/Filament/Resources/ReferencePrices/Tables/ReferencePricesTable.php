@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ReferencePrices\Tables;
 
 use App\Filament\Resources\ReferencePrices\ReferencePriceResource;
+use App\Support\Valuation;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -20,6 +21,7 @@ class ReferencePricesTable
             ->columns([
                 TextColumn::make('city')
                     ->label('Concelho')
+                    ->formatStateUsing(fn (string $state) => $state === Valuation::DEFAULT_CITY ? 'Todos os concelhos' : $state)
                     ->searchable()
                     ->sortable()
                     ->weight('medium'),
