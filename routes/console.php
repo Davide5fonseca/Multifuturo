@@ -6,8 +6,9 @@
 |--------------------------------------------------------------------------
 |
 | A carteira é gerida no backoffice (/admin) e escrita diretamente na base de
-| dados: não há sincronização com nenhum CRM. Duas tarefas agendadas: a cópia
-| de segurança diária e a importação semanal dos valores por m² do INE.
+| dados: não há sincronização com nenhum CRM. Três tarefas agendadas: a cópia
+| de segurança diária, a importação semanal dos valores por m² do INE e o
+| envio dos alertas de imóveis de hora a hora.
 |
 */
 
@@ -36,3 +37,13 @@ Schedule::command('valuation:import-ine')
     ->withoutOverlapping()
     ->runInBackground()
     ->onFailure(fn () => Log::error('A importação dos valores do INE falhou.'));
+
+/*
+| Alertas de imóveis: de hora a hora, os imóveis publicados desde o último
+| envio para quem pediu "avise-me". Leve — uma pesquisa por alerta ativo.
+*/
+Schedule::command('alerts:send')
+    ->hourlyAt(15)
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->onFailure(fn () => Log::error('O envio dos alertas de imóveis falhou.'));

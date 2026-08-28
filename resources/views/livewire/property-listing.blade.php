@@ -112,6 +112,9 @@
                     @endif
                 </div>
             </form>
+
+            {{-- "Avise-me": leva os filtros ativos; o Livewire volta a renderizá-lo a cada mudança. --}}
+            <x-alert-form :listing="$businessTypeEnum->routeName()" :criteria="$this->criteria()" />
         </aside>
 
         {{-- Resultados --}}

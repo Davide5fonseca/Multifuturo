@@ -329,14 +329,14 @@ Os ficheiros restauram-se com `tar -xzf ficheiros.tar.gz -C storage/app/`.
 
 ```
 app/
-├── Console/Commands/     BackupRun (cópia diária) · ZonesImport
+├── Console/Commands/     BackupRun (cópia diária) · ValuationImportIne (INE, semanal) · AlertsSend (alertas, de hora a hora) · ZonesImport
 ├── Enums/                BusinessType · LeadSource · LeadKind · LeadStage · EventType · …
 ├── Http/
 │   ├── Controllers/      Page · Property (ficha, JSON-LD, 410) · Zone · Favorites · Lead · Sitemap · Robots
 │   └── Requests/         StoreLeadRequest (validação + anti-spam)
 ├── Livewire/             PropertyListing (filtros na query string, paginação, cache)
 ├── Models/               Property (scopes, coordinates, generateSlug) · Lead · Zone
-├── Notifications/        NewLeadReceived · LeadReply
+├── Notifications/        NewLeadReceived · LeadReply · ConfirmPropertyAlert · PropertyAlertDigest
 ├── Observers/            PropertyObserver (histórico das fichas)
 └── Support/              AppUrl · AgencyCompliance (AMI) · Format · Geocoder · Locales · PropertyCache · Zones
 

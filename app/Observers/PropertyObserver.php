@@ -57,6 +57,18 @@ class PropertyObserver
     }
 
     /**
+     * Primeira vez publicável → published_at. É esta data que os alertas de
+     * imóveis usam para saber o que é novo; nunca mais se altera (uma edição,
+     * uma retirada e volta, não fazem do imóvel uma novidade).
+     */
+    public function saved(Property $property): void
+    {
+        if ($property->published_at === null && $property->isPublishable()) {
+            $property->forceFill(['published_at' => now()])->saveQuietly();
+        }
+    }
+
+    /**
      * Ida para a reciclagem. O imóvel continua na base de dados, por isso o
      * registo pode apontar-lhe — e a ficha pode ser reposta a partir daqui.
      */

@@ -53,6 +53,7 @@ use Illuminate\Support\Str;
  * @property ?int $floor_number
  * @property ?int $build_year
  * @property ?string $energy_rating
+ * @property ?Carbon $published_at primeira vez que ficou publicável (alertas)
  * @property ?string $crm_property_url
  * @property ?string $video_url
  * @property ?string $virtual_tour_url
@@ -118,6 +119,7 @@ class Property extends Model
             'admin' => 'array',
             'documents' => 'array',
             'crm_updated_at' => 'datetime',
+            'published_at' => 'datetime',
         ];
     }
 

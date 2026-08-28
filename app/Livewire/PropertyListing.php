@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Enums\BusinessType;
 use App\Models\Property;
 use App\Support\PropertyCache;
+use App\Support\PropertyFilters;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -146,30 +147,7 @@ class PropertyListing extends Component
             });
         }
 
-        if ($this->type !== '') {
-            $q->whereRaw('LOWER(property_type) = ?', [mb_strtolower($this->type)]);
-        }
-        if ($this->bedrooms !== '') {
-            $q->where('bedrooms', '>=', (int) $this->bedrooms);
-        }
-        if ($this->city !== '') {
-            $q->whereRaw('LOWER(city) = ?', [mb_strtolower($this->city)]);
-        }
-        if ($this->locality !== '') {
-            $q->whereRaw('LOWER(locality) = ?', [mb_strtolower($this->locality)]);
-        }
-        if ($this->priceMin !== '') {
-            $q->where('price', '>=', (int) $this->priceMin);
-        }
-        if ($this->priceMax !== '') {
-            $q->where('price', '<=', (int) $this->priceMax);
-        }
-        if ($this->areaMin !== '') {
-            $q->where(fn (Builder $w) => $w->where('house_area', '>=', (int) $this->areaMin)->orWhere('gross_area', '>=', (int) $this->areaMin));
-        }
-        if ($this->features !== []) {
-            $q->withFeatures($this->features);
-        }
+        PropertyFilters::apply($q, $this->criteria());
 
         return match ($this->sort) {
             'price_asc' => $q->orderByRaw('price ASC NULLS LAST')->orderByDesc('id'),
@@ -221,6 +199,27 @@ class PropertyListing extends Component
             ->whereNotNull('locality')->distinct()->orderBy('locality')->pluck('locality')->all());
 
         return $base;
+    }
+
+    /**
+     * Os filtros ativos no formato partilhado com os alertas de imóveis
+     * (App\Support\PropertyFilters) — a pesquisa e o formulário "avise-me"
+     * usam exatamente os mesmos critérios.
+     *
+     * @return array<string, mixed>
+     */
+    public function criteria(): array
+    {
+        return PropertyFilters::sanitize([
+            'type' => $this->type,
+            'bedrooms' => $this->bedrooms,
+            'city' => $this->city,
+            'locality' => $this->locality,
+            'price_min' => $this->priceMin,
+            'price_max' => $this->priceMax,
+            'area_min' => $this->areaMin,
+            'features' => $this->features,
+        ]);
     }
 
     public function hasFilters(): bool

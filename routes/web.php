@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AlertController;
 use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\PageController;
@@ -66,6 +67,12 @@ Route::prefix('{locale}')
 
         // Leads — POST único para os três formulários; rate limiting em AppServiceProvider (limiter "leads").
         Route::post('/leads', [LeadController::class, 'store'])->middleware('throttle:leads')->name('leads.store');
+
+        // Alertas de imóveis — pedido (formulário nas listagens) e ligações
+        // assinadas dos emails: confirmar (double opt-in) e cancelar.
+        Route::post('/alertas', [AlertController::class, 'store'])->middleware('throttle:leads')->name('alerts.store');
+        Route::get('/alertas/{token}/confirmar', [AlertController::class, 'confirm'])->middleware('signed')->name('alerts.confirm');
+        Route::get('/alertas/{token}/cancelar', [AlertController::class, 'unsubscribe'])->middleware('signed')->name('alerts.unsubscribe');
     });
 
 // SEO — sem idioma: o sitemap lista todos, o robots é um só.

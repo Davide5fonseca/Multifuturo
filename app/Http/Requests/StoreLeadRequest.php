@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\LeadSource;
+use App\Http\Requests\Concerns\GuardsAgainstBots;
 use App\Models\Property;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -11,21 +12,15 @@ use Illuminate\Validation\Rules\Enum;
 /**
  * Validação dos formulários de lead (imóvel, contacto geral, avaliação).
  *
- * Anti-spam sem CAPTCHA de terceiros:
- *  - honeypot: o campo "website" está escondido por CSS; humanos deixam-no vazio,
- *    bots preenchem-no. Se vier preenchido, o pedido é aceite em silêncio
- *    (200/redirect) mas NÃO cria lead — não vale a pena ensinar o bot;
- *  - tempo mínimo: o formulário traz a hora em que foi renderizado (assinada);
- *    submissões em menos de N segundos são tratadas como spam;
- *  - rate limiting por IP no route (ver routes/web.php).
+ * Anti-spam sem CAPTCHA de terceiros: honeypot, tempo mínimo e rate limiting
+ * (ver GuardsAgainstBots, partilhado com os alertas de imóveis).
  *
  * RGPD: consent_contact e consent_marketing são DOIS booleanos separados,
  * ambos falsos por defeito. Nunca são forçados a true.
  */
 class StoreLeadRequest extends FormRequest
 {
-    /** Segundos mínimos entre renderizar o formulário e submeter. */
-    public const MIN_SECONDS = 3;
+    use GuardsAgainstBots;
 
     public function authorize(): bool
     {
@@ -78,46 +73,5 @@ class StoreLeadRequest extends FormRequest
             'consent_contact' => $this->boolean('consent_contact'),
             'consent_marketing' => $this->boolean('consent_marketing'),
         ]);
-    }
-
-    /**
-     * True quando o pedido tem cheiro de bot: honeypot preenchido ou submissão
-     * demasiado rápida. Avaliado DEPOIS da validação (o "website" com max:0
-     * falharia a validação com mensagem — preferimos aceitar em silêncio).
-     */
-    public function looksLikeSpam(): bool
-    {
-        if (filled($this->input('website'))) {
-            return true;
-        }
-
-        $ts = $this->input('form_ts');
-        if (is_string($ts) && $ts !== '') {
-            $renderedAt = self::verifyTimestamp($ts);
-            if ($renderedAt === null || (time() - $renderedAt) < self::MIN_SECONDS) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /** Timestamp assinado com a APP_KEY, para o formulário não poder forjar a hora. */
-    public static function signedTimestamp(?int $time = null): string
-    {
-        $time ??= time();
-
-        return $time.'.'.hash_hmac('sha256', (string) $time, (string) config('app.key'));
-    }
-
-    private static function verifyTimestamp(string $value): ?int
-    {
-        [$time, $sig] = array_pad(explode('.', $value, 2), 2, '');
-
-        if (! ctype_digit($time) || ! hash_equals(hash_hmac('sha256', $time, (string) config('app.key')), $sig)) {
-            return null;
-        }
-
-        return (int) $time;
     }
 }
