@@ -9,6 +9,20 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Portal com barra lateral
+
+$${\color{#5D6348}\textsf{2026-09-01 · 11:08}}$$
+
+**Commit:** `e6fcf39` — `Portal: barra lateral na área autenticada`
+
+A pedido do cliente, como no Nexus Portal: a área autenticada ganha uma **barra lateral
+escura** à esquerda — marca, "Início", a secção "A minha conta" (perfil e palavra-passe)
+e, para administradores, "Gestão" (Equipa e acessos); em baixo, a pessoa com o único
+"terminar sessão". No telemóvel recolhe atrás de um botão de menu e fecha com o véu, o
+X ou Escape. Confirmado em desktop e telemóvel; **221 testes a passar.**
+
+---
+
 ## Portal com dois módulos: Site e Backoffice
 
 $${\color{#5D6348}\textsf{2026-09-01 · 11:01}}$$
