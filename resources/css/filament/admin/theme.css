@@ -70,3 +70,20 @@
     color: #9a5b00;
     font-weight: 500;
 }
+
+/*
+|--------------------------------------------------------------------------
+| Caixas de verificação ao nível dos campos
+|--------------------------------------------------------------------------
+|
+| Numa linha com campos de texto, a caixa ficava encostada ao topo da célula
+| (à altura dos rótulos). O item da grelha é o .fi-grid-col (o campo vem dois
+| níveis abaixo): alinha-se pelo fundo da célula e sobe o suficiente para ficar
+| a meio do campo ao lado — com ou sem rótulo por cima, em qualquer ponto de
+| quebra, porque não depende da altura da linha.
+|
+*/
+.fi-grid-col:has(> .fi-sc-component > .fi-fo-field.ao-nivel) {
+    align-self: end;
+    padding-bottom: 0.5rem; /* linha de 64px, campo de 36px, caixa de 20px: fica a meio do campo */
+}

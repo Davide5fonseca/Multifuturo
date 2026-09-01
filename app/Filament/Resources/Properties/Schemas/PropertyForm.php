@@ -10,6 +10,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Field;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
@@ -171,8 +172,8 @@ class PropertyForm
                         ->label('Motivo')
                         ->maxLength(191)
                         ->columnSpan(['default' => 12, 'md' => 7]),
-                    Checkbox::make('is_sold')
-                        ->label('Vendida')
+                    self::aoNivel(Checkbox::make('is_sold')
+                        ->label('Vendida'))
                         ->columnSpan(['default' => 12, 'md' => 3]),
                 ]),
 
@@ -260,9 +261,9 @@ class PropertyForm
                         ->required()
                         ->native(false)
                         ->columnSpan(['default' => 12, 'md' => 4]),
-                    Checkbox::make('price_visible')
+                    self::aoNivel(Checkbox::make('price_visible')
                         ->label('Preço visível')
-                        ->default(true)
+                        ->default(true))
                         ->columnSpan(['default' => 12, 'md' => 4]),
 
                     TextInput::make('building_name')
@@ -283,7 +284,7 @@ class PropertyForm
 
                     Grid::make(['default' => 1, 'sm' => 12])
                         ->schema([
-                            Checkbox::make('admin.sign.placed')->label('Placa')->inline(false)->columnSpan(1),
+                            self::aoNivel(Checkbox::make('admin.sign.placed')->label('Placa'))->columnSpan(1),
                             DatePicker::make('admin.sign.date')
                                 ->hiddenLabel()
                                 ->displayFormat('d/m/Y')
@@ -353,11 +354,11 @@ class PropertyForm
                         TextInput::make('admin.contract.number')->label('Número contrato')->maxLength(64),
                         DatePicker::make('admin.contract.start')->label('Data início')->displayFormat('d/m/Y')->placeholder('DD/MM/YYYY'),
                         DatePicker::make('admin.contract.end')->label('Data fim')->displayFormat('d/m/Y')->placeholder('DD/MM/YYYY'),
-                        Checkbox::make('admin.contract.auto_renew')->label('Renova automaticamente'),
+                        self::aoNivel(Checkbox::make('admin.contract.auto_renew')->label('Renova automaticamente')),
 
                         Grid::make(['default' => 1, 'sm' => 12])
                             ->schema([
-                                Checkbox::make('admin.keys.has')->label('Chaves')->inline(false)->columnSpan(1),
+                                self::aoNivel(Checkbox::make('admin.keys.has')->label('Chaves'))->columnSpan(1),
                                 TextInput::make('admin.keys.notes')
                                     ->hiddenLabel()
                                     ->placeholder('Notas')
@@ -1030,6 +1031,16 @@ class PropertyForm
                 ->collapsed($loc !== Locales::default()),
             $locales
         );
+    }
+
+    /**
+     * Uma caixa de verificação na mesma linha que campos de texto fica, por
+     * defeito, encostada ao topo (à altura dos rótulos). Isto alinha-a com a
+     * linha dos campos — a regra está em resources/css/filament/admin/theme.css.
+     */
+    private static function aoNivel(Field $campo): Field
+    {
+        return $campo->extraFieldWrapperAttributes(['class' => 'ao-nivel']);
     }
 
     /** "123 caracteres · 21 palavras", como o contador do CRM. */

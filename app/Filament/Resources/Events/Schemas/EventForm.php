@@ -34,7 +34,8 @@ class EventForm
                         ->native(false),
                     Toggle::make('is_done')
                         ->label('Concluído')
-                        ->inline(false),
+                        ->inline(false)
+                        ->extraFieldWrapperAttributes(['class' => 'ao-nivel']),
                     DateTimePicker::make('starts_at')
                         ->label('Início')
                         ->seconds(false)
