@@ -9,6 +9,22 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Portal com identidade visual própria
+
+$${\color{#5D6348}\textsf{2026-09-01 · 10:43}}$$
+
+**Commit:** `9456edf` — `Portal: identidade visual própria, separada do site`
+
+A pedido do cliente: o login e o portal tinham de parecer **outra aplicação**, não uma
+página do site imobiliário. O portal passa a ter uma folha de estilos própria, sem
+nenhuma classe do site: painel de marca escuro à esquerda (com brilhos e três
+argumentos), formulário à direita em superfície clara; página de escolha com barra
+superior escura, avatar com iniciais e cartões de módulo brancos com ícone índigo.
+Inter em tudo, azul-índigo como cor de ação — nada de serifa nem de areia. A mesma
+estrutura do Nexus Portal. Confirmado em capturas; **220 testes a passar.**
+
+---
+
 ## Portal da equipa: entrada única e escolha de módulo
 
 $${\color{#5D6348}\textsf{2026-09-01 · 09:35}}$$
