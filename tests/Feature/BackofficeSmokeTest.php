@@ -24,7 +24,7 @@ it('todas as listagens do backoffice abrem', function () {
     Contact::factory()->create();
     Event::factory()->create();
 
-    foreach (['properties', 'leads', 'contacts', 'events', 'zones', 'users'] as $recurso) {
+    foreach (['properties', 'leads', 'contacts', 'events', 'zones'] as $recurso) {
         $this->get(route("filament.admin.resources.{$recurso}.index"))
             ->assertOk();
     }
@@ -39,7 +39,6 @@ it('todas as fichas do backoffice abrem com um registo real', function () {
         'leads' => Lead::factory()->create(),
         'contacts' => Contact::factory()->create(),
         'events' => Event::factory()->create(),
-        'users' => User::factory()->create(),
     ];
 
     foreach ($fichas as $recurso => $registo) {
@@ -58,7 +57,7 @@ it('a ficha de um pedido mostra a data em português e na hora certa', function 
 });
 
 it('todos os formulários de criação abrem', function () {
-    foreach (['properties', 'contacts', 'events', 'zones', 'users'] as $recurso) {
+    foreach (['properties', 'contacts', 'events', 'zones'] as $recurso) {
         $this->get(route("filament.admin.resources.{$recurso}.create"))
             ->assertOk();
     }

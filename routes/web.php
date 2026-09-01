@@ -8,6 +8,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\Portal\LoginController;
 use App\Http\Controllers\Portal\MfaController;
 use App\Http\Controllers\Portal\PortalController;
+use App\Http\Controllers\Portal\TeamController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
@@ -57,6 +58,16 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware(['auth', EnsureAccountActive::class])->group(function (): void {
     Route::get('/portal', [PortalController::class, 'index'])->name('portal');
     Route::post('/sair', [LoginController::class, 'destroy'])->name('logout');
+
+    // Gestão — só administradores. A equipa e os acessos vivem aqui, não no backoffice.
+    Route::middleware('can:admin')->prefix('gestao')->name('team.')->group(function (): void {
+        Route::get('/equipa', [TeamController::class, 'index'])->name('index');
+        Route::get('/equipa/nova', [TeamController::class, 'create'])->name('create');
+        Route::post('/equipa', [TeamController::class, 'store'])->name('store');
+        Route::get('/equipa/{user}', [TeamController::class, 'edit'])->name('edit');
+        Route::put('/equipa/{user}', [TeamController::class, 'update'])->name('update');
+        Route::delete('/equipa/{user}', [TeamController::class, 'destroy'])->name('destroy');
+    });
 });
 
 // A raiz manda para o idioma por omissão (com o prefixo da instalação, se houver).

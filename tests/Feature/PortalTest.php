@@ -5,8 +5,6 @@
  * página de escolha (/portal), acesso aos módulos e gestão na Equipa.
  */
 
-use App\Filament\Resources\Users\Pages\CreateUser;
-use App\Filament\Resources\Users\Pages\EditUser;
 use App\Models\MfaCode;
 use App\Models\User;
 use App\Notifications\MfaCodeNotification;
@@ -15,7 +13,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
-use Livewire\Livewire;
 
 function utilizadorAtivo(array $overrides = []): User
 {
@@ -135,7 +132,7 @@ it('o portal mostra a cada pessoa os seus módulos; administradores veem todos; 
     $semAcesso = utilizadorAtivo(['email' => 'novo@multifuturo.test']);
     $semAcesso->syncModules([]);
 
-    $this->actingAs($admin)->get('/portal')->assertOk()->assertSee('Olá, Ana')->assertSee('Site')->assertSee('Backoffice')->assertSee('/admin')->assertSee('Equipa');
+    $this->actingAs($admin)->get('/portal')->assertOk()->assertSee('Olá, Ana')->assertSee('Site')->assertSee('Backoffice')->assertSee('/admin')->assertSee('Equipa e acessos');
     $this->flushSession();
     $this->actingAs($comAcesso)->get('/portal')->assertOk()->assertSee('Backoffice')->assertDontSee('Sem módulos atribuídos');
     $this->flushSession();
@@ -167,23 +164,18 @@ it('terminar sessão volta a /entrar e a sessão acaba mesmo', function () {
     $this->get('/portal')->assertRedirect('/entrar');
 });
 
-it('a Equipa atribui módulos e desativa contas', function () {
+it('a Equipa do portal atribui módulos e desativa contas', function () {
     $admin = utilizadorAtivo(['email' => 'chefe@multifuturo.test', 'is_admin' => true]);
     $this->actingAs($admin);
 
-    Livewire::test(CreateUser::class)
-        ->fillForm(['name' => 'Rui Novo', 'email' => 'rui@multifuturo.test', 'password' => 'palavra-passe-1', 'is_admin' => false, 'is_active' => true, 'modules' => ['backoffice']])
-        ->call('create')
-        ->assertHasNoFormErrors();
+    $this->post('/gestao/equipa', ['name' => 'Rui Novo', 'email' => 'rui@multifuturo.test', 'password' => 'palavra-passe-1', 'is_active' => '1', 'modules' => ['backoffice']])
+        ->assertRedirect('/gestao/equipa');
 
     $rui = User::where('email', 'rui@multifuturo.test')->first();
     expect($rui->canAccessModule('backoffice'))->toBeTrue();
 
-    Livewire::test(EditUser::class, ['record' => $rui->getKey()])
-        ->assertFormSet(['modules' => ['backoffice']])
-        ->fillForm(['modules' => [], 'is_active' => false])
-        ->call('save')
-        ->assertHasNoFormErrors();
+    $this->put("/gestao/equipa/{$rui->id}", ['name' => 'Rui Novo', 'email' => 'rui@multifuturo.test', 'password' => '', 'is_active' => '', 'modules' => []])
+        ->assertRedirect('/gestao/equipa');
 
     $rui->refresh();
     expect($rui->canAccessModule('backoffice'))->toBeFalse()

@@ -197,8 +197,8 @@ desta aplicação.
 
 - Módulos: `config/modules.php` (chave, nome, ícone, rota, painel do Filament). Um módulo
   novo = uma área nova (painel ou aplicação) + uma entrada aqui + acessos às pessoas.
-- Acessos: `module_access` (pessoa × módulo); administradores veem tudo. Geridos em
-  Equipa, no backoffice. Contas desativadas (`is_active`) são postas fora no pedido seguinte.
+- Acessos: `module_access` (pessoa × módulo); administradores veem tudo. Geridos no
+  portal, em Gestão → Equipa e acessos (só administradores). Contas desativadas (`is_active`) são postas fora no pedido seguinte.
 - Códigos MFA: `mfa_codes` (só o hash; 10 min; 5 tentativas; reenvio ao fim de 60 s).
 
 ## 🗂️ Backoffice (/admin)

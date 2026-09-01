@@ -4,12 +4,14 @@ namespace App\Providers;
 
 use App\Models\Lead;
 use App\Models\Property;
+use App\Models\User;
 use App\Observers\PropertyObserver;
 use App\Support\AgencyCompliance;
 use App\Support\AppUrl;
 use App\Support\Locales;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
@@ -24,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Só os administradores gerem a equipa e os acessos (portal → Gestão).
+        Gate::define('admin', fn (User $user) => $user->isAdmin());
+
         // URLs absolutos sempre a partir de config('app.url'), nunca do Host do pedido.
         // Exceção: em desenvolvimento local seguem o host usado (localhost ou multifuturo.test),
         // senão os assets/links partem quando não há entrada no ficheiro hosts.

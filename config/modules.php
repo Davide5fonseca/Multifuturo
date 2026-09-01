@@ -8,7 +8,7 @@
 | Cada módulo é uma área com entrada própria. Acrescentar um módulo novo é:
 |   1. criar a área (um painel do Filament, ou outra aplicação com um URL);
 |   2. registá-lo aqui, com a chave que vai identificar os acessos;
-|   3. dar acesso às pessoas certas (Backoffice → Equipa → Módulos).
+|   3. dar acesso às pessoas certas (portal → Gestão → Equipa e acessos).
 |
 | Os administradores veem todos os módulos ativos; os restantes só aqueles
 | a que lhes foi dado acesso (tabela module_access) — e os módulos
@@ -44,7 +44,7 @@ return [
 
     'backoffice' => [
         'name' => 'Backoffice',
-        'description' => 'Fichas de imóveis, dúvidas dos clientes, contactos, calendário, zonas, valores de referência, alertas e equipa.',
+        'description' => 'Fichas de imóveis, dúvidas dos clientes, contactos, calendário, zonas, valores de referência e alertas.',
         'icon' => 'backoffice',
         'route' => 'filament.admin.pages.dashboard',
         'panel' => 'admin',
