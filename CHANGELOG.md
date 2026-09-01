@@ -9,6 +9,29 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Caixas de verificação alinhadas com os campos
+
+$${\color{#5D6348}\textsf{2026-09-01 · 14:52}}$$
+
+**Commit:** `02c9f43` — `Backoffice: caixas de verificacao alinhadas com os campos da mesma linha`
+
+As caixas de verificação que partilham linha com campos de texto (Vendida, Preço
+visível, Placa, Renova automaticamente, Chaves; e o interruptor Concluído da agenda)
+ficavam encostadas ao topo da célula, à altura dos rótulos. Passam a ficar ao centro
+do campo ao lado — medido no browser, ao pixel. "Placa" e "Chaves" passam a ter o
+rótulo à direita da caixa, na mesma linha das notas.
+
+- `app/Filament/Resources/Properties/Schemas/PropertyForm.php` — `aoNivel()` marca o campo
+  com a classe `ao-nivel`; aplicado às cinco caixas.
+- `app/Filament/Resources/Events/Schemas/EventForm.php` — a mesma classe no "Concluído".
+- `resources/css/filament/admin/theme.css` — a regra vai ao item da grelha
+  (`.fi-grid-col:has(…)`): alinha pelo fundo e sobe 0,5 rem, seja qual for a altura da
+  linha ou o ponto de quebra.
+- Verificado: 228 testes a passar, Pint limpo; centros medidos em Edge iguais aos dos
+  campos vizinhos nos separadores Geral e Interna.
+
+---
+
 ## Backoffice sem textos a mais
 
 $${\color{#5D6348}\textsf{2026-09-01 · 14:36}}$$
