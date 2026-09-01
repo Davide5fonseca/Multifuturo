@@ -9,6 +9,26 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Cartão de dados com o tamanho da referência
+
+$${\color{#5D6348}\textsf{2026-09-01 · 15:23}}$$
+
+**Commit:** `5e42e69` — `Site: cartao de dados da ficha com o tamanho da referencia`
+
+O cartão lateral da ficha (Tipologia, Quarto(s), WCs, áreas, piso, ano, certificado,
+AMI) estava grande demais: linhas afastadas, etiqueta energética enorme. Passa a ter as
+proporções do site de referência — texto de 15 px, linhas de ~40 px, rótulo a negrito
+com o valor ao lado, etiqueta da classe energética pequena e o AMI em letra pequena no
+fim, com mais ar à volta.
+
+- `resources/views/pages/property.blade.php` — dimensões do cartão e das linhas.
+- `resources/views/components/property/energy-badge.blade.php` — etiqueta a 36 px e
+  "CLASSE ENERGÉTICA" mais pequeno.
+- Verificado: testes da ficha a passar, Pint limpo; recorte do cartão comparado com a
+  referência.
+
+---
+
 ## O mapa da ficha aparece logo
 
 $${\color{#5D6348}\textsf{2026-09-01 · 15:07}}$$
