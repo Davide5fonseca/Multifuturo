@@ -28,7 +28,7 @@ class UserFactory extends Factory
      */
     public function configure(): static
     {
-        return $this->afterCreating(fn (User $user) => $user->syncModules(['imoveis']));
+        return $this->afterCreating(fn (User $user) => $user->syncModules(['backoffice']));
     }
 
     public function definition(): array

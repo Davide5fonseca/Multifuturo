@@ -18,7 +18,7 @@
     @else
         <div class="p-modulos" data-modules>
             @foreach ($modules as $module)
-                <a class="p-modulo" href="{{ $module['url'] }}">
+                <a class="p-modulo" href="{{ $module['url'] }}" @if ($module['new_tab']) target="_blank" rel="noopener" @endif>
                     <span class="p-modulo__icone" aria-hidden="true">@includeIf('portal.icons.'.$module['icon'])</span>
                     <span>
                         <span class="p-modulo__nome">{{ $module['name'] }}</span>
@@ -31,6 +31,6 @@
     @endif
 
     @if (auth()->user()->isAdmin())
-        <p class="p-nota">Administrador: as contas e os acessos aos módulos gerem-se em <a href="{{ route('filament.admin.resources.users.index') }}">Equipa</a> (dentro do módulo Imóveis).</p>
+        <p class="p-nota">Administrador: as contas e os acessos aos módulos gerem-se em <a href="{{ route('filament.admin.resources.users.index') }}">Equipa</a> (dentro do Backoffice).</p>
     @endif
 </x-layouts.portal>

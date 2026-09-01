@@ -32,7 +32,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
  * Backoffice da Multifuturo (/admin) — substitui o CRM: é aqui que a equipa
  * gere imóveis, consulta as leads do site e edita o conteúdo das zonas.
  *
- * É o módulo "imoveis" do portal (config/modules.php): não tem login próprio
+ * É o módulo "backoffice" do portal (config/modules.php): não tem login próprio
  * — entra-se por /entrar e escolhe-se o módulo em /portal. Quem não tiver
  * acesso ao módulo recebe 403 (User::canAccessPanel). Sem registo público:
  * os utilizadores são criados por um administrador.

@@ -28,7 +28,7 @@ it('um administrador cria uma conta para a equipa', function () {
 
     Livewire::test(CreateUser::class)
         ->fillForm([
-            'modules' => ['imoveis'],  // sem módulos a conta existe mas não abre o backoffice
+            'modules' => ['backoffice'],  // sem módulos a conta existe mas não abre o backoffice
             'name' => 'Ana Silva',
             'email' => 'ana@multifuturo.test',
             'password' => 'palavra-passe-forte',

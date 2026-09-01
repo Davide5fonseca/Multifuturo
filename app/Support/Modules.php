@@ -13,7 +13,7 @@ final class Modules
     /**
      * Todos os módulos ativos, pela ordem de apresentação, com a chave incluída.
      *
-     * @return Collection<string, array{key: string, name: string, description: string, icon: string, url: string, panel: ?string, order: int}>
+     * @return Collection<string, array{key: string, name: string, description: string, icon: string, url: string, panel: ?string, public: bool, new_tab: bool, order: int}>
      */
     public static function all(): Collection
     {
@@ -24,14 +24,16 @@ final class Modules
                 'name' => $m['name'],
                 'description' => $m['description'] ?? '',
                 'icon' => $m['icon'] ?? 'module',
-                'url' => isset($m['route']) ? route($m['route']) : (string) ($m['url'] ?? '#'),
+                'url' => isset($m['route']) ? route($m['route'], $m['params'] ?? []) : (string) ($m['url'] ?? '#'),
                 'panel' => $m['panel'] ?? null,
+                'public' => (bool) ($m['public'] ?? false),
+                'new_tab' => (bool) ($m['new_tab'] ?? false),
                 'order' => (int) ($m['order'] ?? 0),
             ])
             ->sortBy([['order', 'asc'], ['name', 'asc']]);
     }
 
-    /** @return array{key: string, name: string, description: string, icon: string, url: string, panel: ?string, order: int}|null */
+    /** @return array{key: string, name: string, description: string, icon: string, url: string, panel: ?string, public: bool, new_tab: bool, order: int}|null */
     public static function find(string $key): ?array
     {
         return self::all()->get($key);
@@ -46,9 +48,9 @@ final class Modules
 
     /**
      * Os módulos que esta pessoa pode abrir: todos, se for administradora;
-     * senão, os que lhe foram atribuídos.
+     * senão, os públicos e os que lhe foram atribuídos.
      *
-     * @return Collection<string, array{key: string, name: string, description: string, icon: string, url: string, panel: ?string, order: int}>
+     * @return Collection<string, array{key: string, name: string, description: string, icon: string, url: string, panel: ?string, public: bool, new_tab: bool, order: int}>
      */
     public static function forUser(User $user): Collection
     {
@@ -60,12 +62,16 @@ final class Modules
 
         $keys = $user->moduleAccess()->pluck('module')->all();
 
-        return $all->filter(fn (array $m) => in_array($m['key'], $keys, true));
+        return $all->filter(fn (array $m) => $m['public'] || in_array($m['key'], $keys, true));
     }
 
-    /** Opções para o formulário da equipa: chave → nome. @return array<string, string> */
+    /**
+     * Opções para o formulário da equipa: só os módulos com acesso controlado.
+     *
+     * @return array<string, string>
+     */
     public static function options(): array
     {
-        return self::all()->pluck('name', 'key')->all();
+        return self::all()->reject(fn (array $m) => $m['public'])->pluck('name', 'key')->all();
     }
 }

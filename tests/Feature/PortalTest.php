@@ -128,24 +128,25 @@ it('o código expira, queima-se ao fim de cinco tentativas e o reenvio tem inter
     expect($mfa->secondsUntilResend($user))->toBeNull();
 });
 
-it('o portal mostra a cada pessoa os seus módulos; administradores veem todos; sem acessos há um aviso', function () {
+it('o portal mostra a cada pessoa os seus módulos; administradores veem todos; o Site é para toda a gente', function () {
     $admin = utilizadorAtivo(['email' => 'chefe@multifuturo.test', 'is_admin' => true]);
     $comAcesso = utilizadorAtivo(['email' => 'rui@multifuturo.test']);
-    $comAcesso->syncModules(['imoveis']);
+    $comAcesso->syncModules(['backoffice']);
     $semAcesso = utilizadorAtivo(['email' => 'novo@multifuturo.test']);
     $semAcesso->syncModules([]);
 
-    $this->actingAs($admin)->get('/portal')->assertOk()->assertSee('Olá, Ana')->assertSee('Imóveis')->assertSee('/admin')->assertSee('Equipa');
+    $this->actingAs($admin)->get('/portal')->assertOk()->assertSee('Olá, Ana')->assertSee('Site')->assertSee('Backoffice')->assertSee('/admin')->assertSee('Equipa');
     $this->flushSession();
-    $this->actingAs($comAcesso)->get('/portal')->assertOk()->assertSee('Imóveis')->assertDontSee('Sem módulos atribuídos');
+    $this->actingAs($comAcesso)->get('/portal')->assertOk()->assertSee('Backoffice')->assertDontSee('Sem módulos atribuídos');
     $this->flushSession();
-    $this->actingAs($semAcesso)->get('/portal')->assertOk()->assertSee('Sem módulos atribuídos')->assertDontSee('data-modules', false);
+    // O Site é público: quem não tem acessos vê-o na mesma, mas não vê o Backoffice.
+    $this->actingAs($semAcesso)->get('/portal')->assertOk()->assertSee('Site')->assertDontSee('Backoffice')->assertSee('target="_blank"', false);
 });
 
-it('o backoffice só abre a quem tem o módulo de imóveis (ou é administrador)', function () {
+it('o backoffice só abre a quem tem o módulo backoffice (ou é administrador)', function () {
     $admin = utilizadorAtivo(['email' => 'chefe@multifuturo.test', 'is_admin' => true]);
     $comAcesso = utilizadorAtivo(['email' => 'rui@multifuturo.test']);
-    $comAcesso->syncModules(['imoveis']);
+    $comAcesso->syncModules(['backoffice']);
     $semAcesso = utilizadorAtivo(['email' => 'novo@multifuturo.test']);
     $semAcesso->syncModules([]);
 
@@ -171,21 +172,21 @@ it('a Equipa atribui módulos e desativa contas', function () {
     $this->actingAs($admin);
 
     Livewire::test(CreateUser::class)
-        ->fillForm(['name' => 'Rui Novo', 'email' => 'rui@multifuturo.test', 'password' => 'palavra-passe-1', 'is_admin' => false, 'is_active' => true, 'modules' => ['imoveis']])
+        ->fillForm(['name' => 'Rui Novo', 'email' => 'rui@multifuturo.test', 'password' => 'palavra-passe-1', 'is_admin' => false, 'is_active' => true, 'modules' => ['backoffice']])
         ->call('create')
         ->assertHasNoFormErrors();
 
     $rui = User::where('email', 'rui@multifuturo.test')->first();
-    expect($rui->canAccessModule('imoveis'))->toBeTrue();
+    expect($rui->canAccessModule('backoffice'))->toBeTrue();
 
     Livewire::test(EditUser::class, ['record' => $rui->getKey()])
-        ->assertFormSet(['modules' => ['imoveis']])
+        ->assertFormSet(['modules' => ['backoffice']])
         ->fillForm(['modules' => [], 'is_active' => false])
         ->call('save')
         ->assertHasNoFormErrors();
 
     $rui->refresh();
-    expect($rui->canAccessModule('imoveis'))->toBeFalse()
+    expect($rui->canAccessModule('backoffice'))->toBeFalse()
         ->and($rui->is_active)->toBeFalse();
 });
 
@@ -203,8 +204,9 @@ it('o login e o portal são uma plataforma própria: não mencionam a agência n
         ->assertDontSee('imóve')
         ->assertDontSee('images/marca');
 
+    // O cartão "Site" liga ao website — é um módulo; o que não pode haver é a marca da agência no portal em si.
     $this->actingAs(utilizadorAtivo())->get('/portal')->assertOk()
         ->assertSee('Plataforma X')
-        ->assertDontSee(route('home'))
+        ->assertDontSee('Multifuturo')
         ->assertDontSee('images/marca');
 });
