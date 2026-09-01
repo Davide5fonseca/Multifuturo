@@ -9,6 +9,24 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Portal: só uma ponte, sem nada da agência
+
+$${\color{#5D6348}\textsf{2026-09-01 · 10:55}}$$
+
+**Commit:** `56c7459` — `Portal: só uma ponte — sem nome, símbolo, textos nem ligações da agência`
+
+O cliente foi claro: o login e o portal não podem ter nada a ver com o site imobiliário —
+são **uma ponte de ligação** para os módulos. Saiu tudo o que era da agência: o nome, o
+logótipo, o ícone do separador, os argumentos sobre imóveis e a ligação "ver o site". A
+plataforma tem agora nome próprio (`PORTAL_NAME`, por omissão "Portal"), uma marca própria
+(a grelha de módulos num quadrado índigo) e uma só frase no painel de entrada: "Uma só
+entrada. Todos os módulos." O email do código de verificação passa a vir do portal.
+
+Um teste de guarda garante que `/entrar` e `/portal` não mencionam a agência nem ligam ao
+site. Confirmado em capturas e no fluxo completo no browser; **221 testes a passar.**
+
+---
+
 ## Portal com identidade visual própria
 
 $${\color{#5D6348}\textsf{2026-09-01 · 10:43}}$$
