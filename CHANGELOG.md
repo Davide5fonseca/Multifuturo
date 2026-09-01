@@ -11,7 +11,7 @@ atualizam este ficheiro não têm entrada própria.
 
 ## Equipa e acessos só no portal
 
-$${\color{#5D6348}	extsf{2026-09-01 · 11:23}}$$
+$${\color{#5D6348}\textsf{2026-09-01 · 11:23}}$$
 
 **Commit:** `04c4cfe` — `Portal: Equipa e acessos passa a existir so no portal`
 
