@@ -9,6 +9,44 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Ficha do imóvel no género da referência
+
+$${\color{#5D6348}\textsf{2026-09-01 · 13:06}}$$
+
+**Commit:** `fa3c82f` — `Site: ficha do imovel no genero da referencia (cabecalho, cartao de dados, certificado energetico, caracteristicas, impressao)`
+
+A ficha pública do imóvel passa a seguir a estrutura enviada pelo cliente: cabeçalho
+com o tipo, o concelho e "Ver localização" à esquerda, Imprimir, preço e referência à
+direita; por baixo, o título e a descrição com as quebras de linha, o cartão de dados
+(Tipologia, Quarto(s), WCs, Área útil, Área bruta, Piso, Ano de construção, Certificado
+de Energia, AMI), "Características" com vistos e o mapa. O certificado energético
+aparece com a etiqueta em forma de casa com a letra e "CLASSE ENERGÉTICA", nas cores
+da escala nacional. Em telemóvel a ordem é cartão → texto → pedido de informação.
+
+Corrige-se também um defeito que escondia a descrição: o editor "Website (HTML)" guarda
+`<p></p>` quando está vazio e o site tomava-o por texto — agora um texto só com
+etiquetas vazias conta como vazio, tanto ao gravar como ao ler.
+
+- `resources/views/pages/property.blade.php` — reescrita: cabeçalho, grelha texto/cartão,
+  cartão de dados (`data-testid="ficha"`), características com vistos, secção do mapa
+  com `id="mapa"` (destino de "Ver localização"), botão Imprimir (`window.print()`),
+  `print:hidden` no que não deve sair em papel.
+- `resources/views/components/property/energy-badge.blade.php` — novo. Etiqueta SVG da
+  classe energética (A+ … F; "Isento" e outros a cinzento), com texto acessível.
+- `app/Models/Property.php` — `isBlankText()`; `translation()` e o fallback de idioma
+  ignoram textos só com etiquetas vazias.
+- `app/Filament/Resources/Properties/Schemas/PropertyForm.php` — `tidyTranslations()`
+  usa a mesma regra.
+- `lang/pt/ui.php`, `lang/en/ui.php` — rótulos novos: Ver localização, Imprimir,
+  Tipologia, Quarto(s), WCs, Certificado de Energia, Classe energética, AMI, Características.
+- `resources/views/components/site/header.blade.php`, `footer.blade.php`,
+  `consent-banner.blade.php` — `print:hidden`; `resources/css/app.css` — regras de impressão.
+- `tests/Feature/BackofficeDescricoesTest.php` — verifica a etiqueta e o cartão na ficha;
+  asserções do HTML limpo ajustadas ao botão Imprimir.
+- Verificado: 227 testes a passar, Pint limpo; capturas em Edge a 1440 px e 420 px.
+
+---
+
 ## Separador Descrições como no CRM
 
 $${\color{#5D6348}\textsf{2026-09-01 · 12:29}}$$
