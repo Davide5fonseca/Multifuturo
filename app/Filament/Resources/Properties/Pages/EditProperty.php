@@ -119,6 +119,9 @@ class EditProperty extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $data = Schemas\PropertyForm::foldDetailFeatures($data);
+        if (isset($data['translations'])) {
+            $data['translations'] = Schemas\PropertyForm::tidyTranslations($data['translations']);
+        }
         $external = collect($this->getRecord()->photos ?? [])
             ->pluck('url')
             ->reject(fn ($u) => Str::startsWith($u, '/storage/'))

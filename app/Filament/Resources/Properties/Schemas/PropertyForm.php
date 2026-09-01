@@ -5,12 +5,14 @@ namespace App\Filament\Resources\Properties\Schemas;
 use App\Enums\BusinessType;
 use App\Models\Property;
 use App\Support\Geocoder;
+use App\Support\Locales;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
@@ -128,6 +130,7 @@ class PropertyForm
                     self::localizacao(),
                     self::media(),
                     self::detalhes(),
+                    self::descricoes(),
                 ]),
         ]);
     }
@@ -919,5 +922,169 @@ class PropertyForm
                 ]),
 
         ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Descrições — os textos do anúncio, como no separador do CRM
+    |--------------------------------------------------------------------------
+    | Quatro sub-separadores iguais ao ecrã do CRM: Texto principal (título,
+    | palavras-chave, descrição SEO, descrição curta, descrição), Website (HTML),
+    | Brochura (PDF) e Email / Lead. Tudo vive em `translations.{idioma}.*` —
+    | com mais do que um idioma ativo no site aparece um bloco por idioma.
+    |
+    | O site usa: título e descrição (listagens e ficha), descrição SEO →
+    | descrição curta → descrição (meta description), palavras-chave (meta
+    | keywords), Website (HTML) em vez da descrição na ficha quando existe.
+    | Brochura e Email ficam guardados para quando houver PDF e emails por imóvel.
+    */
+
+    private static function descricoes(): Tab
+    {
+        return Tab::make('Descrições')->schema([
+            Tabs::make('DescricoesTabs')
+                ->contained(false)
+                ->tabs([
+                    Tab::make('Texto principal')->schema(self::porIdioma(fn (string $loc): array => [
+                        TextInput::make("translations.{$loc}.title")
+                            ->label('Título')
+                            ->maxLength(60)
+                            ->live(onBlur: true)
+                            ->hint(fn (?string $state): string => mb_strlen((string) $state).'/60')
+                            ->helperText($loc === Locales::default()
+                                ? 'É o nome da ficha no site. Se ficar vazio, é gerado ao criar a partir do tipo, tipologia e concelho ("Moradia T3 em Espinho").'
+                                : 'Se ficar vazio, o site mostra o título em '.Locales::label(Locales::default()).'.')
+                            ->columnSpanFull(),
+                        TagsInput::make("translations.{$loc}.keywords")
+                            ->label('Palavras-chave')
+                            ->separator(',')
+                            ->placeholder('Escreva e prima Enter')
+                            ->helperText('Vão para a meta keywords da página do imóvel.')
+                            ->columnSpanFull(),
+                        Textarea::make("translations.{$loc}.seo_description")
+                            ->label('Descrição SEO')
+                            ->rows(4)
+                            ->maxLength(320)
+                            ->live(onBlur: true)
+                            ->hint(fn (?string $state): string => self::contagem($state))
+                            ->helperText('O resumo que o Google mostra por baixo do título — idealmente 120 a 155 caracteres. Se ficar vazio usa-se a descrição curta e, sem ela, o início da descrição.')
+                            ->columnSpanFull(),
+                        Textarea::make("translations.{$loc}.short_description")
+                            ->label('Descrição curta')
+                            ->rows(3)
+                            ->maxLength(300)
+                            ->live(onBlur: true)
+                            ->hint(fn (?string $state): string => mb_strlen((string) $state).'/300')
+                            ->helperText('Resumo para partilhas (WhatsApp, redes sociais) e para a meta description quando não há descrição SEO.')
+                            ->columnSpanFull(),
+                        Textarea::make("translations.{$loc}.description")
+                            ->label('Descrição')
+                            ->rows(12)
+                            ->live(onBlur: true)
+                            ->hint(fn (?string $state): string => self::contagem($state))
+                            ->helperText('O texto da ficha no site. Parágrafos separados por uma linha em branco.')
+                            ->columnSpanFull(),
+                    ])),
+
+                    Tab::make('Website (HTML)')->schema(self::porIdioma(fn (string $loc): array => [
+                        RichEditor::make("translations.{$loc}.website_html")
+                            ->label('Texto formatado para o website')
+                            ->toolbarButtons([
+                                ['bold', 'italic', 'underline', 'strike', 'link'],
+                                ['h2', 'h3'],
+                                ['bulletList', 'orderedList', 'blockquote'],
+                                ['undo', 'redo'],
+                            ])
+                            ->helperText('Quando está preenchido, a ficha no site mostra este texto em vez da Descrição. Só formatação de texto — sem imagens nem código.')
+                            ->columnSpanFull(),
+                    ])),
+
+                    Tab::make('Brochura (PDF)')->schema(self::porIdioma(fn (string $loc): array => [
+                        TextInput::make("translations.{$loc}.brochure_title")
+                            ->label('Título da brochura')
+                            ->maxLength(120)
+                            ->columnSpanFull(),
+                        Textarea::make("translations.{$loc}.brochure_text")
+                            ->label('Texto da brochura')
+                            ->rows(10)
+                            ->helperText('Fica guardado na ficha; a brochura em PDF ainda não é gerada pelo backoffice.')
+                            ->columnSpanFull(),
+                    ])),
+
+                    Tab::make('Email / Lead')->schema(self::porIdioma(fn (string $loc): array => [
+                        TextInput::make("translations.{$loc}.email_subject")
+                            ->label('Assunto')
+                            ->maxLength(150)
+                            ->columnSpanFull(),
+                        Textarea::make("translations.{$loc}.email_text")
+                            ->label('Texto do email')
+                            ->rows(10)
+                            ->helperText('Texto de apresentação do imóvel para responder a quem pede informação. Fica guardado na ficha; o envio automático ainda não existe.')
+                            ->columnSpanFull(),
+                    ])),
+                ]),
+        ]);
+    }
+
+    /**
+     * Um bloco de campos por idioma ativo no site. Com um só idioma não há
+     * moldura nenhuma; com vários, cada idioma é uma secção (a do idioma por
+     * omissão aberta, as outras fechadas).
+     *
+     * @param  \Closure(string): array<int, mixed>  $campos
+     * @return array<int, mixed>
+     */
+    private static function porIdioma(\Closure $campos): array
+    {
+        $locales = Locales::enabled();
+
+        if (count($locales) === 1) {
+            return $campos($locales[0]);
+        }
+
+        return array_map(
+            fn (string $loc) => Section::make(Locales::label($loc))
+                ->schema($campos($loc))
+                ->compact()
+                ->collapsible()
+                ->collapsed($loc !== Locales::default()),
+            $locales
+        );
+    }
+
+    /** "123 caracteres · 21 palavras", como o contador do CRM. */
+    private static function contagem(?string $texto): string
+    {
+        $texto = trim((string) $texto);
+        $palavras = $texto === '' ? 0 : count(preg_split('/\s+/u', $texto, -1, PREG_SPLIT_NO_EMPTY) ?: []);
+
+        return mb_strlen($texto).' caracteres · '.$palavras.' palavras';
+    }
+
+    /**
+     * Limpa os textos vazios antes de gravar: um idioma sem nada escrito não
+     * deixa chaves a null no JSON, e o fallback para o idioma por omissão
+     * continua a funcionar.
+     *
+     * @param  array<string, mixed>  $translations
+     * @return array<string, mixed>
+     */
+    public static function tidyTranslations(array $translations): array
+    {
+        foreach ($translations as $loc => $campos) {
+            if (! is_array($campos)) {
+                unset($translations[$loc]);
+
+                continue;
+            }
+            $campos = array_filter($campos, fn ($v) => is_array($v) ? $v !== [] : (is_string($v) ? trim($v) !== '' : $v !== null));
+            if ($campos === []) {
+                unset($translations[$loc]);
+            } else {
+                $translations[$loc] = $campos;
+            }
+        }
+
+        return $translations;
     }
 }

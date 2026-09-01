@@ -14,6 +14,7 @@
 @props([
     'title' => null,
     'description' => null,
+    'keywords' => [],
     'canonical' => null,
     'image' => null,
     'robots' => 'index,follow',
@@ -33,6 +34,9 @@
     <title>{{ $fullTitle }}</title>
     @if ($description)
         <meta name="description" content="{{ $description }}">
+    @endif
+    @if ($keywords)
+        <meta name="keywords" content="{{ implode(', ', $keywords) }}">
     @endif
     <meta name="robots" content="{{ $robots }}">
     <link rel="canonical" href="{{ $canonicalUrl }}">

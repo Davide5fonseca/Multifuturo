@@ -441,7 +441,7 @@ it('o Interior e o Exterior também alimentam o array features', function () {
         ]);
 });
 
-it('sem separador de descrições, o título é gerado a partir do tipo, tipologia e concelho', function () {
+it('sem título escrito, o título é gerado a partir do tipo, tipologia e concelho', function () {
     Livewire::test(CreateProperty::class)
         ->fillForm([
             'reference' => 'MF-9300',

@@ -58,7 +58,7 @@ class CreateProperty extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data = Schemas\PropertyForm::foldDetailFeatures($data);
-        $data['translations'] = self::withGeneratedTitle($data);
+        $data['translations'] = Schemas\PropertyForm::tidyTranslations(self::withGeneratedTitle($data));
         $data['internal_id'] = 'BO-'.strtolower((string) Str::ulid());
         $data['photos'] = self::photosFromUploads($data['photos'] ?? []);
         $data['slug'] = Property::generateSlug(
@@ -78,10 +78,10 @@ class CreateProperty extends CreateRecord
     }
 
     /**
-     * Título do anúncio. O separador "Descrições" do CRM ainda não foi
-     * trabalhado e o formulário não tem onde o escrever, mas o site precisa de
-     * um nome para a ficha — gera-se a partir do tipo, tipologia e concelho
-     * ("Moradia T3 em Espinho"). Um título já existente nunca é substituído.
+     * Título do anúncio. Escreve-se no separador Descrições; se ficar vazio, o
+     * site precisa na mesma de um nome para a ficha — gera-se a partir do tipo,
+     * tipologia e concelho ("Moradia T3 em Espinho"). Um título já escrito
+     * nunca é substituído.
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>

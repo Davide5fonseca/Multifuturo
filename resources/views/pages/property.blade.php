@@ -4,7 +4,11 @@
     $title = $p->title ?: trim(($p->property_type ?? '').' '.(Format::typology($p->bedrooms) ?? ''));
     $location = Format::location($p->locality, $p->city, $p->district);
     $metaTitle = $title.($location ? " — {$location}" : '').' · '.($p->reference ?? $p->internal_id);
-    $metaDescription = $p->description ? mb_substr(preg_replace('/\s+/', ' ', strip_tags($p->description)), 0, 155) : ($title.', '.$location.'. '.Format::price($p->price, $p->currency, $p->business_type, $p->price_visible));
+    // Meta description: a Descrição SEO escrita à mão → descrição curta → início da descrição → dados da ficha.
+    $texto = $p->description ?: strip_tags((string) $p->website_html);
+    $metaDescription = $p->seo_description
+        ?: ($p->short_description
+        ?: ($texto ? mb_substr(preg_replace('/\s+/', ' ', strip_tags($texto)), 0, 155) : ($title.', '.$location.'. '.Format::price($p->price, $p->currency, $p->business_type, $p->price_visible))));
     $details = array_filter([
         __('ui.property.type') => $p->property_type ? \Illuminate\Support\Str::ucfirst($p->property_type) : null,
         __('ui.property.bedrooms') => Format::typology($p->bedrooms),
@@ -20,7 +24,7 @@
     ], fn ($v) => $v !== null && $v !== '');
     $coords = $p->coordinates;
 @endphp
-<x-layouts.app :title="$metaTitle" :description="$metaDescription" :canonical="route('property.show', $p)" :image="$p->cover_photo['url'] ?? null">
+<x-layouts.app :title="$metaTitle" :description="$metaDescription" :keywords="$p->keywords()" :canonical="route('property.show', $p)" :image="$p->cover_photo['url'] ?? null">
     <x-slot:head>
         <meta property="og:type" content="product">
         <script type="application/ld+json">{!! json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>
@@ -90,11 +94,16 @@
 
                 {{-- Simulador de crédito: só faz sentido numa venda com preço público. --}}
 
-                @if ($p->description)
+                @if ($p->website_html || $p->description)
                     <section class="mt-12">
                         <h2 class="label">{{ __('ui.property.description') }}</h2>
                         <div class="prose-multifuturo mt-4 max-w-2xl text-ink/90">
-                            {!! nl2br(e($p->description)) !!}
+                            {{-- O texto "Website (HTML)" manda quando existe; passa pelo limpador — só formatação de texto. --}}
+                            @if ($p->website_html)
+                                {!! \App\Support\Html::clean($p->website_html) !!}
+                            @else
+                                {!! nl2br(e($p->description)) !!}
+                            @endif
                         </div>
                     </section>
                 @endif

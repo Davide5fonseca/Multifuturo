@@ -86,8 +86,8 @@ class PropertyController extends Controller
             ],
         ];
 
-        if ($p->description) {
-            $data['description'] = mb_substr(strip_tags($p->description), 0, 500);
+        if ($texto = ($p->description ?: strip_tags((string) $p->website_html))) {
+            $data['description'] = mb_substr(trim(preg_replace('/\s+/', ' ', strip_tags($texto))), 0, 500);
         }
         if ($p->bedrooms !== null) {
             $data['numberOfRooms'] = $p->bedrooms;

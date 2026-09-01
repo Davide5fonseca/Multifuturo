@@ -58,7 +58,7 @@ use Illuminate\Support\Str;
  * @property ?string $video_url
  * @property ?string $virtual_tour_url
  * @property ?string $floorplan_url
- * @property array<string, array<string, ?string>> $translations
+ * @property array<string, array<string, mixed>> $translations título, palavras-chave, descrições e textos por canal, por idioma (separador Descrições)
  * @property array<int, array<string, mixed>> $photos
  * @property array<int, string> $features
  * @property ?array<string, ?string> $broker
@@ -239,6 +239,38 @@ class Property extends Model
         return Attribute::get(fn () => $this->translation('description'));
     }
 
+    /** Descrição curta (partilhas e resumo), com fallback de idioma. */
+    protected function shortDescription(): Attribute
+    {
+        return Attribute::get(fn () => $this->translation('short_description'));
+    }
+
+    /** Descrição SEO — a meta description escrita à mão. */
+    protected function seoDescription(): Attribute
+    {
+        return Attribute::get(fn () => $this->translation('seo_description'));
+    }
+
+    /** Texto formatado para o website (HTML). Passa sempre por Html::clean() antes de sair. */
+    protected function websiteHtml(): Attribute
+    {
+        return Attribute::get(fn () => $this->translation('website_html'));
+    }
+
+    /**
+     * Palavras-chave da meta keywords. Guardadas como lista; aceita-se também
+     * texto separado por vírgulas vindo de importações.
+     *
+     * @return array<int, string>
+     */
+    public function keywords(?string $locale = null): array
+    {
+        $raw = $this->translationRaw('keywords', $locale);
+        $lista = is_array($raw) ? $raw : (preg_split('/,/', (string) $raw) ?: []);
+
+        return array_values(array_filter(array_map(fn ($k) => trim((string) $k), $lista), fn ($k) => $k !== ''));
+    }
+
     /**
      * Coordenadas só se o proprietário autorizou (gmap_visible). Fora disso o
      * par é null — assim nenhuma view, JSON-LD ou API expõe lat/lon por engano.
@@ -264,12 +296,23 @@ class Property extends Model
 
     public function translation(string $key, ?string $locale = null): ?string
     {
+        $valor = $this->translationRaw($key, $locale);
+
+        return is_string($valor) && trim($valor) !== '' ? $valor : null;
+    }
+
+    /** Valor tal como está guardado (texto ou lista), com fallback para o idioma por defeito. */
+    public function translationRaw(string $key, ?string $locale = null): mixed
+    {
         $locale ??= app()->getLocale();
         $fallback = config('app.fallback_locale');
 
-        return $this->translations[$locale][$key]
-            ?? $this->translations[$fallback][$key]
-            ?? null;
+        $valor = $this->translations[$locale][$key] ?? null;
+        if ($valor === null || $valor === '' || $valor === []) {
+            $valor = $this->translations[$fallback][$key] ?? null;
+        }
+
+        return $valor;
     }
 
     /*
