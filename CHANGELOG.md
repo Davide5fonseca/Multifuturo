@@ -9,6 +9,25 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Etiquetas da classe energética como as dos certificados
+
+$${\color{#5D6348}\textsf{2026-09-01 · 15:29}}$$
+
+**Commit:** `0a19ba3` — `Site: etiquetas da classe energetica como as dos certificados (A+ a F)`
+
+A etiqueta do certificado na ficha passa a ser igual às dos certificados oficiais:
+casa com o topo em bico e cantos suaves, letra branca a cheio, "+" e "−" pequenos e
+levantados (A⁺, B⁻), e a escala de cores de A+ (verde-escuro) a F (vermelho); "Isento"
+e valores desconhecidos a cinzento. Sai o texto "CLASSE ENERGÉTICA" por baixo.
+
+- `resources/views/components/property/energy-badge.blade.php` — desenho e cores novos;
+  o rótulo acessível mantém-se ("Classe energética C").
+- `lang/pt/ui.php`, `lang/en/ui.php` — sai o rótulo do texto por baixo.
+- Verificado: as nove variantes desenhadas lado a lado e comparadas com a imagem;
+  testes da ficha a passar, Pint limpo.
+
+---
+
 ## Cartão de dados com o tamanho da referência
 
 $${\color{#5D6348}\textsf{2026-09-01 · 15:23}}$$
