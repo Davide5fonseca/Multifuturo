@@ -193,21 +193,21 @@
             {{-- Cartão de dados, como na referência: rótulo a negrito e valor ao lado. --}}
             <div class="order-1 lg:order-none lg:col-start-2 lg:row-start-1">
                 @if ($ficha || $p->energy_rating)
-                    <dl class="rounded-xl border border-sand-200 bg-white p-6 sm:p-8" data-testid="ficha">
+                    <dl class="rounded-xl border border-sand-200 bg-white px-8 py-8 text-[15px] leading-6 sm:px-10" data-testid="ficha">
                         @foreach ($ficha as $label => $value)
-                            <div class="flex items-baseline gap-3 py-2.5">
+                            <div class="flex items-baseline gap-2.5 py-2">
                                 <dt class="font-semibold">{{ $label }}:</dt>
                                 <dd class="text-ink/90">{{ $value }}</dd>
                             </div>
                         @endforeach
                         @if ($p->energy_rating)
-                            <div class="flex items-center gap-3 py-2.5">
+                            <div class="flex items-center gap-2.5 py-1.5">
                                 <dt class="font-semibold">{{ __('ui.property.energy_certificate') }}:</dt>
                                 <dd><x-property.energy-badge :rating="$p->energy_rating" /></dd>
                             </div>
                         @endif
                         @if (filled($ami))
-                            <div class="pt-3 text-xs text-ink-muted">{{ __('ui.property.ami') }}: {{ $ami }}</div>
+                            <div class="pt-2 text-xs text-ink">{{ __('ui.property.ami') }}: {{ $ami }}</div>
                         @endif
                     </dl>
                 @endif
