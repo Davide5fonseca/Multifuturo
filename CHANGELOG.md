@@ -9,6 +9,34 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Estado › Actual igual ao CRM, com cores
+
+$${\color{#5D6348}\textsf{2026-09-01 · 14:31}}$$
+
+**Commit:** `dd63e29` — `Backoffice: Estado > Actual igual ao CRM (Ativa, Inativa, Pendente) e com cores`
+
+O "Actual" do separador Geral › Estado passa a ter as três opções do CRM, pela mesma
+ordem — **Ativa, Inativa, Pendente** — e o campo muda de cor com o valor: verde em Ativa,
+vermelho em Inativa, âmbar em Pendente. Só "Ativa" chega ao site; escolher Inativa ou
+Pendente desliga logo o "Visível no website" e a ficha sai das listagens e responde
+410 na página própria. Na lista de imóveis, "Pendente" aparece como etiqueta âmbar.
+
+- `app/Models/Property.php` — `STATUS_PENDING`, `STATUSES` (ordem do CRM), `isPending()`;
+  `isPublishable()` e `scopeActive()` só aceitam "Ativa" (as fichas antigas sem o campo
+  continuam a contar como ativas).
+- `app/Filament/Resources/Properties/Schemas/PropertyForm.php` — opções vindas de
+  `Property::STATUSES`; `STATUS_CLASSES` → classe no invólucro do campo; qualquer valor
+  que não seja Ativa desliga o "Visível no website"; textos de ajuda atualizados.
+- `app/Filament/Resources/Properties/Tables/PropertiesTable.php` — etiqueta "Pendente" (âmbar).
+- `resources/css/filament/admin/theme.css` — cores do campo por estado (fundo, contorno
+  e texto do botão; a lista de opções fica na cor normal).
+- `tests/Feature/BackofficeCrmFieldsTest.php` — teste novo: Pendente fora do site,
+  etiqueta na lista, desligar do "Visível no website" e classes de cor no formulário.
+- Verificado: 228 testes a passar, Pint limpo, e o campo fotografado em Edge nos dois
+  estados (verde `rgb(234,246,236)` / âmbar `rgb(255,245,229)`).
+
+---
+
 ## Ficha do imóvel no género da referência
 
 $${\color{#5D6348}\textsf{2026-09-01 · 13:06}}$$
