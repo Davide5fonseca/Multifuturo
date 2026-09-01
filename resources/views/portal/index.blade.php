@@ -30,7 +30,4 @@
         </div>
     @endif
 
-    @if (auth()->user()->isAdmin())
-        <p class="p-nota">Administrador: as contas e os acessos aos módulos gerem-se em <a href="{{ route('filament.admin.resources.users.index') }}">Equipa</a> (dentro do Backoffice).</p>
-    @endif
 </x-layouts.portal>
