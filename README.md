@@ -187,6 +187,20 @@ Copiar `.env.example` → `.env` e preencher por grupo:
 > - O domínio **nunca** é hardcoded: canonical, sitemap, OG e emails derivam de `APP_URL`.
 > - Ao alterar o texto da política de privacidade, atualizar `AGENCY_PRIVACY_POLICY_VERSION` — cada lead guarda a versão que lhe foi apresentada.
 
+## 🚪 Portal da equipa (/entrar → /portal)
+
+A equipa entra uma vez (`/entrar`: email, palavra-passe e, com `PORTAL_MFA=true`, um
+código de seis algarismos enviado por email) e aterra em `/portal`, uma página de
+cartões com os **módulos** a que tem acesso. O backoffice de imóveis (`/admin`) é o
+primeiro módulo e já não tem login próprio. Mesma estrutura do Nexus Portal, dentro
+desta aplicação.
+
+- Módulos: `config/modules.php` (chave, nome, ícone, rota, painel do Filament). Um módulo
+  novo = uma área nova (painel ou aplicação) + uma entrada aqui + acessos às pessoas.
+- Acessos: `module_access` (pessoa × módulo); administradores veem tudo. Geridos em
+  Equipa, no backoffice. Contas desativadas (`is_active`) são postas fora no pedido seguinte.
+- Códigos MFA: `mfa_codes` (só o hash; 10 min; 5 tentativas; reenvio ao fim de 60 s).
+
 ## 🗂️ Backoffice (/admin)
 
 O painel de gestão da agência — substitui o CRM. Filament 4, cor da marca, pt-PT.

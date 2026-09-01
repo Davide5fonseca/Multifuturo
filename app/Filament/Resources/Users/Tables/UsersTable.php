@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Tables;
 
 use App\Models\User;
+use App\Support\Modules;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -36,6 +37,18 @@ class UsersTable
                     ->label('Administrador')
                     ->boolean()
                     ->sortable(),
+                IconColumn::make('is_active')
+                    ->label('Ativa')
+                    ->boolean(),
+                TextColumn::make('modules')
+                    ->label('Módulos')
+                    ->state(fn (User $record) => $record->isAdmin() ? 'Todos' : (Modules::forUser($record)->pluck('name')->implode(', ') ?: '—')),
+                TextColumn::make('last_login_at')
+                    ->label('Última entrada')
+                    ->since()
+                    ->placeholder('nunca')
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->label('Criada')
                     ->dateTime('d/m/Y')

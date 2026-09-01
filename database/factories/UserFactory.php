@@ -22,6 +22,15 @@ class UserFactory extends Factory
      *
      * @return array<string, mixed>
      */
+    /**
+     * Como na migração que criou os acessos: toda a gente começa com o módulo
+     * de imóveis. Um teste que queira alguém sem acessos chama syncModules([]).
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(fn (User $user) => $user->syncModules(['imoveis']));
+    }
+
     public function definition(): array
     {
         return [
@@ -29,6 +38,7 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            'is_active' => true,
             'remember_token' => Str::random(10),
         ];
     }

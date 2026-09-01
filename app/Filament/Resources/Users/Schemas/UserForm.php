@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\Models\User;
+use App\Support\Modules;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
@@ -27,7 +29,7 @@ class UserForm
                         ->required()
                         ->unique(ignoreRecord: true)
                         ->maxLength(191)
-                        ->helperText('É com este endereço que entra no backoffice.'),
+                        ->helperText('É com este endereço que entra no portal (/entrar).'),
 
                     TextInput::make('password')
                         ->label('Palavra-passe')
@@ -55,7 +57,21 @@ class UserForm
                         ->dehydrated()
                         ->helperText(fn (?User $record) => $record?->getKey() === Auth::id()
                             ? 'Não pode retirar o seu próprio acesso de administrador.'
-                            : 'Os administradores gerem as contas da equipa. Todos os outros usam o backoffice normalmente.'),
+                            : 'Os administradores gerem as contas da equipa e veem todos os módulos.'),
+                    Toggle::make('is_active')
+                        ->label('Conta ativa')
+                        ->inline(false)
+                        ->default(true)
+                        ->disabled(fn (?User $record) => $record?->getKey() === Auth::id())
+                        ->dehydrated()
+                        ->helperText('Desativar põe a pessoa fora no pedido seguinte e impede-a de entrar. Melhor do que apagar: fica o histórico.'),
+                    // Não é uma coluna: os acessos vivem em module_access (ver CreateUser/EditUser).
+                    CheckboxList::make('modules')
+                        ->label('Módulos')
+                        ->options(Modules::options())
+                        ->dehydrated(false)
+                        ->columnSpanFull()
+                        ->helperText('O que esta pessoa vê na página de escolha do portal. Os administradores veem sempre todos.'),
                 ]),
         ]);
     }

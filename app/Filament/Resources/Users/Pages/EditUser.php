@@ -30,7 +30,14 @@ class EditUser extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         $data['password'] = null;
+        $data['modules'] = $this->record->moduleAccess()->pluck('module')->all();
 
         return $data;
+    }
+
+    /** Os módulos escolhidos no formulário passam para module_access. */
+    protected function afterSave(): void
+    {
+        $this->record->syncModules((array) ($this->data['modules'] ?? []));
     }
 }

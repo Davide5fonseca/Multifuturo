@@ -5,10 +5,14 @@ use App\Http\Controllers\ConsentController;
 use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\Portal\LoginController;
+use App\Http\Controllers\Portal\MfaController;
+use App\Http\Controllers\Portal\PortalController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\ZoneController;
+use App\Http\Middleware\EnsureAccountActive;
 use App\Http\Middleware\SetLocale;
 use App\Support\Locales;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +32,32 @@ use Illuminate\Support\Facades\Route;
 | Filtros das listagens vivem na query string (Livewire #[Url]).
 |
 */
+
+/*
+|--------------------------------------------------------------------------
+| Portal da equipa — entrada única e escolha de módulo
+|--------------------------------------------------------------------------
+|
+| Fora do prefixo de idioma: é uma área interna, sempre em português. A
+| sessão começa em /entrar (e, com a verificação em duas etapas, só depois
+| do código em /verificar); depois aterra-se em /portal, onde se escolhe o
+| módulo. O backoffice (/admin) é o primeiro módulo e já não tem login
+| próprio.
+|
+*/
+Route::middleware('guest')->group(function (): void {
+    Route::get('/entrar', [LoginController::class, 'show'])->name('login');
+    Route::post('/entrar', [LoginController::class, 'store'])->middleware('throttle:20,1')->name('login.store');
+
+    Route::get('/verificar', [MfaController::class, 'show'])->name('mfa.show');
+    Route::post('/verificar', [MfaController::class, 'verify'])->middleware('throttle:20,1')->name('mfa.verify');
+    Route::post('/verificar/reenviar', [MfaController::class, 'resend'])->middleware('throttle:6,1')->name('mfa.resend');
+});
+
+Route::middleware(['auth', EnsureAccountActive::class])->group(function (): void {
+    Route::get('/portal', [PortalController::class, 'index'])->name('portal');
+    Route::post('/sair', [LoginController::class, 'destroy'])->name('logout');
+});
 
 // A raiz manda para o idioma por omissão (com o prefixo da instalação, se houver).
 Route::get('/', fn () => redirect()->route('home', ['locale' => Locales::default()]))->name('root');

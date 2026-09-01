@@ -10,6 +10,8 @@ use App\Filament\Widgets\ListingLeadsWidget;
 use App\Filament\Widgets\PropertyActivitiesWidget;
 use App\Filament\Widgets\PropertyViewsChart;
 use App\Filament\Widgets\UpcomingEventsWidget;
+use App\Http\Middleware\EnsureAccountActive;
+use Filament\Actions\Action;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -29,7 +31,11 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 /**
  * Backoffice da Multifuturo (/admin) — substitui o CRM: é aqui que a equipa
  * gere imóveis, consulta as leads do site e edita o conteúdo das zonas.
- * Sem registo público: os utilizadores são criados por um administrador.
+ *
+ * É o módulo "imoveis" do portal (config/modules.php): não tem login próprio
+ * — entra-se por /entrar e escolhe-se o módulo em /portal. Quem não tiver
+ * acesso ao módulo recebe 403 (User::canAccessPanel). Sem registo público:
+ * os utilizadores são criados por um administrador.
  */
 class AdminPanelProvider extends PanelProvider
 {
@@ -45,11 +51,19 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
-            ->login()
+            // Sem ->login(): a entrada é a do portal. Quem chegar aqui sem sessão
+            // vai parar a /entrar (redirectGuestsTo, bootstrap/app.php).
             // Cada pessoa muda o seu nome e a sua palavra-passe sem depender de
             // ninguém; e quem se esquecer dela recupera-a por email.
             ->profile(isSimple: false)
             ->passwordReset()
+            // Voltar à página de escolha dos módulos a partir do menu da pessoa.
+            ->userMenuItems([
+                Action::make('portal')
+                    ->label('Portal')
+                    ->icon('heroicon-o-squares-2x2')
+                    ->url(fn (): string => route('portal')),
+            ])
             ->brandName('Multifuturo Propriedades')
             ->colors([
                 // Escala azeitona definida à mão: o gerador automático do Filament
@@ -106,6 +120,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                EnsureAccountActive::class,
             ]);
     }
 }

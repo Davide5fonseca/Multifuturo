@@ -13,12 +13,13 @@ use App\Models\Property;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
-it('o login do backoffice está acessível', function () {
-    $this->get('/admin/login')->assertOk()->assertSee('Multifuturo');
+it('o login do backoffice é o do portal (/entrar); o do Filament já não existe', function () {
+    $this->get('/entrar')->assertOk()->assertSee('Multifuturo');
+    $this->get('/admin/login')->assertNotFound();
 });
 
-it('visitantes não autenticados são redirecionados para o login', function (string $path) {
-    $this->get($path)->assertRedirect('/admin/login');
+it('visitantes não autenticados são redirecionados para o login do portal', function (string $path) {
+    $this->get($path)->assertRedirect('/entrar');
 })->with(['/admin', '/admin/properties', '/admin/leads', '/admin/zones']);
 
 it('um utilizador autenticado vê o painel e as listagens', function () {
