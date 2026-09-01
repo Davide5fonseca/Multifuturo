@@ -9,6 +9,54 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Separador Descrições como no CRM
+
+$${\color{#5D6348}\textsf{2026-09-01 · 12:29}}$$
+
+**Commit:** `cca0ec1` — `Backoffice: separador Descricoes como no CRM (Texto principal, Website HTML, Brochura, Email)`
+
+O registo de imóvel ganha o sexto separador do CRM, **Descrições**, ao lado de
+Geral · Interna · Localização · Media · Detalhes, com os quatro sub-separadores do
+ecrã original: **Texto principal** (Título 0/60, Palavras-chave, Descrição SEO,
+Descrição curta 0/300, Descrição — com contadores de caracteres e palavras),
+**Website (HTML)** (editor de texto formatado), **Brochura (PDF)** e **Email / Lead**.
+Como o site tem dois idiomas ativos, cada sub-separador mostra um bloco Português
+(aberto) e um English (fechado); com um só idioma não haveria molduras. Tudo fica em
+`translations.{idioma}`, e o site passa a usar estes textos: descrição SEO → descrição
+curta → início da descrição para a meta description, palavras-chave na meta keywords,
+e o texto Website (HTML) em vez da descrição na ficha, sempre limpo de scripts e
+atributos. O título continua a ser gerado ao criar quando fica vazio.
+
+- `app/Filament/Resources/Properties/Schemas/PropertyForm.php` — `descricoes()` com os
+  quatro sub-separadores; `porIdioma()` (um bloco por idioma ativo); `contagem()`
+  ("N caracteres · N palavras", atualizado ao sair do campo); `tidyTranslations()`
+  (um idioma sem nada escrito não deixa chaves a null no JSON).
+- `app/Filament/Resources/Properties/Pages/CreateProperty.php`,
+  `.../EditProperty.php` — limpam as traduções antes de gravar; comentário do título
+  gerado atualizado.
+- `app/Models/Property.php` — acessores `short_description`, `seo_description`,
+  `website_html`, método `keywords()` (lista ou texto separado por vírgulas) e
+  `translationRaw()`; `translation()` ignora textos vazios para o fallback de idioma
+  funcionar.
+- `app/Support/Html.php` — novo. Limpador do HTML escrito no backoffice: só etiquetas
+  de formatação de texto, sem atributos, `<a>` apenas com href http(s)/mailto/tel/relativo
+  e `rel="noopener"`; `<script>`/`<style>` saem por inteiro.
+- `resources/views/pages/property.blade.php` — meta description em cascata (SEO →
+  curta → descrição/HTML → dados da ficha), `keywords` para o layout, e a secção da
+  descrição mostra o Website (HTML) limpo quando existe.
+- `resources/views/components/layouts/app.blade.php` — prop `keywords` →
+  `<meta name="keywords">` quando há.
+- `app/Http/Controllers/PropertyController.php` — o JSON-LD aproveita o HTML quando
+  não há descrição simples.
+- `tests/Feature/BackofficeDescricoesTest.php` — novo (6 testes): gravação e leitura
+  do Texto principal, limites de 60/300, meta description/keywords em cascata, HTML
+  limpo na ficha, fallback inglês → português, `Html::clean`.
+  `tests/Feature/BackofficeCrmFieldsTest.php` — nome do teste do título gerado.
+- Verificado: 227 testes a passar, Pint limpo, e o formulário aberto em Edge com os
+  seis separadores e os quatro sub-separadores.
+
+---
+
 ## Equipa e acessos só no portal
 
 $${\color{#5D6348}\textsf{2026-09-01 · 11:23}}$$
