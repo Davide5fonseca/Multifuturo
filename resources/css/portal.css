@@ -1,0 +1,164 @@
+/*
+ * Portal da equipa — folha própria, separada do site.
+ *
+ * O site é quente (areia, azeitona, serifa); o portal é uma aplicação:
+ * fundo escuro no painel de marca, superfícies claras e neutras, Inter em
+ * tudo, um azul-índigo como cor de ação. Nada aqui reutiliza as classes do
+ * site, de propósito — quem entra tem de perceber que mudou de sítio.
+ * Mesma estrutura do Nexus Portal: marca à esquerda, formulário à direita;
+ * página de escolha com barra superior e cartões de módulo.
+ */
+
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 400 600; font-display: swap; src: url("/fonts/inter-latin.woff2") format("woff2"); }
+
+:root {
+    --p-fundo: #F3F5F9;
+    --p-superficie: #FFFFFF;
+    --p-borda: #E3E7EF;
+    --p-borda-forte: #C9D0DC;
+    --p-texto: #0F172A;
+    --p-texto-medio: #475569;
+    --p-texto-fraco: #94A3B8;
+    --p-escuro: #0B1220;
+    --p-escuro-2: #14213D;
+    --p-acao: #4F46E5;
+    --p-acao-escuro: #4338CA;
+    --p-acao-tinta: #EEF2FF;
+    --p-acao-claro: #A5B4FC;
+    --p-erro: #DC2626;
+    --p-erro-fundo: #FEF2F2;
+    --p-ok: #16A34A;
+    --p-ok-fundo: #F0FDF4;
+    --p-raio: 10px;
+    --p-raio-g: 14px;
+    --p-sombra: 0 1px 2px rgba(15, 23, 42, .05), 0 1px 3px rgba(15, 23, 42, .08);
+    --p-sombra-alta: 0 12px 32px rgba(15, 23, 42, .12), 0 2px 6px rgba(15, 23, 42, .06);
+    --p-fonte: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; font-family: var(--p-fonte); font-size: 15px; line-height: 1.5; color: var(--p-texto); background: var(--p-fundo); -webkit-font-smoothing: antialiased; }
+a { color: var(--p-acao); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font: inherit; }
+h1, h2, h3, p { margin: 0; }
+.p-oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ------------------------------------------------------------ marca */
+.p-marca { display: inline-flex; align-items: center; gap: .75rem; color: inherit; text-decoration: none; }
+.p-marca:hover { text-decoration: none; }
+.p-marca__simbolo { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 10px; background: #fff; box-shadow: var(--p-sombra); }
+.p-marca__simbolo img { width: 1.6rem; height: auto; display: block; }
+.p-marca__nome { display: block; font-weight: 600; font-size: .95rem; letter-spacing: -.01em; line-height: 1.1; }
+.p-marca__sub { display: block; margin-top: .2rem; font-size: .65rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; opacity: .55; }
+
+/* ------------------------------------------------------------ entrada (login / verificação) */
+.p-entrada { display: flex; min-height: 100vh; }
+
+.p-entrada__marca-painel {
+    position: relative; display: none; width: 50%; flex-direction: column; justify-content: space-between;
+    overflow: hidden; padding: 3rem; color: #fff;
+    background: radial-gradient(60rem 40rem at 10% 10%, #1E2A55 0%, transparent 60%), linear-gradient(180deg, var(--p-escuro-2) 0%, var(--p-escuro) 100%);
+}
+.p-brilho { position: absolute; pointer-events: none; width: 22rem; height: 22rem; border-radius: 50%; filter: blur(70px); }
+.p-brilho--cima { top: -7rem; right: -6rem; background: rgba(99, 102, 241, .28); }
+.p-brilho--baixo { bottom: -9rem; left: -5rem; background: rgba(45, 212, 191, .16); }
+
+.p-discurso { position: relative; max-width: 28rem; }
+.p-discurso h2 { font-size: 2.1rem; font-weight: 600; letter-spacing: -.03em; line-height: 1.15; }
+.p-discurso p { margin-top: 1rem; font-size: .95rem; color: rgba(255, 255, 255, .72); }
+.p-lista { list-style: none; margin: 2rem 0 0; padding: 0; display: grid; gap: .9rem; }
+.p-lista li { display: flex; align-items: center; gap: .85rem; font-size: .9rem; color: rgba(255, 255, 255, .85); }
+.p-lista__icone { display: grid; place-items: center; flex-shrink: 0; width: 2.25rem; height: 2.25rem; border-radius: 9px; background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .10); }
+.p-lista__icone svg { width: 1.1rem; height: 1.1rem; }
+.p-seguranca { position: relative; display: flex; align-items: center; gap: .5rem; font-size: .75rem; color: rgba(255, 255, 255, .45); }
+.p-seguranca svg { width: 1rem; height: 1rem; }
+
+.p-entrada__painel { display: flex; align-items: center; justify-content: center; width: 100%; padding: 3rem 1.5rem; background: var(--p-superficie); }
+.p-entrada__caixa { width: 100%; max-width: 24rem; }
+.p-entrada__marca-estreita { margin-bottom: 2.5rem; }
+.p-entrada__caixa h1 { font-size: 1.6rem; font-weight: 600; letter-spacing: -.02em; }
+.p-entrada__caixa .p-intro { margin-top: .5rem; font-size: .9rem; color: var(--p-texto-medio); }
+.p-form { margin-top: 2rem; display: grid; gap: 1.1rem; }
+.p-ajuda form { display: inline; }
+.p-ajuda { margin-top: 1.5rem; font-size: .85rem; color: var(--p-texto-medio); }
+.p-rodape-entrada { margin-top: 1rem; font-size: .85rem; }
+
+@media (min-width: 1024px) {
+    .p-entrada__marca-painel { display: flex; }
+    .p-entrada__painel { width: 50%; }
+    .p-entrada__marca-estreita { display: none; }
+}
+
+/* ------------------------------------------------------------ campos */
+.p-campo label, .p-campo__cabecalho label { display: block; font-size: .82rem; font-weight: 600; color: #334155; margin-bottom: .4rem; }
+.p-campo__cabecalho { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+.p-campo__cabecalho a { font-size: .78rem; font-weight: 500; }
+.p-campo input[type="email"], .p-campo input[type="password"], .p-campo input[type="text"] {
+    width: 100%; height: 2.9rem; padding: 0 .9rem; font: inherit; color: var(--p-texto);
+    background: #fff; border: 1px solid var(--p-borda-forte); border-radius: var(--p-raio);
+    transition: border-color .15s, box-shadow .15s;
+}
+.p-campo input:focus { outline: none; border-color: var(--p-acao); box-shadow: 0 0 0 3px var(--p-acao-tinta); }
+.p-campo input[aria-invalid="true"] { border-color: var(--p-erro); }
+.p-campo .p-erro { margin-top: .4rem; font-size: .8rem; color: var(--p-erro); }
+.p-codigo { text-align: center; font-size: 1.9rem !important; font-weight: 600; letter-spacing: .45em; height: 3.6rem !important; }
+.p-caixa { display: flex; align-items: center; gap: .6rem; font-size: .88rem; color: #334155; }
+.p-caixa input { width: 1.05rem; height: 1.05rem; accent-color: var(--p-acao); }
+
+.p-btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; height: 2.9rem; padding: 0 1.25rem; border-radius: var(--p-raio); border: 1px solid transparent; font-weight: 600; font-size: .92rem; cursor: pointer; transition: background .15s, transform .1s, box-shadow .15s; text-decoration: none; }
+.p-btn:hover { text-decoration: none; }
+.p-btn--primario { width: 100%; background: var(--p-acao); color: #fff; box-shadow: 0 1px 2px rgba(15, 23, 42, .12); }
+.p-btn--primario:hover { background: var(--p-acao-escuro); }
+.p-btn--primario:active { transform: translateY(1px); }
+.p-btn--ligacao { background: none; border: 0; padding: 0; height: auto; color: var(--p-acao); font-weight: 600; cursor: pointer; }
+.p-btn--ligacao:hover { text-decoration: underline; }
+.p-btn--fantasma { background: transparent; color: #fff; border-color: rgba(255, 255, 255, .25); height: 2.4rem; padding: 0 .9rem; font-size: .85rem; }
+.p-btn--fantasma:hover { background: rgba(255, 255, 255, .08); }
+
+.p-alerta { display: flex; gap: .6rem; align-items: flex-start; padding: .8rem 1rem; border-radius: var(--p-raio); font-size: .88rem; margin-bottom: 1.25rem; }
+.p-alerta--ok { background: var(--p-ok-fundo); color: #14532D; border: 1px solid #BBF7D0; }
+.p-alerta--erro { background: var(--p-erro-fundo); color: #7F1D1D; border: 1px solid #FECACA; }
+
+/* ------------------------------------------------------------ aplicação (portal) */
+.p-app { min-height: 100vh; display: flex; flex-direction: column; }
+.p-topo { background: var(--p-escuro); color: #fff; }
+.p-topo__dentro { max-width: 1180px; margin: 0 auto; padding: 0 1.5rem; height: 4.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+.p-topo .p-marca { color: #fff; }
+.p-topo__pessoa { display: flex; align-items: center; gap: 1rem; }
+.p-avatar { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: rgba(255, 255, 255, .12); font-size: .8rem; font-weight: 600; letter-spacing: .02em; }
+.p-topo__nome { font-size: .88rem; font-weight: 500; }
+.p-topo__email { display: block; font-size: .72rem; color: rgba(255, 255, 255, .55); }
+@media (max-width: 640px) { .p-topo__quem { display: none; } }
+
+.p-principal { flex: 1; }
+.p-largura { max-width: 1180px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+.p-saudacao h1 { font-size: 1.9rem; font-weight: 600; letter-spacing: -.03em; }
+.p-saudacao p { margin-top: .4rem; color: var(--p-texto-medio); }
+.p-eyebrow { font-size: .68rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--p-texto-fraco); margin-bottom: .6rem; }
+
+.p-modulos { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr)); margin-top: 2rem; }
+.p-modulo {
+    display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem;
+    padding: 1.35rem 1.5rem; color: inherit; text-decoration: none;
+    background: var(--p-superficie); border: 1px solid var(--p-borda); border-radius: var(--p-raio-g); box-shadow: var(--p-sombra);
+    transition: border-color .15s, box-shadow .15s, transform .15s;
+}
+.p-modulo:hover { text-decoration: none; color: inherit; border-color: var(--p-acao-claro); box-shadow: var(--p-sombra-alta); transform: translateY(-2px); }
+.p-modulo__icone { display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 10px; background: var(--p-acao-tinta); color: var(--p-acao); transition: background .15s, color .15s; }
+.p-modulo__icone svg { width: 1.5rem; height: 1.5rem; }
+.p-modulo:hover .p-modulo__icone { background: var(--p-acao); color: #fff; }
+.p-modulo__nome { display: block; font-weight: 600; font-size: 1rem; }
+.p-modulo__descricao { display: block; margin-top: .15rem; font-size: .82rem; color: var(--p-texto-medio); }
+.p-modulo__seta { width: 1.25rem; height: 1.25rem; color: var(--p-texto-fraco); transition: color .15s, transform .15s; }
+.p-modulo:hover .p-modulo__seta { color: var(--p-acao); transform: translateX(3px); }
+
+.p-vazio { margin-top: 2rem; max-width: 34rem; padding: 3rem 2rem; text-align: center; background: var(--p-superficie); border: 1px dashed var(--p-borda-forte); border-radius: var(--p-raio-g); }
+.p-vazio__icone { display: grid; place-items: center; width: 3.5rem; height: 3.5rem; margin: 0 auto 1rem; border-radius: 12px; background: var(--p-acao-tinta); color: var(--p-acao); }
+.p-vazio__icone svg { width: 1.6rem; height: 1.6rem; }
+.p-vazio h2 { font-size: 1.05rem; font-weight: 600; }
+.p-vazio p { margin-top: .4rem; font-size: .88rem; color: var(--p-texto-medio); }
+
+.p-nota { margin-top: 2.5rem; font-size: .85rem; color: var(--p-texto-medio); }
+.p-rodape { max-width: 1180px; margin: 0 auto; padding: 0 1.5rem 2rem; font-size: .75rem; color: var(--p-texto-fraco); }

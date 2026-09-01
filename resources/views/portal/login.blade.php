@@ -1,41 +1,36 @@
-<x-layouts.portal title="Entrar">
-    <div class="mx-auto max-w-md">
-        <p class="label">{{ config('agency.name') }}</p>
-        <h1 class="mt-3 text-4xl">Entrar</h1>
-        <p class="mt-3 text-ink-muted">A área da equipa: uma só entrada para todos os módulos.</p>
+<x-layouts.portal title="Entrar" :entrada="true">
+    <h1>Entrar</h1>
+    <p class="p-intro">Bem-vindo de volta. Use a sua conta da equipa.</p>
 
-        <form method="post" action="{{ route('login.store') }}" class="mt-8 grid gap-5 rounded-2xl border border-sand-200 bg-sand-100 p-6 sm:p-8" novalidate>
-            @csrf
+    <form method="post" action="{{ route('login.store') }}" class="p-form" novalidate>
+        @csrf
 
-            <div>
-                <label for="email" class="label">Email</label>
-                <input id="email" name="email" type="email" value="{{ old('email') }}" required autocomplete="username" autofocus
-                       class="field mt-2 @error('email') border-error @enderror" @error('email') aria-invalid="true" aria-describedby="email-erro" @enderror>
-                @error('email')<p id="email-erro" class="mt-1 text-xs text-error" role="alert">{{ $message }}</p>@enderror
+        <div class="p-campo">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" value="{{ old('email') }}" required autocomplete="username" autofocus placeholder="nome@empresa.pt"
+                   @error('email') aria-invalid="true" aria-describedby="email-erro" @enderror>
+            @error('email')<p id="email-erro" class="p-erro" role="alert">{{ $message }}</p>@enderror
+        </div>
+
+        <div class="p-campo">
+            <div class="p-campo__cabecalho">
+                <label for="password">Palavra-passe</label>
+                <a href="{{ route('filament.admin.auth.password-reset.request') }}">Esqueceu-se?</a>
             </div>
+            <input id="password" name="password" type="password" required autocomplete="current-password"
+                   @error('password') aria-invalid="true" @enderror>
+            @error('password')<p class="p-erro" role="alert">{{ $message }}</p>@enderror
+        </div>
 
-            <div>
-                <div class="flex items-baseline justify-between gap-4">
-                    <label for="password" class="label">Palavra-passe</label>
-                    <a href="{{ route('filament.admin.auth.password-reset.request') }}" class="link text-xs">Esqueceu-se?</a>
-                </div>
-                <input id="password" name="password" type="password" required autocomplete="current-password"
-                       class="field mt-2 @error('password') border-error @enderror">
-                @error('password')<p class="mt-1 text-xs text-error" role="alert">{{ $message }}</p>@enderror
-            </div>
+        <label class="p-caixa">
+            <input type="checkbox" id="remember" name="remember" value="1" @checked(old('remember'))>
+            <span>Manter sessão iniciada</span>
+        </label>
 
-            <div class="flex items-center gap-3 text-sm">
-                <input type="checkbox" id="remember" name="remember" value="1" @checked(old('remember')) class="h-5 w-5 shrink-0 accent-olive-600">
-                <label for="remember">Manter sessão iniciada</label>
-            </div>
+        <button type="submit" class="p-btn p-btn--primario">{{ config('portal.mfa') ? 'Continuar' : 'Entrar' }}</button>
+    </form>
 
-            <div>
-                <button type="submit" class="btn-primary w-full">{{ config('portal.mfa') ? 'Continuar' : 'Entrar' }}</button>
-            </div>
-
-            @if (config('portal.mfa'))
-                <p class="text-xs text-ink-muted">A seguir enviamos-lhe um código de seis algarismos para o email.</p>
-            @endif
-        </form>
-    </div>
+    @if (config('portal.mfa'))
+        <p class="p-ajuda">A seguir enviamos-lhe um código de seis algarismos para o email.</p>
+    @endif
 </x-layouts.portal>
