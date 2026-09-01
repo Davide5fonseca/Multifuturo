@@ -55,9 +55,8 @@
         </div>
 
         {{--
-            Cabeçalho da ficha, como na referência: tipo e concelho à esquerda com
-            a ligação "Ver localização" para o mapa; imprimir, preço e referência à
-            direita; linha a fechar.
+            Cabeçalho da ficha, como na referência: tipo e concelho à esquerda,
+            o tipo de negócio e a freguesia; preço e referência à direita; linha a fechar.
         --}}
         <header class="mt-10 flex flex-wrap items-start justify-between gap-x-10 gap-y-6 border-b border-sand-200 pb-6">
             <div>
@@ -66,12 +65,6 @@
                     @if ($p->city)
                         <span class="text-lg font-medium">{{ $p->city }}</span>
                     @endif
-                    @if ($coords)
-                        <a href="#mapa" class="link inline-flex items-center gap-1 text-sm text-ink-muted print:hidden">
-                            {{ __('ui.property.see_location') }}
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10Z"/><circle cx="12" cy="11" r="2.2"/></svg>
-                        </a>
-                    @endif
                 </div>
                 <p class="label mt-2">
                     {{ $p->business_type->label() }}
@@ -79,15 +72,9 @@
                     @if ($p->is_exclusive) · <span class="text-olive-700">{{ __('ui.property.exclusive') }}</span> @endif
                 </p>
             </div>
-            <div class="flex items-start gap-8">
-                <button type="button" onclick="window.print()" class="flex flex-col items-center gap-1 text-xs text-ink-muted transition hover:text-ink print:hidden">
-                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8V4h10v4M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v6H7z"/></svg>
-                    {{ __('ui.property.print') }}
-                </button>
-                <div class="text-right">
-                    <p class="price text-3xl sm:text-4xl">{{ Format::price($p->price, $p->currency, $p->business_type, $p->price_visible) }}</p>
-                    <p class="mt-1 text-sm text-ink-muted">{{ __('ui.property.reference') }} {{ $p->reference ?? $p->internal_id }}</p>
-                </div>
+            <div class="text-right">
+                <p class="price text-3xl sm:text-4xl">{{ Format::price($p->price, $p->currency, $p->business_type, $p->price_visible) }}</p>
+                <p class="mt-1 text-sm text-ink-muted">{{ __('ui.property.reference') }} {{ $p->reference ?? $p->internal_id }}</p>
             </div>
         </header>
 

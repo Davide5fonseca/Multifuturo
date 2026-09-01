@@ -212,8 +212,6 @@ return [
 
     'property' => [
         'reference' => 'Ref.',
-        'see_location' => 'Ver localização',
-        'print' => 'Imprimir',
         'typology' => 'Tipologia',
         'bedrooms_count' => 'Quarto(s)',
         'wc' => 'WCs',

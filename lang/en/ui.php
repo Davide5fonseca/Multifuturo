@@ -213,8 +213,6 @@ return [
 
     'property' => [
         'reference' => 'Ref.',
-        'see_location' => 'See location',
-        'print' => 'Print',
         'typology' => 'Typology',
         'bedrooms_count' => 'Bedroom(s)',
         'wc' => 'Bathrooms',
