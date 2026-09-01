@@ -220,7 +220,6 @@ return [
         'wc' => 'Bathrooms',
         'energy_certificate' => 'Energy certificate',
         'energy_class' => 'Energy class :class',
-        'energy_class_label' => 'Energy class',
         'ami' => 'AMI',
         'characteristics' => 'Features',
         'price_on_request' => 'Price on request',

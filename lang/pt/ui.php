@@ -219,7 +219,6 @@ return [
         'wc' => 'WCs',
         'energy_certificate' => 'Certificado de Energia',
         'energy_class' => 'Classe energética :class',
-        'energy_class_label' => 'Classe energética',
         'ami' => 'AMI',
         'characteristics' => 'Características',
         'price_on_request' => 'Preço sob consulta',
