@@ -9,6 +9,32 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## O mapa da ficha aparece logo
+
+$${\color{#5D6348}\textsf{2026-09-01 · 15:07}}$$
+
+**Commit:** `54dc2c1` — `Site: o mapa da ficha aparece logo, sem botao`
+
+O mapa da ficha de imóvel deixa de esperar pelo clique em "Mostrar mapa": aparece ao
+abrir a página, com o marcador na localização (continua a depender do "Visível" no
+mapa do backoffice — sem isso mostra "A localização exata é fornecida mediante
+contacto"). O Leaflet vem do nosso storage; só os quadrados do mapa vêm do
+OpenStreetMap, e a política de cookies passa a dizer isso mesmo.
+
+- `resources/views/pages/property.blade.php` — o Alpine desenha o mapa em `init()`;
+  saem o aviso e o botão; o contentor fica logo no DOM (`data-map`); fica a ligação
+  alternativa para quem não tem JavaScript.
+- `lang/pt/ui.php`, `lang/en/ui.php` — saem "Mostrar mapa" e o aviso.
+- `lang/pt/legal.php` — Política de cookies, "Conteúdos de terceiros": o mapa carrega ao
+  abrir a ficha, o navegador pede as imagens ao OpenStreetMap (que recebe o IP para as
+  entregar), sem cookies.
+- `tests/Feature/FrontendTest.php` — o teste do mapa passa a verificar o contentor e o
+  arranque automático, sem botão.
+- Verificado: 228 testes a passar, Pint limpo; ficha do MF26-001 fotografada com o mapa
+  desenhado e o marcador em Ramalde.
+
+---
+
 ## Caixas de verificação alinhadas com os campos
 
 $${\color{#5D6348}\textsf{2026-09-01 · 14:52}}$$
