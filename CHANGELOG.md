@@ -9,6 +9,53 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Equipa e acessos só no portal
+
+$${\color{#5D6348}	extsf{2026-09-01 · 11:23}}$$
+
+**Commit:** `04c4cfe` — `Portal: Equipa e acessos passa a existir so no portal`
+
+A gestão das contas da equipa sai do backoffice e passa a viver **só no portal**, em
+Gestão → Equipa e acessos, com o visual do portal. O recurso "Equipa" do Filament foi
+removido: `/admin/users` deixa de existir e a navegação do backoffice já não o lista.
+Só administradores chegam lá (Gate `admin`); ninguém se despromove, desativa nem apaga
+a si próprio.
+
+- `app/Http/Controllers/Portal/TeamController.php` — novo. Lista, cria, edita e apaga
+  contas; define administrador, conta ativa e módulos; guarda a própria conta contra
+  despromoção/desativação/eliminação; valida email único, palavra-passe ≥ 8 caracteres
+  e módulos conhecidos. Mensagens de estado em português.
+- `routes/web.php` — rotas `team.*` sob `/gestao`: `GET /gestao/equipa`,
+  `GET /gestao/equipa/nova`, `POST /gestao/equipa`, `GET/PUT/DELETE /gestao/equipa/{user}`,
+  com `auth`, conta ativa e `can:admin`.
+- `app/Providers/AppServiceProvider.php` — Gate `admin` (`isAdmin()`).
+- `resources/views/portal/team/index.blade.php` — novo. Tabela com pessoa, perfil,
+  módulos, estado, última entrada e ligação Editar; botão "Nova conta"; nota sobre
+  desativar vs. apagar.
+- `resources/views/portal/team/form.blade.php` — novo. Formulário partilhado por criar e
+  editar: secção Conta (nome, email, palavra-passe — opcional na edição, "deixe em branco
+  para manter"), secção Permissões (Administrador e Conta ativa bloqueados na própria
+  conta; Módulos com descrição), botões Guardar/Cancelar e zona de perigo "Apagar conta"
+  com confirmação, nunca mostrada na própria conta.
+- `resources/views/components/layouts/portal.blade.php` — o item "Equipa e acessos" da
+  barra lateral aponta para o portal e fica ativo em `team.*`.
+- `resources/css/portal.css` — estilos de cabeçalho de página, tabela, etiquetas
+  (Administrador/Ativa/Desativada), formulário em secções, opções com descrição, botões
+  neutro/perigo e zona de perigo.
+- `app/Filament/Resources/Users/*` — removidos os 6 ficheiros do recurso "Equipa".
+- `config/modules.php`, `README.md` — os textos passam a apontar para
+  portal → Gestão → Equipa e acessos.
+- `tests/Feature/EquipaTest.php` — reescrito (5 testes) contra as rotas do portal: acesso
+  só de administradores e `/admin/users` a 404, criação com módulos e palavra-passe
+  cifrada, validação, edição com/sem palavra-passe e sincronização de módulos, guardas
+  da própria conta. `tests/Feature/PortalTest.php` e
+  `tests/Feature/BackofficeSmokeTest.php` deixam de usar o recurso Filament.
+- Verificado: 221 testes a passar, Pint limpo, e navegação real em Edge (lateral com
+  "Equipa e acessos" ativa, backoffice sem "Equipa", botão de apagar escondido e
+  interruptor de administrador bloqueado na própria conta).
+
+---
+
 ## Portal com barra lateral
 
 $${\color{#5D6348}\textsf{2026-09-01 · 11:08}}$$
