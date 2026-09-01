@@ -13,6 +13,7 @@
         <button type="submit" class="p-btn p-btn--primario">Entrar</button>
     </form>
 
-    <p class="p-ajuda">Não recebeu? <form method="post" action="{{ route('mfa.resend') }}">@csrf<button type="submit" class="p-btn--ligacao">Enviar novo código</button></form></p>
+    {{-- div, não p: um <form> dentro de <p> é HTML inválido e o browser separa-os. --}}
+    <div class="p-ajuda">Não recebeu? <form method="post" action="{{ route('mfa.resend') }}">@csrf<button type="submit" class="p-btn--ligacao">Enviar novo código</button></form></div>
     <p class="p-rodape-entrada"><a href="{{ route('login') }}">← Usar outra conta</a></p>
 </x-layouts.portal>
