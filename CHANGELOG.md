@@ -9,6 +9,26 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Portal com dois módulos: Site e Backoffice
+
+$${\color{#5D6348}\textsf{2026-09-01 · 11:01}}$$
+
+**Commit:** `1d1a82e` — `Portal: dois módulos — Site e Backoffice`
+
+A pedido do cliente. A página de escolha passa a ter dois cartões:
+
+- **Site** — o website público, aberto noutro separador para não se perder o portal.
+  É um módulo "público": qualquer conta ativa o vê, sem acesso explícito.
+- **Backoffice** — a gestão (o que se chamava "Imóveis"), com acesso por pessoa como
+  até aqui. A chave interna passou de `imoveis` a `backoffice`; uma migração renomeou os
+  acessos já dados, ninguém perdeu nada.
+
+Os módulos ganham três propriedades novas: `params` (rotas com parâmetros), `public`
+(visível a toda a gente) e `new_tab`. Em Equipa só aparecem os módulos de acesso
+controlado. **221 testes a passar.**
+
+---
+
 ## Portal: só uma ponte, sem nada da agência
 
 $${\color{#5D6348}\textsf{2026-09-01 · 10:55}}$$
