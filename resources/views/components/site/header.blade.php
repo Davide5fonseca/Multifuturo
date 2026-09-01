@@ -9,7 +9,7 @@
         ['route' => 'contact', 'label' => __('ui.nav.contact')],
     ];
 @endphp
-<header class="border-b border-sand-200 bg-sand-50" x-data="{ open: false }" @keydown.escape.window="open = false">
+<header class="border-b border-sand-200 bg-sand-50 print:hidden" x-data="{ open: false }" @keydown.escape.window="open = false">
     <div class="container-site flex h-20 items-center justify-between gap-8">
         {{-- O logótipo oficial é empilhado (M sobre o nome) e não assenta numa
              barra de 80px: aqui usa-se o símbolo ao lado do nome. Se o designer

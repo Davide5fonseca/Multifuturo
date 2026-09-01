@@ -1077,7 +1077,7 @@ class PropertyForm
 
                 continue;
             }
-            $campos = array_filter($campos, fn ($v) => is_array($v) ? $v !== [] : (is_string($v) ? trim($v) !== '' : $v !== null));
+            $campos = array_filter($campos, fn ($v) => ! Property::isBlankText($v));
             if ($campos === []) {
                 unset($translations[$loc]);
             } else {

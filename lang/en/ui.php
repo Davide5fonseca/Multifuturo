@@ -213,6 +213,16 @@ return [
 
     'property' => [
         'reference' => 'Ref.',
+        'see_location' => 'See location',
+        'print' => 'Print',
+        'typology' => 'Typology',
+        'bedrooms_count' => 'Bedroom(s)',
+        'wc' => 'Bathrooms',
+        'energy_certificate' => 'Energy certificate',
+        'energy_class' => 'Energy class :class',
+        'energy_class_label' => 'Energy class',
+        'ami' => 'AMI',
+        'characteristics' => 'Features',
         'price_on_request' => 'Price on request',
         'per_month' => '/month',
         'exclusive' => 'Exclusive',

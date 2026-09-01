@@ -9,7 +9,7 @@
     $agency = config('agency');
     $social = array_filter($agency['social'] ?? []);
 @endphp
-<footer class="mt-24 bg-olive-900 text-sand-100">
+<footer class="mt-24 bg-olive-900 text-sand-100 print:hidden">
     <div class="container-site grid gap-12 py-16 md:grid-cols-4">
         <div class="md:col-span-2">
             {{-- No rodapé há altura para o logótipo completo. A imagem é verde

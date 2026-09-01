@@ -86,7 +86,10 @@ it('o site usa a descrição SEO, as palavras-chave e a descrição curta', func
 
     expect($html)->toContain('<meta name="description" content="Moradia V4 com piscina e jardim, a cinco minutos da praia.">')
         ->toContain('<meta name="keywords" content="moradia cascais, piscina">')
-        ->toContain('Texto longo da ficha.');
+        ->toContain('Texto longo da ficha.')
+        // A ficha tem a etiqueta da classe energética e o cartão de dados.
+        ->toContain('Classe energética')
+        ->toContain('data-testid="ficha"');
 
     // Sem descrição SEO, a curta serve de meta description; sem nenhuma, o início da descrição.
     $p->update(['translations' => ['pt' => ['title' => 'Moradia V4 em Cascais', 'short_description' => 'Piscina, jardim e praia ao pé.', 'description' => 'Texto longo da ficha.']]]);
@@ -117,7 +120,7 @@ it('o texto Website (HTML) substitui a descrição na ficha e sai limpo', functi
         ->toContain('<meta name="description" content="Descrição simples.">')
         // A página tem scripts e imagens legítimos; o que não pode sobreviver é o que veio do texto.
         ->not->toContain('alert(')
-        ->not->toContain('onclick')
+        ->not->toContain('onclick="x()"')
         ->not->toContain('onerror="alert(2)"')
         ->not->toContain('src="x"')
         ->not->toContain('style="color:red"');

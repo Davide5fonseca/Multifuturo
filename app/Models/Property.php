@@ -298,7 +298,20 @@ class Property extends Model
     {
         $valor = $this->translationRaw($key, $locale);
 
-        return is_string($valor) && trim($valor) !== '' ? $valor : null;
+        return is_string($valor) && ! self::isBlankText($valor) ? $valor : null;
+    }
+
+    /**
+     * Um texto só com etiquetas vazias ("<p></p>", que é o que o editor HTML
+     * guarda quando não se escreve nada) conta como vazio.
+     */
+    public static function isBlankText(mixed $valor): bool
+    {
+        if (is_array($valor)) {
+            return $valor === [];
+        }
+
+        return $valor === null || trim(strip_tags((string) $valor)) === '';
     }
 
     /** Valor tal como está guardado (texto ou lista), com fallback para o idioma por defeito. */
@@ -308,7 +321,7 @@ class Property extends Model
         $fallback = config('app.fallback_locale');
 
         $valor = $this->translations[$locale][$key] ?? null;
-        if ($valor === null || $valor === '' || $valor === []) {
+        if (self::isBlankText($valor)) {
             $valor = $this->translations[$fallback][$key] ?? null;
         }
 

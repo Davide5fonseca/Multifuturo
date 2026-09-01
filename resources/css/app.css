@@ -245,3 +245,10 @@
         padding-right: 2.6rem;
     }
 }
+
+/* Impressão da ficha de imóvel: só o conteúdo, em preto sobre branco. */
+@media print {
+    body { background: #fff !important; color: #000 !important; }
+    a { text-decoration: none; color: inherit; }
+    .container-site { max-width: none; padding: 0; }
+}

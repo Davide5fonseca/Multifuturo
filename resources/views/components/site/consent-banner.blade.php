@@ -5,7 +5,7 @@
     Sem JS não há scripts não essenciais a ativar, logo o banner não é preciso (x-cloak).
 --}}
 <div x-data x-cloak x-show="$store.consent.open" x-transition.opacity
-     class="fixed inset-x-0 bottom-0 z-40 border-t border-sand-200 bg-sand-50 text-ink"
+     class="print:hidden fixed inset-x-0 bottom-0 z-40 border-t border-sand-200 bg-sand-50 text-ink"
      role="dialog" aria-modal="false" aria-labelledby="consent-title" aria-describedby="consent-text">
     <div class="container-site py-6">
         <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
