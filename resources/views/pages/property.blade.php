@@ -28,7 +28,7 @@
     $ami = config('agency.ami');
     $coords = $p->coordinates;
 @endphp
-<x-layouts.app :title="$metaTitle" :description="$metaDescription" :keywords="$p->keywords()" :canonical="route('property.show', $p)" :image="$p->cover_photo['url'] ?? null">
+<x-layouts.app :title="$metaTitle" :description="$metaDescription" :keywords="$p->keywords()" :canonical="route('property.show', $p)" :image="$p->coverPhotoUrl()">
     <x-slot:head>
         <meta property="og:type" content="product">
         <script type="application/ld+json">{!! json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>

@@ -469,6 +469,20 @@ it('o Interior e o Exterior também alimentam o array features', function () {
         ]);
 });
 
+it('a foto de capa carregada no backoffice aparece na lista, no og:image e no JSON-LD com URL completo', function () {
+    $p = Property::factory()->create(['photos' => [['url' => '/storage/imoveis/capa.jpg', 'order' => 1]]]);
+    $esperado = url('/storage/imoveis/capa.jpg');
+
+    expect($esperado)->toStartWith('http')
+        ->and($p->coverPhotoUrl())->toBe($esperado);
+
+    Livewire::test(ListProperties::class)->assertTableColumnStateSet('cover_photo.url', $esperado, $p);
+
+    $html = $this->get(route('property.show', $p))->assertOk()->getContent();
+    expect($html)->toContain('<meta property="og:image" content="'.$esperado.'">')
+        ->toContain('"image":["'.$esperado.'"]'); // JSON_UNESCAPED_SLASHES
+});
+
 it('sem título escrito, o título é gerado a partir do tipo, tipologia e concelho', function () {
     Livewire::test(CreateProperty::class)
         ->fillForm([

@@ -76,7 +76,7 @@ class PropertyController extends Controller
             'url' => route('property.show', $p),
             'identifier' => $p->reference ?? $p->internal_id,
             'datePosted' => $p->crm_updated_at?->toDateString(),
-            'image' => array_values(array_map(fn ($ph) => $ph['url'], array_slice($p->photos ?? [], 0, 10))),
+            'image' => array_values(array_filter(array_map(fn ($ph) => Property::photoUrl($ph['url'] ?? null), array_slice($p->photos ?? [], 0, 10)))),
             'offers' => $offer,
             'address' => $address,
             'provider' => [

@@ -59,6 +59,8 @@ class PropertiesTable
                 ImageColumn::make('cover_photo.url')
                     ->label('Foto')
                     ->toggleable()
+                    // As fotos do backoffice são "/storage/…": o Filament só mostra URLs completos.
+                    ->getStateUsing(fn (Property $record) => $record->coverPhotoUrl())
                     ->disk(null)
                     ->defaultImageUrl(asset('images/placeholder-property.jpg'))
                     ->square()

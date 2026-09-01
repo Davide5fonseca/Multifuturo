@@ -305,6 +305,26 @@ class Property extends Model
         return Attribute::get(fn () => $this->photos[0] ?? null);
     }
 
+    /** URL absoluto da capa — para a lista do backoffice, og:image e JSON-LD. */
+    public function coverPhotoUrl(): ?string
+    {
+        return self::photoUrl($this->cover_photo['url'] ?? null);
+    }
+
+    /**
+     * As fotos carregadas no backoffice ficam guardadas como "/storage/…" (caminho
+     * relativo à raiz do site); as do CRM já vinham absolutas. Onde é preciso um
+     * URL completo — Filament, og:image, JSON-LD — resolve-se com o APP_URL.
+     */
+    public static function photoUrl(?string $url): ?string
+    {
+        if ($url === null || $url === '') {
+            return null;
+        }
+
+        return str_starts_with($url, '/') ? url($url) : $url;
+    }
+
     public function translation(string $key, ?string $locale = null): ?string
     {
         $valor = $this->translationRaw($key, $locale);
