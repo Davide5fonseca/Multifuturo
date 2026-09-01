@@ -163,7 +163,7 @@ return [
             [
                 'title' => '4. Conteúdos de terceiros',
                 'paragraphs' => [
-                    'Os mapas das fichas de imóvel são fornecidos pelo OpenStreetMap e só são carregados quando clica em "Mostrar mapa". Até esse momento não é feito qualquer pedido a servidores externos. As fotografias dos imóveis são servidas a partir do sistema de gestão da agência.',
+                    'Os mapas das fichas de imóvel são fornecidos pelo OpenStreetMap (OpenStreetMap Foundation) e carregam ao abrir a ficha de um imóvel com localização visível: nesse momento o seu navegador pede as imagens do mapa aos servidores do OpenStreetMap, que recebem o seu endereço IP para as entregar. Não são colocados cookies por este serviço. As fotografias dos imóveis são servidas a partir do sistema de gestão da agência.',
                 ],
             ],
             [

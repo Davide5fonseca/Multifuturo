@@ -142,22 +142,19 @@
                 @endif
 
                 {{--
-                    Mapa: só se gmap_visible (compromisso contratual). Leaflet servido do
-                    nosso storage e criado só ao clicar — zero pedidos externos até lá; a
-                    partir daí só os quadrados do mapa vêm do openstreetmap.org. Rodapé
-                    reduzido à linha que a licença do OpenStreetMap exige.
+                    Mapa: só se gmap_visible (compromisso contratual). Aparece logo ao abrir
+                    a ficha: o Leaflet vem do nosso storage e só os quadrados do mapa vêm
+                    do openstreetmap.org. Rodapé reduzido à linha que a licença exige.
                 --}}
                 <section id="mapa" class="mt-12 scroll-mt-8 print:hidden">
                     <h2 class="text-2xl font-semibold tracking-tight">{{ __('ui.property.map') }}</h2>
                     @if ($coords)
                         @php $lat = (float) $coords['lat']; $lon = (float) $coords['lon']; @endphp
                         <div x-data="{
-                                show: false,
                                 map: null,
-                                async open() {
-                                    this.show = true;
+                                async init() {
                                     await this.loadLeaflet();
-                                    this.$nextTick(() => this.draw());
+                                    this.draw();
                                 },
                                 loadLeaflet() {
                                     return new Promise((resolve) => {
@@ -184,14 +181,8 @@
                                 },
                             }"
                             class="mt-5 overflow-hidden rounded-xl border border-sand-200 bg-sand-100">
-                            <div x-show="!show" class="flex flex-col items-start gap-3 p-6">
-                                <p class="text-sm text-ink-muted">{{ __('ui.property.map_notice') }}</p>
-                                <button type="button" class="btn-secondary py-2 text-xs" @click="open()">{{ __('ui.property.show_map') }}</button>
-                                <noscript><a class="link text-sm" href="https://www.openstreetmap.org/?mlat={{ $lat }}&mlon={{ $lon }}#map=16/{{ $lat }}/{{ $lon }}" rel="noopener" target="_blank">OpenStreetMap</a></noscript>
-                            </div>
-                            <template x-if="show">
-                                <div x-ref="map" class="h-96 w-full" role="img" aria-label="{{ __('ui.property.map') }}"></div>
-                            </template>
+                            <div x-ref="map" class="h-96 w-full" role="img" aria-label="{{ __('ui.property.map') }}" data-map></div>
+                            <noscript><p class="p-4 text-sm"><a class="link" href="https://www.openstreetmap.org/?mlat={{ $lat }}&mlon={{ $lon }}#map=16/{{ $lat }}/{{ $lon }}" rel="noopener" target="_blank">OpenStreetMap</a></p></noscript>
                         </div>
                     @else
                         <p class="mt-4 text-sm text-ink-muted">{{ __('ui.property.map_hidden') }}</p>

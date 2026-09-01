@@ -248,8 +248,6 @@ return [
         'prev' => 'Anterior',
         'next' => 'Seguinte',
         'map' => 'Mapa',
-        'show_map' => 'Mostrar mapa',
-        'map_notice' => 'O mapa é carregado do OpenStreetMap apenas quando clicar — até lá não é feito nenhum pedido externo.',
         'map_hidden' => 'A localização exata é fornecida mediante contacto.',
         'virtual_tour' => 'Visita virtual',
         'video' => 'Vídeo',

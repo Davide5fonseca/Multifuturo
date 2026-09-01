@@ -141,17 +141,17 @@ it('não expõe coordenadas no HTML nem no JSON-LD quando gmap_visible=false', f
         ->and($html)->toContain(__('ui.property.map_hidden'));
 });
 
-it('com gmap_visible=true tem coordenadas no JSON-LD e o mapa só carrega ao clicar', function () {
+it('com gmap_visible=true tem coordenadas no JSON-LD e o mapa aparece logo, com o Leaflet do nosso storage', function () {
     $p = Property::factory()->create(['lat' => 38.7123456, 'lon' => -9.1398765]);
 
     $html = $this->get(route('property.show', $p))->assertOk()->getContent();
 
     expect($html)->toContain('GeoCoordinates')
         ->and($html)->toContain('38.7123456')
-        ->and($html)->toContain(__('ui.property.show_map'))
-        // O mapa está dentro de <template x-if>: só existe no DOM depois do clique — e o
-        // Leaflet vem do nosso storage, não de um CDN.
-        ->and(preg_match('~<template x-if="show">\s*<div x-ref="map"~', $html))->toBe(1)
+        // O contentor do mapa está logo no DOM e o Alpine desenha-o ao iniciar — sem botão.
+        ->and($html)->toContain('data-map')
+        ->and($html)->toContain('async init()')
+        ->and($html)->not->toContain('Mostrar mapa')
         ->and($html)->toContain('leaflet.js') // @js() escapa as barras: procura-se só o nome do ficheiro
         ->and($html)->not->toContain('export/embed.html');
 });

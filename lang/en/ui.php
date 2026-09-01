@@ -249,8 +249,6 @@ return [
         'prev' => 'Previous',
         'next' => 'Next',
         'map' => 'Map',
-        'show_map' => 'Show map',
-        'map_notice' => 'The map is loaded from OpenStreetMap only when you click — until then no external request is made.',
         'map_hidden' => 'The exact location is provided on request.',
         'virtual_tour' => 'Virtual tour',
         'video' => 'Video',
