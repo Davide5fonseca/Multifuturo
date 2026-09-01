@@ -14,7 +14,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 it('o login do backoffice é o do portal (/entrar); o do Filament já não existe', function () {
-    $this->get('/entrar')->assertOk()->assertSee('Multifuturo');
+    $this->get('/entrar')->assertOk()->assertSee('Entrar');
     $this->get('/admin/login')->assertNotFound();
 });
 

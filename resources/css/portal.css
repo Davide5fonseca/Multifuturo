@@ -48,8 +48,8 @@ h1, h2, h3, p { margin: 0; }
 /* ------------------------------------------------------------ marca */
 .p-marca { display: inline-flex; align-items: center; gap: .75rem; color: inherit; text-decoration: none; }
 .p-marca:hover { text-decoration: none; }
-.p-marca__simbolo { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 10px; background: #fff; box-shadow: var(--p-sombra); }
-.p-marca__simbolo img { width: 1.6rem; height: auto; display: block; }
+.p-marca__simbolo { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 10px; background: var(--p-acao); color: #fff; box-shadow: var(--p-sombra); }
+.p-marca__simbolo svg { width: 1.35rem; height: 1.35rem; }
 .p-marca__nome { display: block; font-weight: 600; font-size: .95rem; letter-spacing: -.01em; line-height: 1.1; }
 .p-marca__sub { display: block; margin-top: .2rem; font-size: .65rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; opacity: .55; }
 

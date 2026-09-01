@@ -193,3 +193,18 @@ it('a recuperação de palavra-passe do Filament continua a existir e é para l�
     $this->get('/entrar')->assertOk()->assertSee('/admin/password-reset/request');
     $this->get('/admin/password-reset/request')->assertOk();
 });
+
+it('o login e o portal são uma plataforma própria: não mencionam a agência nem ligam ao site', function () {
+    config(['portal.name' => 'Plataforma X']);
+
+    $this->get('/entrar')->assertOk()
+        ->assertSee('Plataforma X')
+        ->assertDontSee('Multifuturo')
+        ->assertDontSee('imóve')
+        ->assertDontSee('images/marca');
+
+    $this->actingAs(utilizadorAtivo())->get('/portal')->assertOk()
+        ->assertSee('Plataforma X')
+        ->assertDontSee(route('home'))
+        ->assertDontSee('images/marca');
+});

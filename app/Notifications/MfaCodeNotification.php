@@ -24,15 +24,16 @@ class MfaCodeNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $agency = (string) config('agency.name');
+        // O email vem do portal (a ponte), não da agência.
+        $portal = (string) config('portal.name');
 
         return (new MailMessage)
-            ->subject("[{$agency}] Código de verificação: {$this->code}")
+            ->subject("[{$portal}] Código de verificação: {$this->code}")
             ->greeting('Olá,')
             ->line('O seu código para entrar no portal é:')
             ->line("# {$this->code}")
             ->line("Vale {$this->minutes} minutos e só serve uma vez.")
             ->line('Se não foi você a tentar entrar, ignore este email — sem o código ninguém entra. Se acontecer outra vez, mude a sua palavra-passe.')
-            ->salutation("Com os melhores cumprimentos,\n{$agency}");
+            ->salutation("Com os melhores cumprimentos,\n{$portal}");
     }
 }

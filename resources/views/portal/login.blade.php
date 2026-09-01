@@ -1,6 +1,6 @@
 <x-layouts.portal title="Entrar" :entrada="true">
     <h1>Entrar</h1>
-    <p class="p-intro">Bem-vindo de volta. Use a sua conta da equipa.</p>
+    <p class="p-intro">Bem-vindo de volta. Entre com a sua conta.</p>
 
     <form method="post" action="{{ route('login.store') }}" class="p-form" novalidate>
         @csrf
