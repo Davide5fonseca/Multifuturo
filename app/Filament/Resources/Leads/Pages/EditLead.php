@@ -46,7 +46,6 @@ class EditLead extends EditRecord
                         ->required()
                         ->minLength(10)
                         ->default(fn () => self::rascunho($lead))
-                        ->helperText('O nome de quem responde, a assinatura e a ligação ao imóvel são acrescentados automaticamente.')
                         ->columnSpanFull(),
                 ])
                 ->action(function (array $data) use ($lead): void {

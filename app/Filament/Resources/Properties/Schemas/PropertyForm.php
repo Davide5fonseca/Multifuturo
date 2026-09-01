@@ -166,7 +166,6 @@ class PropertyForm
                             }
                         })
                         ->extraAttributes(fn (?string $state): array => ['class' => 'estado-actual '.(self::STATUS_CLASSES[$state] ?? '')])
-                        ->helperText('Só "Ativa" aparece no site; "Inativa" e "Pendente" retiram a ficha.')
                         ->columnSpan(['default' => 12, 'md' => 2]),
                     TextInput::make('status_reason')
                         ->label('Motivo')
@@ -174,7 +173,6 @@ class PropertyForm
                         ->columnSpan(['default' => 12, 'md' => 7]),
                     Checkbox::make('is_sold')
                         ->label('Vendida')
-                        ->helperText('Sai das listagens públicas.')
                         ->columnSpan(['default' => 12, 'md' => 3]),
                 ]),
 
@@ -196,8 +194,7 @@ class PropertyForm
                         ),
                     TextInput::make('internal_name')
                         ->label('Nome interno')
-                        ->maxLength(191)
-                        ->helperText('Nunca aparece no site.'),
+                        ->maxLength(191),
                     Select::make('property_condition')
                         ->label('Conservação')
                         ->options(fn () => self::optionsWithExisting('property_condition', self::CONDITIONS))
@@ -207,8 +204,7 @@ class PropertyForm
                         ->options(BusinessType::options())
                         ->default(BusinessType::Sale->value)
                         ->required()
-                        ->native(false)
-                        ->helperText('Trespasse e permuta aparecem em Comprar; "arrendamento / venda" aparece nas duas listagens.'),
+                        ->native(false),
                     Select::make('property_type')
                         ->label('Tipo de propriedade')
                         ->options(fn () => self::optionsWithExisting('property_type', self::PROPERTY_TYPES))
@@ -256,7 +252,6 @@ class PropertyForm
                         ->label('Preço')
                         ->numeric()
                         ->placeholder('0')
-                        ->helperText('Arrendamento: valor mensal.')
                         ->columnSpan(['default' => 12, 'md' => 4]),
                     Select::make('currency')
                         ->label('Moeda')
@@ -268,7 +263,6 @@ class PropertyForm
                     Checkbox::make('price_visible')
                         ->label('Preço visível')
                         ->default(true)
-                        ->helperText('Desligado: o site mostra "Preço sob consulta".')
                         ->columnSpan(['default' => 12, 'md' => 4]),
 
                     TextInput::make('building_name')
@@ -308,7 +302,6 @@ class PropertyForm
                         ->columnSpanFull(),
                     Checkbox::make('off_market')
                         ->label('Propriedade fora de mercado')
-                        ->helperText('Angariação suspensa; também sai do site.')
                         ->columnSpanFull(),
                 ]),
 
@@ -317,16 +310,12 @@ class PropertyForm
                 ->components([
                     Checkbox::make('is_active')
                         ->label('Visível no website')
-                        ->default(true)
-                        ->helperText(fn (callable $get) => in_array($get('admin.status'), [Property::STATUS_INACTIVE, Property::STATUS_PENDING], true)
-                            ? 'A ficha está "'.$get('admin.status').'" em Estado › Actual — não aparece no site, mesmo com isto ligado.'
-                            : 'Publica ou retira a ficha do site.'),
+                        ->default(true),
                     Checkbox::make('is_featured')
                         ->label('Destaque'),
                     TagsInput::make('admin.monitors')
                         ->label('Monitores')
-                        ->placeholder('Escreva e prima Enter')
-                        ->helperText('Herdado do CRM. Fica registado na ficha, mas não há montras ligadas ao sistema.'),
+                        ->placeholder('Escreva e prima Enter'),
                 ]),
 
             Section::make('Angariação')
@@ -348,8 +337,7 @@ class PropertyForm
                     DatePicker::make('crm_updated_at')
                         ->label('Data do anúncio')
                         ->displayFormat('d/m/Y')
-                        ->default(now())
-                        ->helperText('Usada na ordenação "mais recentes" do site.'),
+                        ->default(now()),
                 ]),
         ]);
     }
@@ -393,8 +381,7 @@ class PropertyForm
                         ])
                             ->label('Certificado energético')
                             ->columns(4)
-                            ->columnSpan(4)
-                            ->helperText('A classe energética é obrigatória na publicitação (Decreto-Lei n.º 118/2013).'),
+                            ->columnSpan(4),
                         DatePicker::make('admin.energy.valid_from')->label('Data início')->displayFormat('d/m/Y')->placeholder('DD/MM/YYYY')->columnSpan(2),
                         DatePicker::make('admin.energy.valid_to')->label('Data fim')->displayFormat('d/m/Y')->placeholder('DD/MM/YYYY')->columnSpan(2),
 
@@ -484,7 +471,6 @@ class PropertyForm
                     ]),
 
                 Section::make('Import / Export')
-                    ->description('Herdados do CRM. Ficam registados na ficha, mas hoje não há importação nem exportação automática — os imóveis são geridos aqui.')
                     ->columns(1)
                     ->components([
                         Checkbox::make('admin.sync.block_import')->label('Bloquear importação'),
@@ -507,8 +493,7 @@ class PropertyForm
                     ->components([
                         TagsInput::make('admin.tags')
                             ->label('Etiquetas')
-                            ->placeholder('Escreva e prima Enter')
-                            ->helperText('Uso interno — aparecem na lista de imóveis e nunca no site.'),
+                            ->placeholder('Escreva e prima Enter'),
                     ]),
             ]);
     }
@@ -562,8 +547,7 @@ class PropertyForm
             Section::make('Localização no mapa')
                 ->components([
                     Checkbox::make('gmap_visible')
-                        ->label('Visível')
-                        ->helperText('Desligado: as coordenadas nunca saem do servidor — não vão no HTML nem no JSON-LD da ficha.'),
+                        ->label('Visível'),
 
                     Actions::make([
                         Action::make('geocodificar')
@@ -635,7 +619,6 @@ class PropertyForm
                             ->maxSize(8192)
                             ->imageEditor()
                             ->uploadingMessage('A carregar fotos…')
-                            ->helperText('A primeira é a capa. Arraste para alterar a ordenação.')
                             ->columnSpanFull(),
                     ]),
 
@@ -669,7 +652,6 @@ class PropertyForm
                                 Checkbox::make('portals')->hiddenLabel()->inline(false),
                                 Checkbox::make('predefined_reply')->hiddenLabel()->inline(false),
                             ])
-                            ->helperText('Uso interno — os documentos ficam em disco privado e nunca são publicados no site. "Visível", "portais" e "resposta predefinida" são campos herdados do CRM: ficam registados, mas não há portais nem respostas predefinidas ligados ao sistema.')
                             ->columnSpanFull(),
                     ]),
 
@@ -689,7 +671,6 @@ class PropertyForm
                             ->disk('public')
                             ->directory('imoveis/360')
                             ->maxSize(16384)
-                            ->helperText('As fotos em 360º ficam guardadas na ficha. A criação automática da visita era um serviço do CRM; para publicar um tour feito noutra plataforma, use o campo "Visita Virtual / 360º" em Links.')
                             ->columnSpanFull(),
                     ]),
                 ]),
@@ -906,7 +887,6 @@ class PropertyForm
                         TagsInput::make('det_features_extra')
                             ->label('Outras características')
                             ->placeholder('Escreva e prima Enter')
-                            ->helperText('Livres — também aparecem no site. As importações antigas caem aqui.')
                             ->columnSpanFull(),
                     ])->columns(12),
 
@@ -961,15 +941,11 @@ class PropertyForm
                             ->maxLength(60)
                             ->live(onBlur: true)
                             ->hint(fn (?string $state): string => mb_strlen((string) $state).'/60')
-                            ->helperText($loc === Locales::default()
-                                ? 'É o nome da ficha no site. Se ficar vazio, é gerado ao criar a partir do tipo, tipologia e concelho ("Moradia T3 em Espinho").'
-                                : 'Se ficar vazio, o site mostra o título em '.Locales::label(Locales::default()).'.')
                             ->columnSpanFull(),
                         TagsInput::make("translations.{$loc}.keywords")
                             ->label('Palavras-chave')
                             ->separator(',')
                             ->placeholder('Escreva e prima Enter')
-                            ->helperText('Vão para a meta keywords da página do imóvel.')
                             ->columnSpanFull(),
                         Textarea::make("translations.{$loc}.seo_description")
                             ->label('Descrição SEO')
@@ -977,7 +953,6 @@ class PropertyForm
                             ->maxLength(320)
                             ->live(onBlur: true)
                             ->hint(fn (?string $state): string => self::contagem($state))
-                            ->helperText('O resumo que o Google mostra por baixo do título — idealmente 120 a 155 caracteres. Se ficar vazio usa-se a descrição curta e, sem ela, o início da descrição.')
                             ->columnSpanFull(),
                         Textarea::make("translations.{$loc}.short_description")
                             ->label('Descrição curta')
@@ -985,14 +960,12 @@ class PropertyForm
                             ->maxLength(300)
                             ->live(onBlur: true)
                             ->hint(fn (?string $state): string => mb_strlen((string) $state).'/300')
-                            ->helperText('Resumo para partilhas (WhatsApp, redes sociais) e para a meta description quando não há descrição SEO.')
                             ->columnSpanFull(),
                         Textarea::make("translations.{$loc}.description")
                             ->label('Descrição')
                             ->rows(12)
                             ->live(onBlur: true)
                             ->hint(fn (?string $state): string => self::contagem($state))
-                            ->helperText('O texto da ficha no site. Parágrafos separados por uma linha em branco.')
                             ->columnSpanFull(),
                     ])),
 
@@ -1005,7 +978,6 @@ class PropertyForm
                                 ['bulletList', 'orderedList', 'blockquote'],
                                 ['undo', 'redo'],
                             ])
-                            ->helperText('Quando está preenchido, a ficha no site mostra este texto em vez da Descrição. Só formatação de texto — sem imagens nem código.')
                             ->columnSpanFull(),
                     ])),
 
@@ -1017,7 +989,6 @@ class PropertyForm
                         Textarea::make("translations.{$loc}.brochure_text")
                             ->label('Texto da brochura')
                             ->rows(10)
-                            ->helperText('Fica guardado na ficha; a brochura em PDF ainda não é gerada pelo backoffice.')
                             ->columnSpanFull(),
                     ])),
 
@@ -1029,7 +1000,6 @@ class PropertyForm
                         Textarea::make("translations.{$loc}.email_text")
                             ->label('Texto do email')
                             ->rows(10)
-                            ->helperText('Texto de apresentação do imóvel para responder a quem pede informação. Fica guardado na ficha; o envio automático ainda não existe.')
                             ->columnSpanFull(),
                     ])),
                 ]),

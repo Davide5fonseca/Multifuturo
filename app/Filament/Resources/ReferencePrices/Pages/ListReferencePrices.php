@@ -13,14 +13,6 @@ class ListReferencePrices extends ListRecords
 {
     protected static string $resource = ReferencePriceResource::class;
 
-    public function getSubheading(): ?string
-    {
-        return 'Base do simulador "Quanto vale a minha casa?" do site. Os valores do INE entram sozinhos à segunda-feira '
-            .'(ou já, com o botão); os escritos à mão têm prioridade e nunca são pisados. Num concelho sem nada, '
-            .'o site usa a mediana das nossas vendas publicadas nesse concelho (mínimo 3) e, em último caso, o valor '
-            .'"Todos os concelhos" do tipo — é assim que se dá um valor aos terrenos, que o INE não publica.';
-    }
-
     protected function getHeaderActions(): array
     {
         return [

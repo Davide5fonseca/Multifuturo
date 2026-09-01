@@ -18,7 +18,6 @@ class ReferencePriceForm
         return $schema
             ->components([
                 Section::make('Valor por m²')
-                    ->description('O simulador multiplica este valor pela área que o visitante indica. Um valor por concelho (ou freguesia) e tipo; o mesmo trio não pode repetir-se. O que se grava aqui é "manual" e a importação do INE nunca o pisa. Um valor com âmbito "Todos os concelhos" serve de rede para o que não tem valor próprio — útil para terrenos, que o INE não publica.')
                     ->columns(2)
                     ->columnSpanFull()
                     ->components([
@@ -33,7 +32,6 @@ class ReferencePriceForm
                         TextInput::make('city')
                             ->label('Concelho')
                             ->placeholder('Sintra')
-                            ->helperText('Escreva o nome como está nas fichas dos imóveis.')
                             ->required(fn (Get $get) => $get('scope') !== 'default')
                             ->visible(fn (Get $get) => $get('scope') !== 'default')
                             ->maxLength(96)

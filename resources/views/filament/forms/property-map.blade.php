@@ -93,8 +93,4 @@
         class="w-full overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600"
         style="height: 20rem; z-index: 0"
     ></div>
-
-    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-        Clique no mapa ou arraste o marcador para acertar a posição. Os quadrados do mapa vêm do OpenStreetMap.
-    </p>
 </div>

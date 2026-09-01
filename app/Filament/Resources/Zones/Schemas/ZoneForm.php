@@ -24,7 +24,6 @@ class ZoneForm
                         TextInput::make('city_slug')
                             ->label('Concelho (slug)')
                             ->placeholder('cascais')
-                            ->helperText('Minúsculas, sem acentos, hífens: tem de coincidir com o URL /zonas/…')
                             ->required()
                             ->maxLength(96),
                         TextInput::make('locality_slug')
@@ -50,7 +49,6 @@ class ZoneForm
                         Textarea::make('body')
                             ->label('Texto')
                             ->rows(8)
-                            ->helperText('Parágrafos separados por uma linha em branco.')
                             ->columnSpanFull(),
                         Toggle::make('is_published')
                             ->label('Publicado')

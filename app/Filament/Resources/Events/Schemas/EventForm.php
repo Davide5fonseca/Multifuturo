@@ -49,7 +49,6 @@ class EventForm
                 ]),
 
             Section::make('Ligações')
-                ->description('A quem e a que imóvel diz respeito.')
                 ->columns(3)
                 ->components([
                     Select::make('user_id')

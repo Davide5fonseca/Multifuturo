@@ -48,7 +48,6 @@ class ContactForm
                 ]),
 
             Section::make('Preferências')
-                ->description('O que este cliente procura — usado para cruzar com a carteira.')
                 ->columns(2)
                 ->components([
                     TagsInput::make('preferences.zones')
