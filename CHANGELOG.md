@@ -9,6 +9,30 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Valores de referência revistos todos os meses pelo INE
+
+$${\color{#5D6348}\textsf{2026-09-01 · 15:58}}$$
+
+**Commit:** `9d6b784` — `Valores de referencia: revisao mensal pelo INE (dia 1, 04:30); rotulos sem maiusculas automaticas`
+
+A importação dos valores por m² do INE deixa de ser semanal (segunda-feira) e passa a
+correr **todos os meses, no dia 1 às 04:30** (`30 4 1 * *`), continuando a poder ser
+corrida à mão com o botão "Importar do INE". Os valores escritos à mão continuam a
+nunca ser pisados. De caminho, os títulos "Valores De Referência" e "Alertas De
+Imóveis" (maiúsculas automáticas do Filament) passam a "Valores de referência" e
+"Alertas de imóveis" no menu, no título e nas migalhas.
+
+- `routes/console.php` — `monthlyOn(1, '04:30')` e comentários.
+- `app/Console/Commands/ValuationImportIne.php` — comentário do ritmo.
+- `DEPLOY.md` — passo pós-deploy diz que a revisão é mensal.
+- `app/Filament/Resources/ReferencePrices/ReferencePriceResource.php`,
+  `PropertyAlerts/PropertyAlertResource.php` — `navigationLabel` e `breadcrumb` explícitos;
+  `Pages/ListReferencePrices.php`, `Pages/ListPropertyAlerts.php` — `title` explícito.
+- Verificado: `schedule:list` mostra `30 4 1 * *`; testes da importação, alertas e
+  backoffice a passar; Pint limpo.
+
+---
+
 ## A foto de capa aparece na lista de imóveis
 
 $${\color{#5D6348}\textsf{2026-09-01 · 15:44}}$$
