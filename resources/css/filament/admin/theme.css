@@ -32,3 +32,41 @@
         flex: 0 0 auto;
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Estado › Actual com cor, como no CRM
+|--------------------------------------------------------------------------
+|
+| O campo muda de cor com o valor escolhido: verde (Ativa), vermelho
+| (Inativa), âmbar (Pendente). A classe vem do formulário (PropertyForm) e cai
+| no próprio invólucro do campo (.fi-input-wrp).
+|
+*/
+.fi-input-wrp.estado-actual {
+    transition: background-color 0.15s ease, --tw-ring-color 0.15s ease;
+}
+.fi-input-wrp.estado-actual--ativa {
+    background-color: #eaf6ec;
+    --tw-ring-color: #2e9e4f;
+}
+.estado-actual--ativa .fi-select-input-btn {
+    color: #1e7a3a;
+    font-weight: 500;
+}
+.fi-input-wrp.estado-actual--inativa {
+    background-color: #fdecec;
+    --tw-ring-color: #d64545;
+}
+.estado-actual--inativa .fi-select-input-btn {
+    color: #a32626;
+    font-weight: 500;
+}
+.fi-input-wrp.estado-actual--pendente {
+    background-color: #fff5e5;
+    --tw-ring-color: #e0961e;
+}
+.estado-actual--pendente .fi-select-input-btn {
+    color: #9a5b00;
+    font-weight: 500;
+}

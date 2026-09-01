@@ -64,8 +64,16 @@ class PropertyForm
         'Licença de utilização', 'Planta', 'Contrato', 'Identificação', 'Outro',
     ];
 
-    /** Estado interno da angariação ("Actual" no CRM). Não publica nem retira do site. */
-    private const STATUSES = ['Ativa', 'Inativa'];
+    /**
+     * Cores do "Actual", como no CRM: verde para Ativa, vermelho para Inativa,
+     * âmbar para Pendente. A classe vai no invólucro do campo; o CSS está em
+     * resources/css/filament/admin/theme.css.
+     */
+    private const STATUS_CLASSES = [
+        Property::STATUS_ACTIVE => 'estado-actual--ativa',
+        Property::STATUS_INACTIVE => 'estado-actual--inativa',
+        Property::STATUS_PENDING => 'estado-actual--pendente',
+    ];
 
     /**
      * Junta as opções sugeridas aos valores que já existem na base de dados
@@ -145,18 +153,20 @@ class PropertyForm
                 ->components([
                     Select::make('admin.status')
                         ->label('Actual')
-                        ->options(self::list(self::STATUSES))
+                        ->options(self::list(Property::STATUSES))
                         ->default(Property::STATUS_ACTIVE)
                         ->native(false)
                         ->live()
-                        // "Inativa" retira do site: desliga logo o "Visível no
-                        // website", para não ficar a dizer uma coisa e valer outra.
+                        // Só "Ativa" vai para o site: "Inativa" e "Pendente" desligam
+                        // logo o "Visível no website", para não ficar a dizer uma
+                        // coisa e valer outra.
                         ->afterStateUpdated(function (?string $state, callable $set) {
-                            if ($state === Property::STATUS_INACTIVE) {
+                            if ($state !== Property::STATUS_ACTIVE) {
                                 $set('is_active', false);
                             }
                         })
-                        ->helperText('"Inativa" retira a ficha do site.')
+                        ->extraAttributes(fn (?string $state): array => ['class' => 'estado-actual '.(self::STATUS_CLASSES[$state] ?? '')])
+                        ->helperText('Só "Ativa" aparece no site; "Inativa" e "Pendente" retiram a ficha.')
                         ->columnSpan(['default' => 12, 'md' => 2]),
                     TextInput::make('status_reason')
                         ->label('Motivo')
@@ -308,8 +318,8 @@ class PropertyForm
                     Checkbox::make('is_active')
                         ->label('Visível no website')
                         ->default(true)
-                        ->helperText(fn (callable $get) => $get('admin.status') === Property::STATUS_INACTIVE
-                            ? 'A ficha está "Inativa" no separador Estado — não aparece no site, mesmo com isto ligado.'
+                        ->helperText(fn (callable $get) => in_array($get('admin.status'), [Property::STATUS_INACTIVE, Property::STATUS_PENDING], true)
+                            ? 'A ficha está "'.$get('admin.status').'" em Estado › Actual — não aparece no site, mesmo com isto ligado.'
                             : 'Publica ou retira a ficha do site.'),
                     Checkbox::make('is_featured')
                         ->label('Destaque'),

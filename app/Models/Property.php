@@ -83,6 +83,11 @@ class Property extends Model
 
     public const STATUS_INACTIVE = 'Inativa';
 
+    public const STATUS_PENDING = 'Pendente';
+
+    /** Pela ordem do CRM. Só "Ativa" chega ao site. */
+    public const STATUSES = [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_PENDING];
+
     /**
      * Sem $fillable restritivo: a escrita é feita apenas pelo sync a partir de
      * arrays construídos pelo mapper (não de input do utilizador). Owner nunca
@@ -132,7 +137,7 @@ class Property extends Model
         return $this->is_active
             && ! $this->is_sold
             && ! $this->off_market
-            && ! $this->isInactive()
+            && $this->internalStatus() === self::STATUS_ACTIVE
             && ! $this->trashed();
     }
 
@@ -145,6 +150,11 @@ class Property extends Model
     public function isInactive(): bool
     {
         return $this->internalStatus() === self::STATUS_INACTIVE;
+    }
+
+    public function isPending(): bool
+    {
+        return $this->internalStatus() === self::STATUS_PENDING;
     }
 
     /** As fichas resolvem-se pelo slug, nunca pelo id. */
@@ -182,10 +192,11 @@ class Property extends Model
         return $query->where('is_active', true)
             ->where('is_sold', false)
             ->where('off_market', false)
-            // "Actual" (o estado interno da angariação): uma ficha inativa nunca
-            // chega ao site, mesmo que o "Visível no website" tenha ficado ligado.
-            // As fichas antigas não têm o campo — COALESCE trata-as como ativas.
-            ->whereRaw("COALESCE(admin->>'status', ?) <> ?", [self::STATUS_ACTIVE, self::STATUS_INACTIVE]);
+            // "Actual" (o estado interno da angariação): só uma ficha "Ativa" chega
+            // ao site — "Inativa" e "Pendente" ficam de fora, mesmo que o "Visível no
+            // website" tenha ficado ligado. As fichas antigas não têm o campo —
+            // COALESCE trata-as como ativas.
+            ->whereRaw("COALESCE(admin->>'status', ?) = ?", [self::STATUS_ACTIVE, self::STATUS_ACTIVE]);
     }
 
     /** @param  Builder<Property>  $query */

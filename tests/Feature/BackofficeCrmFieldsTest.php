@@ -244,6 +244,34 @@ it('"Actual: Inativa" retira a ficha do site, mesmo com "Visível no website" li
     $this->get(route('property.show', $p))->assertGone();
 });
 
+it('"Actual: Pendente" também fica fora do site e aparece na lista a âmbar', function () {
+    $p = Property::factory()->create([
+        'reference' => 'MF-6003',
+        'is_active' => true,
+        'admin' => ['status' => Property::STATUS_PENDING],
+    ]);
+
+    expect($p->isPending())->toBeTrue()
+        ->and($p->isPublishable())->toBeFalse()
+        ->and(Property::query()->active()->count())->toBe(0)
+        ->and(Property::STATUSES)->toBe(['Ativa', 'Inativa', 'Pendente']);
+
+    $this->get(route('buy'))->assertOk()->assertDontSee('MF-6003');
+    $this->get(route('property.show', $p))->assertGone();
+
+    $this->actingAs(User::factory()->create(['is_admin' => true]));
+    Livewire::test(ListProperties::class)->assertTableColumnStateSet('status', 'Pendente', $p);
+
+    // Escolher "Pendente" desliga o "Visível no website" e pinta o campo de âmbar.
+    Livewire::test(EditProperty::class, ['record' => $p->slug])
+        ->fillForm(['admin' => ['status' => Property::STATUS_ACTIVE]])
+        ->assertSeeHtml('estado-actual--ativa')
+        ->fillForm(['is_active' => true])
+        ->fillForm(['admin' => ['status' => Property::STATUS_PENDING]])
+        ->assertFormSet(['is_active' => false])
+        ->assertSeeHtml('estado-actual--pendente');
+});
+
 it('as fichas sem "Actual" contam como ativas', function () {
     $p = Property::factory()->create(['reference' => 'MF-6002', 'admin' => []]);
 

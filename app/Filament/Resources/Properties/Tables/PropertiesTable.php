@@ -139,13 +139,14 @@ class PropertiesTable
                         $record->is_sold => 'Vendida',
                         $record->off_market => 'Fora de mercado',
                         $record->isInactive() => 'Inativa',
+                        $record->isPending() => 'Pendente',
                         ! $record->is_active => 'Retirada',
                         default => 'Publicada',
                     })
                     ->color(fn (string $state) => match ($state) {
                         'Publicada' => 'success',
                         'Vendida', 'Inativa', 'Na reciclagem' => 'danger',
-                        'Fora de mercado' => 'warning',
+                        'Fora de mercado', 'Pendente' => 'warning',
                         default => 'gray',
                     })
                     ->tooltip(fn (Property $record) => $record->status_reason)
