@@ -9,6 +9,30 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Backoffice sem textos a mais
+
+$${\color{#5D6348}\textsf{2026-09-01 · 14:36}}$$
+
+**Commit:** `70c9787` — `Backoffice: sem textos de ajuda a mais (formularios, seccoes, subtitulos, mapa)`
+
+O backoffice fica limpo como o CRM: saem os 35 textos de apoio que apareciam por baixo
+dos campos e das secções, os subtítulos em prosa das listas e a nota do mapa. Ficam os
+rótulos, os contadores (0/60, "N caracteres · N palavras"), os textos dentro dos campos
+vazios, as dicas ao passar o rato e as confirmações dos botões.
+
+- `app/Filament/Resources/Properties/Schemas/PropertyForm.php` — 25 textos de ajuda e a
+  descrição da secção Import / Export.
+- `app/Filament/Resources/Leads/Pages/EditLead.php`, `ReferencePrices/Schemas/ReferencePriceForm.php`,
+  `Zones/Schemas/ZoneForm.php` — textos de ajuda.
+- `app/Filament/Resources/Contacts/Schemas/ContactForm.php`, `Events/Schemas/EventForm.php`,
+  `ReferencePrices/Schemas/ReferencePriceForm.php` — descrições de secção.
+- `app/Filament/Resources/PropertyAlerts/Pages/ListPropertyAlerts.php`,
+  `ReferencePrices/Pages/ListReferencePrices.php` — subtítulos em prosa.
+- `resources/views/filament/forms/property-map.blade.php` — nota por baixo do mapa.
+- Verificado: 228 testes a passar, Pint limpo.
+
+---
+
 ## Estado › Actual igual ao CRM, com cores
 
 $${\color{#5D6348}\textsf{2026-09-01 · 14:31}}$$
