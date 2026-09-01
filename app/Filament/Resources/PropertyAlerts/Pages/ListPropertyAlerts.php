@@ -8,4 +8,6 @@ use Filament\Resources\Pages\ListRecords;
 class ListPropertyAlerts extends ListRecords
 {
     protected static string $resource = PropertyAlertResource::class;
+
+    protected static ?string $title = 'Alertas de imóveis';
 }

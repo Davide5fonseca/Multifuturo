@@ -27,6 +27,11 @@ class ReferencePriceResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Valores de referência';
 
+    // O Filament põe cada palavra em maiúscula nos títulos automáticos ("Valores De Referência").
+    protected static ?string $navigationLabel = 'Valores de referência';
+
+    protected static ?string $breadcrumb = 'Valores de referência';
+
     protected static ?int $navigationSort = 4;
 
     /** Rótulos dos tipos do simulador, como aparecem no site. */

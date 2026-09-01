@@ -7,7 +7,7 @@
 |
 | A carteira é gerida no backoffice (/admin) e escrita diretamente na base de
 | dados: não há sincronização com nenhum CRM. Três tarefas agendadas: a cópia
-| de segurança diária, a importação semanal dos valores por m² do INE e o
+| de segurança diária, a importação mensal dos valores por m² do INE e o
 | envio dos alertas de imóveis de hora a hora — e a limpeza diária dos
 | registos de consentimento com mais de 24 meses (model:prune).
 |
@@ -30,11 +30,12 @@ Schedule::command('backup:run')
 
 /*
 | Valores de referência do INE para o simulador "Quanto vale a minha casa?".
-| Uma vez por semana chega: o INE publica a avaliação bancária ao mês e as
-| vendas ao trimestre. Também se corre à mão no backoffice (Importar do INE).
+| Revistos todos os meses, no dia 1 de madrugada: o INE publica a avaliação
+| bancária ao mês e as vendas ao trimestre. Também se corre à mão no
+| backoffice (Importar do INE).
 */
 Schedule::command('valuation:import-ine')
-    ->weeklyOn(1, '04:30')
+    ->monthlyOn(1, '04:30')
     ->withoutOverlapping()
     ->runInBackground()
     ->onFailure(fn () => Log::error('A importação dos valores do INE falhou.'));

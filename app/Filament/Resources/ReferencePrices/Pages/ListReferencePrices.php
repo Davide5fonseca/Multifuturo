@@ -13,6 +13,8 @@ class ListReferencePrices extends ListRecords
 {
     protected static string $resource = ReferencePriceResource::class;
 
+    protected static ?string $title = 'Valores de referência';
+
     protected function getHeaderActions(): array
     {
         return [

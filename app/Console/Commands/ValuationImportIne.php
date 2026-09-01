@@ -28,8 +28,8 @@ use RuntimeException;
  * Terrenos nunca vêm do INE. Linhas escritas à mão no backoffice
  * (source = manual) não são tocadas.
  *
- * Corre à segunda-feira de madrugada (routes/console.php) e a partir do
- * botão "Importar do INE" no backoffice.
+ * Corre todos os meses, no dia 1 de madrugada (routes/console.php), e a
+ * partir do botão "Importar do INE" no backoffice.
  */
 class ValuationImportIne extends Command
 {

@@ -25,6 +25,10 @@ class PropertyAlertResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Alertas de imóveis';
 
+    protected static ?string $navigationLabel = 'Alertas de imóveis';
+
+    protected static ?string $breadcrumb = 'Alertas de imóveis';
+
     protected static ?int $navigationSort = 5;
 
     public static function canCreate(): bool
