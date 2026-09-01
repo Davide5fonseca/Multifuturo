@@ -9,6 +9,30 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## A foto de capa aparece na lista de imóveis
+
+$${\color{#5D6348}\textsf{2026-09-01 · 15:44}}$$
+
+**Commit:** `ecb418a` — `Backoffice: a foto de capa aparece na lista (URL completo; tambem og:image e JSON-LD)`
+
+A coluna "Foto" da lista de imóveis mostrava um quadrado vazio nas fichas com fotos
+carregadas no backoffice: essas fotos ficam guardadas como "/storage/…" e o Filament
+só mostra URLs completos. Passa a resolver-se o URL com o endereço do site — e a mesma
+regra corrige o `og:image` das partilhas e a lista `image` do JSON-LD da ficha, que
+também levavam o caminho relativo.
+
+- `app/Models/Property.php` — `photoUrl()` (relativo → absoluto com o APP_URL; os do
+  CRM já eram absolutos) e `coverPhotoUrl()`.
+- `app/Filament/Resources/Properties/Tables/PropertiesTable.php` — a coluna "Foto" usa
+  `coverPhotoUrl()`.
+- `resources/views/pages/property.blade.php` — `og:image` absoluto.
+- `app/Http/Controllers/PropertyController.php` — JSON-LD `image` absoluto.
+- `tests/Feature/BackofficeCrmFieldsTest.php` — teste novo: foto "/storage/…" aparece na
+  coluna, no `og:image` e no JSON-LD com URL completo.
+- Verificado: testes a passar, Pint limpo.
+
+---
+
 ## Ficha sem "Ver localização" nem "Imprimir"
 
 $${\color{#5D6348}\textsf{2026-09-01 · 15:33}}$$
