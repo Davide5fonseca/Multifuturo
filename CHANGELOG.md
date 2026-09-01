@@ -9,6 +9,51 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Portal da equipa: entrada única e escolha de módulo
+
+$${\color{#5D6348}\textsf{2026-09-01 · 09:35}}$$
+
+**Commit:** `3471329` — `Portal da equipa: entrada única, verificação em duas etapas e escolha de módulo`
+
+A pedido do cliente: a mesma estrutura do **Nexus Portal** (encontrado em
+`Desktop\portal` e lido antes de começar), replicada dentro desta aplicação. Um login
+principal leva a um portal onde se escolhe o módulo onde trabalhar. O backoffice de
+imóveis (`/admin`) passa a ser o primeiro módulo; os próximos são novos painéis
+registados em `config/modules.php`. Fica a base para alargar.
+
+### Como funciona
+- **`/entrar`** — email e palavra-passe, "manter sessão iniciada". Cinco tentativas
+  falhadas bloqueiam um minuto; o tempo de resposta não denuncia se a conta existe.
+- **`/verificar`** — código de seis algarismos enviado por email (`PORTAL_MFA=true`;
+  localmente chega ao Mailpit). Vale 10 minutos, 5 tentativas, reenvio ao fim de 60 s;
+  só o hash fica guardado. **A sessão só começa depois do código.**
+- **`/portal`** — cartões com os módulos a que a pessoa tem acesso; administradores
+  veem todos; sem acessos, um aviso a pedir a um administrador. Um só "terminar sessão".
+- **Módulos e acessos** — `config/modules.php` descreve cada módulo (chave, nome, ícone,
+  rota, painel); os acessos ficam em `module_access`. Em **Equipa**, cada pessoa tem
+  "Conta ativa" e a lista de módulos. Quem já tinha conta recebeu acesso a Imóveis.
+- **Contas desativadas** não entram e, se tiverem sessão aberta, são postas fora no
+  pedido seguinte — no portal e nos módulos.
+- O login próprio do Filament foi retirado; quem chegar a `/admin` sem sessão vai para
+  `/entrar`. A recuperação de palavra-passe do Filament mantém-se. No menu do utilizador
+  do backoffice há um item "Portal" para voltar à escolha.
+
+### Para acrescentar um módulo
+1. Criar a área (um painel novo do Filament, ou outra aplicação com um URL).
+2. Registá-lo em `config/modules.php`.
+3. Dar acesso às pessoas certas em Equipa.
+
+Onze testes novos, **220 a passar**. Verificado no browser de ponta a ponta: `/admin`
+sem sessão → `/entrar` → palavra-passe → `/verificar` → código errado recusado → código
+do Mailpit → `/portal` com o cartão Imóveis → `/admin` → sair → `/entrar`.
+
+**Nota para o dia a dia:** a partir de agora entra-se em **http://localhost/multifuturo/entrar**
+(o `/admin/login` deixou de existir). Com a verificação em duas etapas ligada, o código
+chega ao Mailpit (http://localhost:8025); para desligar localmente, `PORTAL_MFA=false`
+no `.env`.
+
+---
+
 ## Cookies RGPD: prova do consentimento
 
 $${\color{#5D6348}\textsf{2026-08-28 · 14:46}}$$
