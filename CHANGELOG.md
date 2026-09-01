@@ -9,6 +9,22 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Ficha sem "Ver localização" nem "Imprimir"
+
+$${\color{#5D6348}\textsf{2026-09-01 · 15:33}}$$
+
+**Commit:** `cfa9f45` — `Site: ficha sem 'Ver localizacao' nem 'Imprimir'`
+
+Saem do cabeçalho da ficha a ligação "Ver localização" (o mapa já aparece sozinho mais
+abaixo) e o botão "Imprimir". O cabeçalho fica com o tipo e o concelho à esquerda, o
+tipo de negócio e a freguesia por baixo, e o preço e a referência à direita.
+
+- `resources/views/pages/property.blade.php` — cabeçalho sem os dois botões.
+- `lang/pt/ui.php`, `lang/en/ui.php` — saem os rótulos "Ver localização" e "Imprimir".
+- Verificado: testes da ficha a passar, Pint limpo.
+
+---
+
 ## Etiquetas da classe energética como as dos certificados
 
 $${\color{#5D6348}\textsf{2026-09-01 · 15:29}}$$
