@@ -6,9 +6,10 @@ use App\Enums\BusinessType;
 use App\Models\Property;
 use App\Support\PropertyCache;
 use App\Support\PropertyFilters;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
@@ -32,6 +33,16 @@ class PropertyListing extends Component
 
     #[Locked]
     public string $businessType = 'sale';
+
+    /**
+     * Blocos de resultados já carregados nesta página (scroll infinito). Não
+     * vai para o URL: quem partilha o endereço parte do princípio, e os
+     * motores de busca continuam a ver a paginação normal.
+     */
+    public int $batches = 1;
+
+    /** A página a que esses blocos pertencem — trocar de página recomeça a contagem. */
+    public int $batchesPage = 1;
 
     #[Url(as: 'q', except: '')]
     public string $search = '';
@@ -76,16 +87,25 @@ class PropertyListing extends Component
         if ($name !== 'page') {
             $this->resetPage();
         }
+        // Filtro novo (ou página nova): recomeça-se com um bloco.
+        $this->batches = 1;
         $this->sanitize();
         if ($name === 'city') {
             $this->locality = '';
         }
     }
 
+    /** Scroll infinito: mais um bloco de resultados, com teto de segurança. */
+    public function loadMore(): void
+    {
+        $this->batches = min($this->batches + 1, 8);
+    }
+
     public function clearFilters(): void
     {
         $this->reset(['search', 'type', 'bedrooms', 'city', 'locality', 'priceMin', 'priceMax', 'areaMin', 'features']);
         $this->sort = 'recent';
+        $this->batches = 1;
         $this->resetPage();
     }
 
@@ -157,8 +177,13 @@ class PropertyListing extends Component
     }
 
     /**
-     * Página de resultados em cache. A chave inclui todos os filtros e a página;
-     * a cache é limpa no fim de cada sync com alterações.
+     * Resultados em cache. A chave inclui todos os filtros, a página e quantos
+     * blocos já foram carregados; a cache é limpa sempre que a carteira muda.
+     *
+     * O scroll infinito acumula a partir da página atual: a paginação numerada
+     * continua a existir (sem JavaScript e para os motores de busca), e por isso
+     * o paginador é montado à mão — os itens são os N blocos já carregados, mas
+     * as ligações das páginas continuam a contar PER_PAGE por página.
      */
     #[Computed]
     public function properties(): LengthAwarePaginator
@@ -166,10 +191,28 @@ class PropertyListing extends Component
         $page = $this->getPage();
         $key = 'listing:'.md5(json_encode([
             $this->businessType, $this->search, $this->type, $this->bedrooms, $this->city, $this->locality,
-            $this->priceMin, $this->priceMax, $this->areaMin, $this->features, $this->sort, $page,
+            $this->priceMin, $this->priceMax, $this->areaMin, $this->features, $this->sort, $page, $this->batches,
         ]));
 
-        return PropertyCache::remember($key, fn () => $this->query()->paginate(self::PER_PAGE, ['*'], 'page', $page));
+        return PropertyCache::remember($key, function () use ($page): LengthAwarePaginator {
+            $query = $this->query();
+            $total = (clone $query)->toBase()->getCountForPagination();
+            $offset = ($page - 1) * self::PER_PAGE;
+            $items = $query->skip($offset)->take(self::PER_PAGE * $this->batches)->get();
+
+            return new LengthAwarePaginator($items, $total, self::PER_PAGE, $page, [
+                'path' => Paginator::resolveCurrentPath(),
+                'pageName' => 'page',
+            ]);
+        });
+    }
+
+    /** Ainda há resultados por mostrar depois dos que já estão no ecrã? */
+    public function hasMore(): bool
+    {
+        $results = $this->properties();
+
+        return ($results->firstItem() ?? 0) + $results->count() < $results->total();
     }
 
     /**
@@ -230,6 +273,13 @@ class PropertyListing extends Component
 
     public function render(): View
     {
+        // As ligações da paginação chamam gotoPage() (não passam por updated()):
+        // é aqui que se apanha a mudança de página e se recomeça com um bloco.
+        if ($this->getPage() !== $this->batchesPage) {
+            $this->batches = 1;
+            $this->batchesPage = $this->getPage();
+        }
+
         return view('livewire.property-listing', [
             'businessTypeEnum' => BusinessType::from($this->businessType),
         ]);

@@ -164,6 +164,33 @@
                     @endforeach
                 </div>
 
+                {{--
+                    Scroll infinito: a sentinela pede o bloco seguinte quando entra no
+                    ecrã (e o botão faz o mesmo ao ser clicado — teclado e leitores de
+                    ecrã incluídos). A paginação numerada fica sempre por baixo: é o que
+                    funciona sem JavaScript e o que os motores de busca seguem.
+                --}}
+                @if ($this->hasMore())
+                    <div class="mt-12 flex flex-col items-center gap-3"
+                         x-data="{
+                             init() {
+                                 const io = new IntersectionObserver((entries) => {
+                                     if (entries.some((e) => e.isIntersecting)) { io.disconnect(); $wire.loadMore(); }
+                                 }, { rootMargin: '400px' });
+                                 io.observe(this.$el);
+                             },
+                         }"
+                         wire:key="mais-{{ $results->count() }}">
+                        <p class="text-sm text-ink-muted" aria-live="polite">
+                            {{ __('ui.listing.showing', ['shown' => number_format($results->count(), 0, ',', ' '), 'total' => number_format($results->total(), 0, ',', ' ')]) }}
+                        </p>
+                        <button type="button" wire:click="loadMore" wire:loading.attr="disabled" class="btn-secondary">
+                            <span wire:loading.remove wire:target="loadMore">{{ __('ui.listing.load_more') }}</span>
+                            <span wire:loading wire:target="loadMore">{{ __('ui.listing.loading') }}</span>
+                        </button>
+                    </div>
+                @endif
+
                 <div class="mt-12">
                     {{ $results->onEachSide(1)->links('pagination.multifuturo') }}
                 </div>

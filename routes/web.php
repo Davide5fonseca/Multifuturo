@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ConsentController;
 use App\Http\Controllers\FavoritesController;
+use App\Http\Controllers\PropertyCardsController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Portal\LoginController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\Portal\MfaController;
 use App\Http\Controllers\Portal\PortalController;
 use App\Http\Controllers\Portal\TeamController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\SearchSuggestController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\ZoneController;
@@ -97,6 +99,11 @@ Route::prefix('{locale}')
 
         // Favoritos (localStorage; o servidor só renderiza os cartões pedidos)
         Route::get('/favoritos', [FavoritesController::class, 'index'])->name('favorites');
+
+        // Sugestões da pesquisa (concelhos, freguesias, imóveis) enquanto se escreve,
+        // e o fragmento de cartões pedido pelos "vistos recentemente". Só leitura.
+        Route::get('/pesquisa/sugestoes', SearchSuggestController::class)->middleware('throttle:60,1')->name('search.suggest');
+        Route::get('/imoveis-cartoes', PropertyCardsController::class)->middleware('throttle:60,1')->name('property.cards');
 
         // Institucionais e legais
         Route::get('/quanto-vale-a-minha-casa', [PageController::class, 'valuation'])->name('valuation');

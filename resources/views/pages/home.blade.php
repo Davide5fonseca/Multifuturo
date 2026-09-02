@@ -47,6 +47,9 @@
         </section>
     @endif
 
+    {{-- 3b. Vistos recentemente (só aparece a quem já visitou fichas) --}}
+    <x-recently-viewed class="container-site pt-24" />
+
     {{-- 4. Sobre --}}
     <section class="container-site grid gap-10 pt-24 lg:grid-cols-[1fr_2fr]">
         <div>

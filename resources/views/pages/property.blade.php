@@ -34,7 +34,8 @@
         <script type="application/ld+json">{!! json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>
     </x-slot:head>
 
-    <article class="container-site pt-8 pb-24">
+    {{-- A ficha regista-se nos "vistos recentemente" do visitante (localStorage). --}}
+    <article class="container-site pt-8 pb-24" x-data x-init="$store.recent.push(@js($p->slug))">
         {{-- Migalhas discretas --}}
         <nav aria-label="Breadcrumb" class="text-xs text-ink-muted print:hidden">
             <ol class="flex flex-wrap gap-2">
@@ -102,6 +103,19 @@
                     <button type="button" x-cloak x-data @click="$store.favorites.toggle(@js($p->slug))" class="btn-secondary py-2 text-xs"
                             :aria-pressed="$store.favorites.has(@js($p->slug))">
                         <span x-text="$store.favorites.has(@js($p->slug)) ? @js(__('ui.property.favorite_remove')) : @js(__('ui.property.favorite_add'))"></span>
+                    </button>
+                    {{--
+                        Partilhar: no telemóvel abre a partilha do sistema (WhatsApp,
+                        mensagens…); no computador copia a ligação e confirma. Só aparece
+                        com JavaScript — sem ele não haveria nada que fazer.
+                    --}}
+                    <button type="button" x-cloak x-data="{ copiado: false }" class="btn-secondary py-2 text-xs"
+                            @click="
+                                const dados = { title: @js($title), text: @js($metaDescription), url: window.location.href };
+                                if (navigator.share) { try { await navigator.share(dados); } catch {} return; }
+                                try { await navigator.clipboard.writeText(dados.url); copiado = true; setTimeout(() => copiado = false, 2500); } catch {}
+                            ">
+                        <span x-text="copiado ? @js(__('ui.property.share_copied')) : @js(__('ui.property.share'))"></span>
                     </button>
                     @if ($p->virtual_tour_url)
                         <a href="{{ $p->virtual_tour_url }}" rel="noopener nofollow" target="_blank" class="btn-secondary py-2 text-xs">{{ __('ui.property.virtual_tour') }}</a>
@@ -229,5 +243,7 @@
                 </div>
             </section>
         @endif
+
+        <x-recently-viewed :exclude="$p->slug" class="mt-24 print:hidden" />
     </article>
 </x-layouts.app>
