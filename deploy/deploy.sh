@@ -63,7 +63,7 @@ if [ -n "$SITE_DOMAIN" ]; then
         fi
         sleep 5
     done
-    echo "  AVISO: https://${SITE_DOMAIN}/up não respondeu. Ver: $COMPOSE logs --tail 100 app caddy" >&2
+    echo "  AVISO: https://${SITE_DOMAIN}/up não respondeu. Ver: $COMPOSE logs --tail 100 app" >&2
     exit 1
 fi
 

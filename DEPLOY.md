@@ -20,8 +20,9 @@ dado (AMI, SMTP), a secção 3 diz o que acontece sem ele.
 | **Licença AMI** | O número. **A aplicação recusa arrancar em produção sem ele** (é obrigatório por lei em toda a comunicação de mediação). |
 | **Acesso** | SSH ao servidor (utilizador com `sudo`) e acesso ao repositório no GitHub. |
 
-> O que **não** é preciso: painel de alojamento (cPanel/Plesk), nginx ou Apache
-> instalados, PHP instalado. Tudo corre em contentores.
+> A aplicação corre em contentores com o seu próprio **Apache** — não é preciso
+> instalar PHP no servidor. Para o HTTPS, o Apache (ou o painel) do anfitrião
+> fica à frente a fazer proxy: ver a secção 10.
 
 ---
 
@@ -51,8 +52,8 @@ cd /srv/multifuturo
 
 **DNS:** no painel do domínio, apontar `multifuturo.pt` (registo A) e
 `www.multifuturo.pt` (A ou CNAME) para o IP do servidor. Fazer isto cedo —
-pode levar de minutos a horas a propagar, e o certificado HTTPS só é emitido
-quando o domínio já responder neste IP.
+pode levar de minutos a horas a propagar, e o certificado HTTPS (secção 10)
+só é emitido quando o domínio já responder neste IP.
 
 ---
 
@@ -70,7 +71,6 @@ Preencher o que está marcado **[OBRIGATÓRIO]**:
 | `APP_KEY` | gerar: `docker compose -f compose.production.yaml run --rm --no-deps app php artisan key:generate --show` e colar |
 | `APP_URL` | `https://multifuturo.pt` |
 | `SITE_DOMAIN` | `multifuturo.pt` |
-| `ACME_EMAIL` | email para avisos do certificado |
 | `DB_PASSWORD` | `openssl rand -base64 32` |
 | `MAIL_*` | os dados SMTP |
 | `AGENCY_AMI` | o número da licença |
@@ -107,9 +107,9 @@ docker compose -f compose.production.yaml exec app php artisan tinker --execute=
 Verificar:
 
 ```bash
-docker compose -f compose.production.yaml ps            # seis serviços "running"/"healthy"
-curl -I https://multifuturo.pt/up                        # HTTP/2 200
-docker compose -f compose.production.yaml logs --tail 50 caddy   # certificado emitido
+docker compose -f compose.production.yaml ps            # cinco serviços "running"/"healthy"
+curl -I http://localhost:8080/up                         # HTTP 200 (o contentor)
+curl -I https://multifuturo.pt/up                        # HTTP 200 (com o proxy da secção 10 no ar)
 ```
 
 Depois, no browser:
@@ -174,10 +174,10 @@ em baixo — os contentores novos substituem os antigos.
 | Fotografias das fichas | volume `multifuturo_storage_public` |
 | Documentos das fichas (privados) | volume `multifuturo_storage_private` |
 | Cópias de segurança | volume `multifuturo_backups` (`/var/lib/docker/volumes/multifuturo_backups/_data`) |
-| Certificados HTTPS | volume `multifuturo_caddy_data` (renovam-se sozinhos) |
-| Logs | `docker compose -f compose.production.yaml logs -f app` (ou `caddy`, `queue`, `scheduler`) |
+| Certificados HTTPS | no anfitrião, geridos pelo certbot (secção 10) |
+| Logs | `docker compose -f compose.production.yaml logs -f app` (ou `queue`, `scheduler`) |
 
-Os seis serviços: `caddy` (HTTPS e estáticos), `app` (a aplicação), `queue`
+Os cinco serviços: `app` (Apache + PHP, a aplicação e os estáticos), `queue`
 (emails), `scheduler` (cópias, INE), `pgsql`, `redis`. Todos arrancam
 sozinhos com o servidor (`restart: unless-stopped`).
 
@@ -187,7 +187,7 @@ sozinhos com o servidor (`restart: unless-stopped`).
 
 | Sintoma | Ver |
 |---|---|
-| Site não abre / certificado inválido | O DNS já aponta para o servidor? `dig +short multifuturo.pt`. Portas 80 e 443 abertas na firewall? `docker compose -f compose.production.yaml logs caddy`. |
+| Site não abre / certificado inválido | O DNS já aponta para o servidor? `dig +short multifuturo.pt`. Portas 80 e 443 abertas na firewall? O proxy da secção 10 está no ar (`sudo systemctl status apache2`)? O contentor responde (`curl -I http://localhost:8080/up`)? |
 | "A aplicação recusa arrancar" | `AGENCY_AMI` vazio com `APP_ENV=production`. Preencher ou usar `staging`. |
 | Erro 500 | `docker compose -f compose.production.yaml logs --tail 200 app`. Com `APP_DEBUG=false` o visitante vê uma página genérica; o erro está no log. |
 | Pedidos chegam ao backoffice mas não há email | 1) `MAIL_*` certos? Testar: `docker compose -f compose.production.yaml exec app php artisan tinker --execute='Mail::raw("teste", fn($m) => $m->to("o-seu@email.pt")->subject("teste"));'` 2) A fila está a correr? `docker compose -f compose.production.yaml ps queue` 3) Trabalhos falhados: `exec app php artisan queue:failed` (e `queue:retry all` depois de corrigir). |
@@ -207,12 +207,63 @@ para não colidir com o ambiente Sail:
 
 ```bash
 cp .env.production.example .env.prodlocal
-# no .env.prodlocal: SITE_DOMAIN=localhost, APP_URL=https://localhost:8443, HTTP_PORT=8080,
-# HTTPS_PORT=8443, APP_ENV=staging, DB_PASSWORD=qualquer, APP_KEY gerada
+# no .env.prodlocal: SITE_DOMAIN=localhost, APP_URL=http://localhost:8081, HTTP_PORT=8081,
+# APP_ENV=staging, DB_PASSWORD=qualquer, APP_KEY gerada
 export ENV_FILE=.env.prodlocal
 alias dcp='docker compose -f compose.production.yaml -p multifuturo-prod --env-file .env.prodlocal'
 dcp up -d --build
 dcp exec app php artisan migrate --force
-curl -k https://localhost:8443/up
+curl -I http://localhost:8081/up
 dcp down -v   # limpar (apaga os volumes deste teste, não os do Sail)
 ```
+
+---
+
+## 10. O Apache do anfitrião e o HTTPS
+
+O contentor `app` serve o site em HTTP na porta `HTTP_PORT` (8080). Quem fala
+com o mundo é o **Apache do servidor anfitrião**, que termina o HTTPS e faz
+proxy para o contentor — o Laravel já confia nos cabeçalhos `X-Forwarded-*`
+de redes privadas, por isso os URLs saem certos.
+
+Num VPS Ubuntu (uma vez):
+
+```bash
+sudo apt install -y apache2 certbot python3-certbot-apache
+sudo a2enmod proxy proxy_http headers
+sudo tee /etc/apache2/sites-available/multifuturo.conf > /dev/null <<'CONF'
+<VirtualHost *:80>
+    ServerName multifuturo.pt
+    ServerAlias www.multifuturo.pt
+
+    ProxyPreserveHost On
+    ProxyPass        / http://127.0.0.1:8080/
+    ProxyPassReverse / http://127.0.0.1:8080/
+    RequestHeader set X-Forwarded-Proto "http"
+</VirtualHost>
+CONF
+sudo a2ensite multifuturo && sudo a2dissite 000-default && sudo systemctl reload apache2
+
+# Certificado (cria o vhost :443, ativa o redirecionamento e renova sozinho):
+sudo certbot --apache -d multifuturo.pt -d www.multifuturo.pt
+```
+
+Depois do certbot, acrescentar ao vhost `*:443` que ele criou
+(`/etc/apache2/sites-available/multifuturo-le-ssl.conf`):
+
+```apache
+    RequestHeader set X-Forwarded-Proto "https"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+```
+
+e `sudo systemctl reload apache2`.
+
+**Alojamento com painel (cPanel/Plesk):** a mesma ideia — o painel gere o
+certificado e cria-se um proxy do domínio para `http://127.0.0.1:8080`. Se o
+alojamento não permitir Docker de todo, este projeto precisa de PHP 8.3 (com
+pdo_pgsql, redis, intl, gd, zip, bcmath, exif, pcntl), PostgreSQL 16 e Redis
+no próprio alojamento — raro num alojamento partilhado; nesse caso, um VPS
+pequeno é o caminho.
+
+O `docker/production/vhost.conf` (o Apache de dentro do contentor) já trata
+dos cabeçalhos de segurança, da compressão e das caches dos estáticos.

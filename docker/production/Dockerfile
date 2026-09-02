@@ -1,33 +1,46 @@
 # syntax=docker/dockerfile:1.7
 #
-# Imagem de produção da Multifuturo Propriedades.
+# Imagem de produção da Multifuturo Propriedades — Apache + mod_php.
 #
 # Etapas:
-#   base    → PHP-FPM 8.3 com as extensões que o projeto usa
+#   base    → PHP 8.3 com Apache e as extensões que o projeto usa
 #   vendor  → dependências PHP (Composer, já com as extensões: o Filament
 #             exige ext-intl para instalar)
 #   assets  → CSS/JS com o Vite (Node 24). Precisa do vendor porque o tema do
 #             backoffice importa CSS do Filament
-#   app     → a aplicação: base + vendor + assets — imagem "app", usada pelos
-#             serviços app, queue e scheduler
-#   web     → Caddy com os ficheiros públicos — imagem "web": HTTPS
-#             automático, ficheiros estáticos, encaminhamento do PHP
+#   app     → a aplicação completa: base + vendor + assets. É a única imagem;
+#             serve o site (Apache) e corre a fila e o agendador (artisan)
+#
+# O HTTPS termina à frente do contentor (Apache/painel do anfitrião — DEPLOY.md §10).
 #
 # Construir: docker compose -f compose.production.yaml build
 
 # ---------------------------------------------------------------- base
-FROM php:8.3-fpm-alpine AS base
+FROM php:8.3-apache AS base
 
 # Extensões: PostgreSQL, Redis (phpredis), intl (datas e números em pt-PT),
 # gd (imagens), zip/bcmath/exif/pcntl (Laravel, Filament, fila), opcache.
 ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-RUN install-php-extensions pdo_pgsql pgsql redis intl gd zip bcmath exif pcntl opcache \
-    # pg_dump e psql para as cópias de segurança (backup:run, restore.sh); tar para os ficheiros carregados.
-    && apk add --no-cache postgresql16-client tar curl
+RUN install-php-extensions pdo_pgsql pgsql redis intl gd zip bcmath exif pcntl opcache
+
+# pg_dump/psql 16 para as cópias de segurança (backup:run, restore.sh): o Debian
+# traz o cliente 15, que recusa um servidor 16 — vem do repositório do PostgreSQL.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && install -d /usr/share/postgresql-common/pgdg \
+    && curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+    && echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] http://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends postgresql-client-16 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Apache: raiz em public/, .htaccess do Laravel a mandar, cabeçalhos e compressão.
+RUN a2enmod rewrite headers deflate \
+    && sed -ri 's!/var/www/html!/var/www/html/public!g' /etc/apache2/apache2.conf
+COPY docker/production/vhost.conf /etc/apache2/sites-available/000-default.conf
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY docker/production/php.ini /usr/local/etc/php/conf.d/99-multifuturo.ini
-COPY docker/production/www.conf /usr/local/etc/php-fpm.d/zz-multifuturo.conf
 
 WORKDIR /var/www/html
 
@@ -69,16 +82,12 @@ RUN rm -rf tests docker/nginx docker/php-dev.ini .env .env.example node_modules 
 
 COPY --chmod=0755 docker/production/entrypoint.sh /usr/local/bin/entrypoint
 
-USER www-data
-EXPOSE 9000
+# O processo principal do Apache arranca como root (para a porta 80) e os
+# trabalhadores correm como www-data. A fila e o agendador correm como
+# www-data via `user:` no compose.
+EXPOSE 80
 ENTRYPOINT ["entrypoint"]
-CMD ["php-fpm"]
+CMD ["apache2-foreground"]
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD php -r 'exit(@fsockopen("127.0.0.1", 9000) ? 0 : 1);'
-
-# ---------------------------------------------------------------- web
-FROM caddy:2-alpine AS web
-COPY docker/production/Caddyfile /etc/caddy/Caddyfile
-# Só o que é público: o Caddy serve os estáticos e passa o resto ao PHP.
-COPY --from=app /var/www/html/public /var/www/html/public
+    CMD curl -fsS -o /dev/null http://127.0.0.1/up || exit 1

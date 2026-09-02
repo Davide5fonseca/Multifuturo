@@ -14,7 +14,7 @@ cd /var/www/html
 
 wait_for() {
     host="$1"; port="$2"; name="$3"; i=0
-    until nc -z "$host" "$port" 2>/dev/null; do
+    until php -r 'exit(@fsockopen($argv[1], (int) $argv[2]) ? 0 : 1);' "$host" "$port" 2>/dev/null; do
         i=$((i + 1))
         if [ "$i" -ge 60 ]; then
             echo "entrypoint: $name ($host:$port) não respondeu em 60 s" >&2

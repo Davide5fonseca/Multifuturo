@@ -71,8 +71,8 @@ flowchart LR
 
 ## 🌍 Produção
 
-O deploy está preparado e testado: Docker em produção com Caddy (HTTPS automático),
-PHP-FPM, fila, agendador, PostgreSQL e Redis — `compose.production.yaml`,
+O deploy está preparado e testado: Docker em produção com Apache (mod_php; o HTTPS termina no Apache do anfitrião),
+fila, agendador, PostgreSQL e Redis — `compose.production.yaml`,
 `docker/production/`, `deploy/deploy.sh` e `deploy/restore.sh`. O guia completo, do
 servidor vazio ao site no ar e às atualizações, está em **[DEPLOY.md](DEPLOY.md)**.
 
