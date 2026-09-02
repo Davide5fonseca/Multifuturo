@@ -9,6 +9,76 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Linguagem editorial nas restantes páginas
+
+$${\color{#5D6348}\textsf{2026-09-02 · 15:17}}$$
+
+**Commit:** `2b3184b` — `Site: linguagem editorial nas restantes paginas (listagem, ficha, zonas, contactos, legais)`
+
+A mesma linguagem levada ao resto do site: listagens, ficha de imóvel, zonas,
+avaliação, favoritos, comparador, páginas legais e "imóvel já não disponível".
+Os títulos passam a `display`/`display-sm` com o rótulo em itálico por cima, os
+cartões das listagens entram em escada ao descer, e a página de contactos ganha
+a faixa escura com o formulário de campos só com uma linha, como na referência.
+
+- `resources/views/pages/contact.blade.php` — reescrita: título grande, contactos em
+  tamanho de leitura e o formulário numa faixa `band-dark`.
+- `resources/views/components/lead-form.blade.php` — variante `tone="linha"`: os
+  mesmos campos, sem caixa, para fundos escuros. O formulário e as suas garantias
+  (honeypot, consentimento, RGPD) não mudam.
+- `resources/css/app.css` — o que muda dentro de uma faixa escura: rótulos e texto
+  secundário em areia, botão principal invertido, ligações claras.
+- `resources/views/livewire/property-listing.blade.php`, `pages/property.blade.php`,
+  `components/recently-viewed.blade.php` — títulos e escada de entrada dos cartões.
+- `pages/zones.blade.php`, `zone.blade.php`, `valuation.blade.php`, `favorites.blade.php`,
+  `legal.blade.php` (que serve também "A agência"), `compare.blade.php`,
+  `property-gone.blade.php` — cabeçalhos na linguagem nova.
+- Verificado: 232 testes a passar, Pint limpo, e as páginas fotografadas em Edge.
+
+---
+
+## Site editorial: nova direção visual e movimento
+
+$${\color{#5D6348}\textsf{2026-09-02 · 15:03}}$$
+
+**Commit:** `b955af4` — `Site: linguagem editorial e movimento (sistema, cabecalho e pagina inicial)`
+
+Mudança de direção do site público, a partir das referências enviadas pelo cliente:
+tipografia serifada grande em caixa alta com ênfases em itálico, faixas de cor a toda
+a largura, composições de imagens assimétricas e muito espaço. **A paleta é a mesma
+de sempre** — muda o ritmo, não as cores. O backoffice não foi tocado.
+
+E passa a haver movimento: os blocos aparecem à medida que se desce, as fotografias
+deslocam-se devagar dentro das molduras e os números contam. Com "reduzir movimento"
+ligado no sistema, ou sem JavaScript, tudo nasce visível e quieto — o estado inicial
+só existe debaixo de `html.js`.
+
+- `resources/js/motion.js` — novo: `[data-reveal]` (aparecer), `[data-parallax]`
+  (deslocar) e `[data-count]` (contar), tudo com IntersectionObserver e
+  `requestAnimationFrame`; reobserva o que o Livewire troca.
+- `resources/css/app.css` — linguagem editorial (`display`, `display-sm`, `eyebrow`,
+  `editorial`, `band`/`band-sand`/`band-tan`/`band-dark`, `stat`, `field-line`) e os
+  estados do movimento.
+- `resources/views/components/site/reveal.blade.php` — novo. As classes de quem o usa
+  entram por `$attributes->class()`: dois atributos `class` no mesmo elemento faziam o
+  browser ignorar o segundo, e o bloco ficava sem largura.
+- `resources/views/components/site/header.blade.php` — navegação à esquerda, marca ao
+  centro, ações à direita; fica colado ao topo e ganha uma linha ao descer.
+- `resources/views/pages/home.blade.php` — reescrita: abertura com fotografia em
+  movimento e título em caixa alta, pesquisa encostada, declaração editorial,
+  composição assimétrica de duas fotografias da carteira, destaques em escada, faixa
+  de cor com as três razões, números reais da carteira a contar, zonas em lista larga
+  e faixa escura de contacto.
+- `app/Http/Controllers/PageController.php` — os números da home são a carteira real
+  (imóveis, concelhos, freguesias), em cache.
+- Neste mesmo commit vai o **comparador de imóveis** (até três lado a lado):
+  `CompareController`, `pages/compare.blade.php`, memória `compare` no `app.js`, botão
+  nos cartões, barra flutuante que assenta por cima do aviso de cookies, e 3 testes.
+- Verificado: 232 testes a passar, Pint limpo, e em Edge — reveals, parallax, contagens
+  e o comparador de ponta a ponta, sem erros de consola.
+
+---
+
 ## Mapa dos resultados na listagem
 
 $${\color{#5D6348}\textsf{2026-09-02 · 14:39}}$$
