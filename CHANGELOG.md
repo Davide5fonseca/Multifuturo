@@ -9,6 +9,37 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Bodoni Moda, a fonte nova
+
+$${\color{#5D6348}\textsf{2026-09-02 · 15:28}}$$
+
+**Commit:** `4f47d7d` — `Site: Bodoni Moda no lugar da Fraunces (servida localmente)`
+
+A serifada do site passa a ser a **Bodoni Moda** — a didone de contraste alto e hastes
+finas que a direção visual pedia. Substitui a Fraunces em tudo o que é serifado:
+títulos, parágrafos editoriais, preços e a marca no cabeçalho. A Inter continua no
+texto pequeno e nos formulários, onde a legibilidade manda.
+
+Como as anteriores, é **servida do nosso servidor** (subconjunto latino, normal e
+itálico): nenhum pedido a `fonts.googleapis.com` ou `fonts.gstatic.com`, como o RGPD
+obriga. E ficou mais leve — 100 KB contra os 270 KB da Fraunces.
+
+- `public/fonts/bodoni-moda-latin.woff2`, `bodoni-moda-italic-latin.woff2` — novas;
+  os dois ficheiros da Fraunces foram removidos.
+- `resources/css/app.css` — `@font-face` e `--font-serif` novos. A Bodoni Moda só tem
+  o eixo ótico (6–96) e pesa de 400 a 700: saíram as referências ao eixo `SOFT` da
+  Fraunces e os títulos passam de `font-light` (que não existe nesta família) a
+  `font-normal`.
+- `resources/views/components/layouts/app.blade.php` — o `preload` aponta à fonte nova.
+- `resources/views/pages/home.blade.php` — o véu sobre a fotografia da abertura ficou
+  mais forte: as hastes finas da Bodoni perdiam-se sobre a imagem.
+- `tests/Feature/PublicPagesTest.php` — o teste que garante que as fontes são servidas
+  localmente passa a nomear a fonte nova (foi ele que apanhou a troca).
+- Verificado: 232 testes a passar, Pint limpo, e a página fotografada em Edge com as
+  formas da Bodoni já a desenhar.
+
+---
+
 ## Linguagem editorial nas restantes páginas
 
 $${\color{#5D6348}\textsf{2026-09-02 · 15:17}}$$
