@@ -87,3 +87,17 @@
     align-self: end;
     padding-bottom: 0.5rem; /* linha de 64px, campo de 36px, caixa de 20px: fica a meio do campo */
 }
+
+/*
+|--------------------------------------------------------------------------
+| Campos de escolha sem o botão "×"
+|--------------------------------------------------------------------------
+|
+| O × de limpar aparecia em todos os campos de escolha e o cliente não o
+| quer. Não se perde nada: nos campos que podem ficar vazios, a própria
+| lista tem a opção do topo ("Seleccione uma opção") que limpa o valor.
+|
+*/
+.fi-select-input-value-remove-btn {
+    display: none;
+}
