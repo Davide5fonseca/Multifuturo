@@ -9,6 +9,58 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Site dinâmico: sugestões, scroll infinito, vistos recentemente e partilha
+
+$${\color{#5D6348}\textsf{2026-09-02 · 14:28}}$$
+
+**Commit:** `17547ab` — `Site: pesquisa com sugestoes, scroll infinito, vistos recentemente e partilha`
+
+Primeiro lote da reformulação do site para deixar de ser estático. Quatro coisas novas,
+todas com o princípio de sempre: sem JavaScript o site continua a funcionar, e nada é
+guardado no servidor sobre o visitante.
+
+**1. Pesquisa com sugestões.** A caixa de pesquisa passa a sugerir, a partir de duas
+letras, concelhos, freguesias e imóveis da carteira publicada, agrupados. Setas para
+navegar, Enter para abrir, Escape para fechar; a freguesia leva o concelho consigo e a
+finalidade escolhida (Comprar/Arrendar) decide a listagem de destino.
+
+**2. Scroll infinito nas listagens.** Os resultados seguintes carregam sozinhos quando
+se chega ao fim (com contador "12 de 27" e botão "Ver mais imóveis" para quem usa
+teclado ou leitor de ecrã). A paginação numerada continua por baixo — é o que funciona
+sem JavaScript e o que os motores de busca seguem.
+
+**3. Vistos recentemente.** As fichas visitadas ficam no aparelho do visitante
+(localStorage, no máximo 12, sem contas nem cookies) e reaparecem na página inicial e
+no fim de cada ficha.
+
+**4. Partilha na ficha.** No telemóvel abre a partilha do sistema (WhatsApp, mensagens);
+no computador copia a ligação e confirma.
+
+- `app/Http/Controllers/SearchSuggestController.php` — novo: sugestões em JSON, em cache,
+  só de imóveis publicados.
+- `app/Http/Controllers/PropertyCardsController.php` + `resources/views/partials/property-cards.blade.php`
+  — novos: fragmento de cartões para os slugs pedidos (o mesmo padrão dos favoritos).
+- `resources/views/components/recently-viewed.blade.php` — novo: a secção que pede os
+  cartões e só aparece quando há o que mostrar.
+- `resources/js/app.js` — memória `recent` (localStorage) e o componente `suggestions`
+  (debounce, pedidos cancelados, teclado). A lógica vive aqui e não no atributo Blade.
+- `app/Livewire/PropertyListing.php` — `batches`, `loadMore()`, `hasMore()`; o paginador
+  passa a ser montado à mão para acumular blocos sem perder as ligações numeradas;
+  mudar de página ou de filtro recomeça num bloco.
+- `resources/views/livewire/property-listing.blade.php` — sentinela (IntersectionObserver),
+  contador e botão. `components/site/search-form.blade.php` — combobox acessível.
+- `resources/views/pages/property.blade.php` — regista a visita, botão Partilhar e a
+  secção de vistos recentemente; `pages/home.blade.php` — a mesma secção.
+- `routes/web.php` — `search.suggest` e `property.cards`, ambas limitadas a 60 pedidos/min.
+- `tests/Feature/SiteDinamicoTest.php` — novo (6 testes): sugestões (mínimo de letras,
+  agrupamento, só publicados, finalidade), acumulação de blocos e reinício, paginação
+  numerada intacta, ordem e filtragem dos cartões, ficha com registo e partilha.
+- Verificado: 228 testes a passar, Pint limpo e o percurso completo em Edge — sugestões
+  com teclado, 12 → 24 → 27 imóveis por scroll, vistos recentemente na home e na ficha,
+  sem um único erro de consola. Os 24 imóveis de teste que criei para isto foram apagados.
+
+---
+
 ## Produção em Apache
 
 $${\color{#5D6348}\textsf{2026-09-02 · 11:43}}$$
