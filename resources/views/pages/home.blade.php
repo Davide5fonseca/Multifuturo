@@ -33,14 +33,7 @@
         </div>
     </section>
 
-    {{-- 2. Pesquisa rápida, encostada à abertura --}}
-    <section class="band-sand border-b border-sand-200">
-        <div class="container-site py-8">
-            <x-site.search-form class="mx-auto max-w-4xl" />
-        </div>
-    </section>
-
-    {{-- 3. Declaração: o parágrafo grande que diz ao que vimos --}}
+    {{-- 2. Declaração: o parágrafo grande que diz ao que vimos --}}
     <section class="container-site py-24 sm:py-32">
         <x-site.reveal>
             <p class="eyebrow">{{ __('ui.home_sections.statement_eyebrow') }}</p>
@@ -51,7 +44,7 @@
         </x-site.reveal>
     </section>
 
-    {{-- 4. Composição assimétrica: duas fotografias da carteira, desencontradas --}}
+    {{-- 3. Composição assimétrica: duas fotografias da carteira, desencontradas --}}
     @php $composicao = $featured->take(2)->pluck('cover_photo.url')->filter()->values(); @endphp
     @if ($composicao->count() === 2)
         <section class="container-site grid grid-cols-12 items-end gap-6 pb-24 sm:pb-32">
@@ -70,7 +63,7 @@
         </section>
     @endif
 
-    {{-- 5. Destaques --}}
+    {{-- 4. Destaques --}}
     @if ($featured->isNotEmpty())
         <section class="container-site pb-24 sm:pb-32">
             <div class="flex flex-wrap items-end justify-between gap-6 border-b border-sand-200 pb-6">
@@ -90,7 +83,7 @@
         </section>
     @endif
 
-    {{-- 6. Faixa de cor: porquê a Multifuturo, com os números reais da carteira --}}
+    {{-- 5. Faixa de cor: porquê a Multifuturo, com os números reais da carteira --}}
     <section class="band band-tan">
         <div class="container-site">
             <x-site.reveal>
@@ -123,7 +116,7 @@
         </div>
     </section>
 
-    {{-- 7. Zonas --}}
+    {{-- 6. Zonas --}}
     @if ($cities->isNotEmpty())
         <section class="container-site py-24 sm:py-32">
             <div class="flex flex-wrap items-end justify-between gap-6 border-b border-sand-200 pb-6">
@@ -148,10 +141,10 @@
         </section>
     @endif
 
-    {{-- 8. Vistos recentemente (só a quem já visitou fichas) --}}
+    {{-- 7. Vistos recentemente (só a quem já visitou fichas) --}}
     <x-recently-viewed class="container-site pb-24 sm:pb-32" />
 
-    {{-- 9. Faixa escura: avaliação e contacto --}}
+    {{-- 8. Faixa escura: avaliação e contacto --}}
     <section class="band band-dark">
         <div class="container-site text-center">
             <x-site.reveal>
