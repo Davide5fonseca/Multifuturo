@@ -31,15 +31,18 @@ class PageController extends Controller
         });
 
         /*
-         * Fotografias da abertura, a alternar: a imagem configurada (se houver)
-         * seguida das capas dos destaques. São as fotografias reais da carteira,
-         * sem repetições, no máximo cinco.
+         * Fotografias da abertura, a alternar. Vêm de config/agency.php e a
+         * ordem é sorteada em cada visita, para quem volta não ver sempre a
+         * mesma primeira imagem. Sem lista configurada, usam-se as capas dos
+         * destaques — a carteira real.
          */
-        $heroImages = collect([config('agency.hero_image')])
-            ->concat($featured->pluck('cover_photo.url'))
+        $heroImages = collect(config('agency.hero_images', []))
             ->filter()
-            ->unique()
-            ->take(5)
+            ->shuffle()
+            ->when(
+                blank(config('agency.hero_images')),
+                fn ($lista) => collect([config('agency.hero_image')])->concat($featured->pluck('cover_photo.url'))->filter()->unique()->take(5)
+            )
             ->values()
             ->all();
 

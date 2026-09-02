@@ -41,4 +41,27 @@ return [
     // Fotografia do hero da homepage (URL local, ex.: /images/hero.jpg). Sem valor, usa a capa do primeiro destaque.
     'hero_image' => env('AGENCY_HERO_IMAGE'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Fotografias da abertura
+    |--------------------------------------------------------------------------
+    |
+    | Alternam de 5 em 5 segundos, por ordem sorteada em cada visita. São
+    | fotografias de arquivo (Unsplash, licença que permite uso comercial sem
+    | atribuição), guardadas no nosso servidor — nenhum pedido a terceiros.
+    |
+    | SÃO DECORATIVAS: não são imóveis da agência. Quando houver fotografia
+    | própria da carteira ou da região, é trocar os ficheiros em
+    | public/images/hero/ (ou esta lista) e fica feito.
+    |
+    */
+    'hero_images' => [
+        '/images/hero/hero-1.webp',
+        '/images/hero/hero-2.webp',
+        '/images/hero/hero-3.webp',
+        '/images/hero/hero-4.webp',
+        '/images/hero/hero-5.webp',
+        '/images/hero/hero-6.webp',
+    ],
+
 ];
