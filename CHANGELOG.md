@@ -9,6 +9,36 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Alertas de imóveis removidos por completo
+
+$${\color{#5D6348}\textsf{2026-09-02 · 09:46}}$$
+
+**Commit:** `f0f30a8` — `Alertas de imoveis removidos por completo (formulario, envios, emails, backoffice, tabela)`
+
+A pedido do cliente, sai todo o mecanismo "Avise-me de novos imóveis": o formulário
+nas listagens, o botão do estado vazio ("não há resultados"), o envio de hora a hora,
+os emails de confirmação e de novidades, a página de confirmar/cancelar, a secção
+"Alertas de imóveis" do backoffice e a tabela na base de dados (migração com down()
+que a recria tal como era). O estado vazio das listagens fica só com "limpar filtros".
+
+- Removidos: `AlertsSend` (comando), `AlertController`, `StoreAlertRequest`,
+  `PropertyAlert` (modelo), `ConfirmPropertyAlert` e `PropertyAlertDigest`
+  (notificações), `app/Filament/Resources/PropertyAlerts/*`,
+  `components/alert-form.blade.php`, `pages/alert-status.blade.php`,
+  `tests/Feature/AlertasImoveisTest.php`.
+- `routes/web.php` — saem as três rotas `/alertas`; `routes/console.php` — sai o envio
+  de hora a hora.
+- `database/migrations/2026_09_02_100000_drop_property_alerts_table.php` — apaga a tabela.
+- `lang/pt/ui.php`, `lang/en/ui.php` — sai a secção `alerts` inteira.
+- `app/Support/PropertyFilters.php` — saem `summary()` e `urlParams()`, que só serviam
+  os alertas (a pesquisa das listagens não muda).
+- `app/Observers/PropertyObserver.php` — o `published_at` fica (regista quando a ficha
+  apareceu no site); só o comentário deixou de falar de alertas.
+- `README.md`, `DEPLOY.md` — sem menções aos alertas.
+- Verificado: 222 testes a passar, Pint limpo, nenhuma referência a alertas no código.
+
+---
+
 ## Campos de escolha sem o botão "×"
 
 $${\color{#5D6348}\textsf{2026-09-02 · 09:37}}$$
