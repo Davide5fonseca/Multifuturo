@@ -9,6 +9,43 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Marca à esquerda, PT/EN em pílula e largura total
+
+$${\color{#5D6348}\textsf{2026-09-02 · 15:53}}$$
+
+**Commit:** `aa7d6e3` — `Site: marca a esquerda, seletor PT/EN em pilula e largura total da pagina`
+
+Três pedidos do cliente, de uma vez:
+
+**A marca vai para a esquerda.** Deixa de estar ao centro: fica encostada à margem,
+com a navegação logo a seguir e as ações à direita. Em ecrãs estreitos o botão do
+menu passou para o lado direito, para a marca ficar mesmo no canto.
+
+**O PT/EN ganha forma.** Era um quadrado verde e um texto solto; passa a um par dentro
+de uma pílula com um traço fino à volta — lê-se como um interruptor. O idioma ativo
+fica em tinta sobre areia, o outro discreto. No telemóvel mantém os 44 px de alvo de
+toque, e ganhou um rótulo para os leitores de ecrã.
+
+**A página passa a ocupar a largura toda.** O `container-site` perde o limite de
+1280 px e passa a ter só margens, que crescem com o ecrã. Onde há texto corrido
+(páginas legais, "A agência") entra o `container-read`: a página é larga, mas uma
+linha de 200 caracteres não se lê — esse bloco fica centrado. Em ecrãs muito largos
+as listagens e os destaques passam a mostrar quatro imóveis por linha, e o rodapé
+distribui-se em vez de deixar um buraco ao meio.
+
+- `resources/views/components/site/header.blade.php` — marca à esquerda, nav a seguir,
+  ações à direita, botão do menu à direita.
+- `resources/views/components/site/language-switcher.blade.php` — reescrito.
+- `lang/pt/ui.php`, `lang/en/ui.php` — rótulo "Idioma" para o grupo.
+- `resources/css/app.css` — `container-site` sem largura máxima; `container-read` novo.
+- `resources/views/components/site/footer.blade.php` — colunas espalhadas pela largura.
+- `resources/views/pages/legal.blade.php` — bloco de leitura centrado, medida maior.
+- `resources/views/livewire/property-listing.blade.php`, `pages/home.blade.php` —
+  quarta coluna de imóveis a partir de 1536 px.
+- Verificado: 232 testes a passar, Pint limpo, páginas fotografadas a 1920 px.
+
+---
+
 ## Abertura sem a barra de pesquisa
 
 $${\color{#5D6348}\textsf{2026-09-02 · 15:38}}$$
