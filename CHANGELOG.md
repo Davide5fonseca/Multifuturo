@@ -9,6 +9,38 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Abertura com fotografias a alternar
+
+$${\color{#5D6348}\textsf{2026-09-02 · 16:05}}$$
+
+**Commit:** `015d952` — `Site: abertura com fotografias a alternar de 5 em 5 segundos; sai a faixa escura do fim`
+
+A fotografia da abertura passa a **várias, a alternar de 5 em 5 segundos** com um
+esbatimento lento. São as fotografias reais da carteira — a imagem configurada, se
+houver, seguida das capas dos imóveis em destaque, sem repetições, no máximo cinco.
+Uma fila de pontos no canto diz quantas são e deixa escolher; ao escolher, a rotação
+pára (quem escolhe manda). Numa página em segundo plano não se troca nada, e com
+"reduzir movimento" ligado fica na primeira, quieta.
+
+Sai também a faixa escura do fim da página inicial ("Quer vender ou arrendar a sua
+casa?"): a página passa a terminar nas zonas e nos vistos recentemente.
+
+- `resources/js/app.js` — componente `slideshow` (rotação, pausa em segundo plano,
+  escolha manual, respeito pelo "reduzir movimento").
+- `app/Http/Controllers/PageController.php` — `heroImages`: imagem configurada + capas
+  dos destaques, sem repetições, máximo cinco.
+- `resources/views/pages/home.blade.php` — as fotografias empilhadas com esbatimento,
+  os pontos (que sobem por cima do aviso de cookies enquanto ele estiver no ecrã), e a
+  faixa escura removida.
+- `lang/pt/ui.php`, `lang/en/ui.php` — rótulo "Fotografia :n de :total" para os pontos.
+- Um detalhe que deu trabalho: a opacidade estava numa classe estática **e** numa
+  ligada; o `:class` do Alpine acrescenta classes sem tirar as que já lá estão, e as
+  duas ficavam a discutir qual mandava — a imagem nunca mudava. Passou para o estilo.
+- Verificado: 232 testes a passar, Pint limpo, e em Edge — 5 fotografias, 5 pontos,
+  troca aos 5 e aos 10 segundos, paragem ao clicar, zero erros de consola.
+
+---
+
 ## Marca à esquerda, PT/EN em pílula e largura total
 
 $${\color{#5D6348}\textsf{2026-09-02 · 15:53}}$$
