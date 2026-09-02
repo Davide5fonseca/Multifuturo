@@ -11,12 +11,12 @@
         'shadow' => asset('vendor/leaflet/images/marker-shadow.png'),
     ];
 @endphp
-<div class="container-site pb-24" x-data="{ filtersOpen: false }">
+<div class="container-site pb-24 pt-4" x-data="{ filtersOpen: false }">
     {{-- Cabeçalho da secção + barra de pesquisa: título curto, resultado, ordenação --}}
     <div class="flex flex-col gap-6 border-b border-sand-200 pb-8 lg:flex-row lg:items-end lg:justify-between">
         <div>
-            <p class="label">{{ $businessTypeEnum === \App\Enums\BusinessType::Sale ? __('ui.listing.buy_eyebrow') : __('ui.listing.rent_eyebrow') }}</p>
-            <h1 class="mt-3 text-4xl sm:text-5xl">{{ $businessTypeEnum === \App\Enums\BusinessType::Sale ? __('ui.listing.buy_title') : __('ui.listing.rent_title') }}</h1>
+            <p class="eyebrow">{{ $businessTypeEnum === \App\Enums\BusinessType::Sale ? __('ui.listing.buy_eyebrow') : __('ui.listing.rent_eyebrow') }}</p>
+            <h1 class="display-sm mt-3">{{ $businessTypeEnum === \App\Enums\BusinessType::Sale ? __('ui.listing.buy_title') : __('ui.listing.rent_title') }}</h1>
             <p class="mt-3 text-sm text-ink-muted" aria-live="polite">{{ trans_choice('ui.listing.results', $results->total(), ['count' => number_format($results->total(), 0, ',', ' ')]) }}</p>
         </div>
 
@@ -187,9 +187,11 @@
                     @endif
                 </div>
             @else
-                <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                <div class="grid gap-x-6 gap-y-12 sm:grid-cols-2 xl:grid-cols-3" data-reveal-stagger="90">
                     @foreach ($results as $i => $property)
-                        <x-property.card :property="$property" :eager="$i < 3" wire:key="p-{{ $property->id }}" />
+                        <x-site.reveal wire:key="p-{{ $property->id }}">
+                            <x-property.card :property="$property" :eager="$i < 3" />
+                        </x-site.reveal>
                     @endforeach
                 </div>
 

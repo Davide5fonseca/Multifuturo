@@ -69,7 +69,7 @@
         <header class="mt-10 flex flex-wrap items-start justify-between gap-x-10 gap-y-6 border-b border-sand-200 pb-6">
             <div>
                 <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                    <h1 class="text-3xl tracking-tight sm:text-4xl">{{ $tipo }}</h1>
+                    <h1 class="display-sm">{{ $tipo }}</h1>
                     @if ($p->city)
                         <span class="text-lg font-medium">{{ $p->city }}</span>
                     @endif
@@ -93,7 +93,7 @@
         --}}
         <div class="mt-10 grid gap-x-12 gap-y-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <div class="order-2 lg:order-none lg:col-start-1 lg:row-start-1 lg:row-span-2">
-                <h2 class="text-2xl font-semibold leading-snug tracking-tight">{{ $title }}</h2>
+                <h2 class="font-serif text-2xl leading-snug sm:text-3xl">{{ $title }}</h2>
 
                 @if ($p->website_html || $p->description)
                     <div class="prose-multifuturo mt-5 max-w-2xl text-[15px] leading-relaxed text-ink/90">
@@ -137,7 +137,7 @@
 
                 @if ($p->features)
                     <section class="mt-12">
-                        <h2 class="text-2xl font-semibold tracking-tight">{{ __('ui.property.characteristics') }}</h2>
+                        <h2 class="display-sm text-2xl!">{{ __('ui.property.characteristics') }}</h2>
                         <ul class="mt-5 grid grid-cols-1 gap-x-8 gap-y-3 text-sm sm:grid-cols-2 md:grid-cols-3">
                             @foreach ($p->features as $feature)
                                 <li class="flex items-start gap-3">
@@ -155,7 +155,7 @@
                     do openstreetmap.org. Rodapé reduzido à linha que a licença exige.
                 --}}
                 <section id="mapa" class="mt-12 scroll-mt-8 print:hidden">
-                    <h2 class="text-2xl font-semibold tracking-tight">{{ __('ui.property.map') }}</h2>
+                    <h2 class="display-sm text-2xl!">{{ __('ui.property.map') }}</h2>
                     @if ($coords)
                         @php $lat = (float) $coords['lat']; $lon = (float) $coords['lon']; @endphp
                         <div x-data="propertyMap(@js($leaflet), {{ $lat }}, {{ $lon }})"
@@ -211,7 +211,7 @@
         @if ($similar->isNotEmpty())
             <section class="mt-24 print:hidden">
                 <div class="flex items-end justify-between gap-6">
-                    <h2 class="text-3xl">{{ __('ui.property.similar') }}</h2>
+                    <h2 class="display-sm">{{ __('ui.property.similar') }}</h2>
                     <a href="{{ route($p->business_type->routeName(), ['concelho' => $p->city]) }}" class="link text-sm">{{ __('ui.property.back_to_list') }}</a>
                 </div>
                 <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

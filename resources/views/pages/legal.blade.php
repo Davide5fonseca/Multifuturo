@@ -8,10 +8,12 @@
     $t = fn (string $s) => trans_replace($s, $r);
 @endphp
 <x-layouts.app :title="$doc['title']" :description="$t($doc['lead'])" :canonical="url()->current()">
-    <article class="container-site pt-16 pb-24">
+    <article class="container-site pb-24 pt-20 sm:pt-28">
         <header class="max-w-3xl">
-            <p class="label">{{ config('agency.name') }}</p>
-            <h1 class="mt-3 text-4xl sm:text-5xl">{{ $doc['title'] }}</h1>
+            <x-site.reveal>
+                <p class="eyebrow">{{ config('agency.name') }}</p>
+                <h1 class="display-sm mt-3">{{ $doc['title'] }}</h1>
+            </x-site.reveal>
             <p class="mt-5 text-lg text-ink-muted">{{ $t($doc['lead']) }}</p>
             @isset($doc['updated'])
                 <p class="mt-2 text-xs text-ink-muted">{{ $t($doc['updated']) }}</p>

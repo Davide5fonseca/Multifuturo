@@ -13,6 +13,8 @@
     Visual mínimo com os tokens da marca — a re-skinnar na Fase 4 com o layout final.
 --}}
 @props([
+    // 'linha': campos só com um traço por baixo, para as faixas escuras.
+    'tone' => 'cartao',
     'source' => 'contact',
     'property' => null,
 ])
@@ -24,7 +26,8 @@
     $formId = 'lead-'.$source.($property?->id ? '-'.$property->id : '');
 @endphp
 
-<div {{ $attributes->merge(['class' => 'rounded-xl bg-sand-100 border border-sand-200 p-6 sm:p-8']) }} id="{{ $formId }}"
+@php $campo = $tone === 'linha' ? 'field-line' : 'field'; @endphp
+<div {{ $attributes->merge(['class' => $tone === 'linha' ? '' : 'rounded-xl bg-sand-100 border border-sand-200 p-6 sm:p-8']) }} id="{{ $formId }}"
     @if ($isValuation)
         {{--
             O simulador emite 'valuation-change' a cada alteração. Os campos
@@ -78,26 +81,26 @@
         <div class="grid gap-5 sm:grid-cols-2">
             <div>
                 <label for="{{ $formId }}-name" class="label">{{ __('ui.lead.name') }}</label>
-                <input id="{{ $formId }}-name" name="name" type="text" required autocomplete="name" value="{{ old('name') }}" class="field mt-2 @error('name') border-error @enderror">
+                <input id="{{ $formId }}-name" name="name" type="text" required autocomplete="name" value="{{ old('name') }}" class="{{ $campo }} mt-2 @error('name') border-error @enderror">
                 @error('name')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
             </div>
             <div>
                 <label for="{{ $formId }}-email" class="label">{{ __('ui.lead.email') }}</label>
-                <input id="{{ $formId }}-email" name="email" type="email" required autocomplete="email" value="{{ old('email') }}" class="field mt-2 @error('email') border-error @enderror">
+                <input id="{{ $formId }}-email" name="email" type="email" required autocomplete="email" value="{{ old('email') }}" class="{{ $campo }} mt-2 @error('email') border-error @enderror">
                 @error('email')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
             </div>
         </div>
 
         <div>
             <label for="{{ $formId }}-phone" class="label">{{ __('ui.lead.phone') }} <span class="normal-case tracking-normal">({{ __('ui.lead.optional') }})</span></label>
-            <input id="{{ $formId }}-phone" name="phone" type="tel" autocomplete="tel" value="{{ old('phone') }}" class="field mt-2 @error('phone') border-error @enderror">
+            <input id="{{ $formId }}-phone" name="phone" type="tel" autocomplete="tel" value="{{ old('phone') }}" class="{{ $campo }} mt-2 @error('phone') border-error @enderror">
             @error('phone')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
         </div>
 
         @if ($isValuation)
             <div>
                 <label for="{{ $formId }}-address" class="label">{{ __('ui.lead.address') }} <span class="normal-case tracking-normal">({{ __('ui.lead.optional') }})</span></label>
-                <input id="{{ $formId }}-address" name="payload[address]" type="text" autocomplete="street-address" value="{{ old('payload.address') }}" class="field mt-2">
+                <input id="{{ $formId }}-address" name="payload[address]" type="text" autocomplete="street-address" value="{{ old('payload.address') }}" class="{{ $campo }} mt-2">
             </div>
             {{-- O imóvel descreve-se no simulador ao lado; estes campos seguem-no em silêncio. --}}
             <input type="hidden" id="{{ $formId }}-city" name="payload[city]" value="{{ old('payload.city') }}">
@@ -110,7 +113,7 @@
 
         <div>
             <label for="{{ $formId }}-message" class="label">{{ __('ui.lead.message') }}</label>
-            <textarea id="{{ $formId }}-message" name="message" rows="4" class="field mt-2 @error('message') border-error @enderror">{{ old('message', $defaultMessage) }}</textarea>
+            <textarea id="{{ $formId }}-message" name="message" rows="4" class="{{ $campo }} mt-2 @error('message') border-error @enderror">{{ old('message', $defaultMessage) }}</textarea>
             @error('message')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
         </div>
 

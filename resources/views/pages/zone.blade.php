@@ -19,8 +19,10 @@
         </nav>
 
         <header class="mt-8 max-w-3xl">
-            <p class="label">{{ __('ui.zones.title') }}</p>
-            <h1 class="mt-3 text-4xl sm:text-5xl">{{ $title }}</h1>
+            <x-site.reveal>
+                <p class="eyebrow">{{ __('ui.zones.title') }}</p>
+                <h1 class="display-sm mt-3">{{ $title }}</h1>
+            </x-site.reveal>
             @if ($editorial?->intro)
                 <p class="mt-6 text-lg text-ink-muted">{{ $editorial->intro }}</p>
             @endif

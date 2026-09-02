@@ -1,7 +1,9 @@
 <x-layouts.app :title="__('ui.zones.title')" :description="__('ui.zones.lead')" :canonical="route('zones.index')">
-    <section class="container-site pt-16 pb-24">
-        <p class="label">{{ config('agency.name') }}</p>
-        <h1 class="mt-3 text-4xl sm:text-5xl">{{ __('ui.zones.title') }}</h1>
+    <section class="container-site pb-24 pt-20 sm:pt-28">
+        <x-site.reveal>
+            <p class="eyebrow">{{ config('agency.name') }}</p>
+            <h1 class="display-sm mt-3">{{ __('ui.zones.title') }}</h1>
+        </x-site.reveal>
         <p class="mt-4 max-w-xl text-ink-muted">{{ __('ui.zones.lead') }}</p>
 
         @if ($cities->isEmpty())

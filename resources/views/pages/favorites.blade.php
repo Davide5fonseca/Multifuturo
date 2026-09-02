@@ -8,7 +8,7 @@
         retirados, apagados). Sem a poda, um favorito morto ficava preso para
         sempre: o coração contava-o e ele nunca saía.
     --}}
-    <section class="container-site pt-16 pb-24"
+    <section class="container-site pb-24 pt-20 sm:pt-28"
              x-data="{ init() {
                  @if ($requested)
                      $store.favorites.prune(@js($properties->pluck('slug')->all()));
@@ -17,8 +17,10 @@
                      if (s.length) { window.location.replace(@js(route('favorites')) + '?slugs=' + encodeURIComponent(s.join(','))); }
                  @endif
              } }">
-        <p class="label">{{ config('agency.name') }}</p>
-        <h1 class="mt-3 text-4xl sm:text-5xl">{{ __('ui.favorites.title') }}</h1>
+        <x-site.reveal>
+            <p class="eyebrow">{{ config('agency.name') }}</p>
+            <h1 class="display-sm mt-3">{{ __('ui.favorites.title') }}</h1>
+        </x-site.reveal>
         <p class="mt-4 max-w-xl text-ink-muted">{{ __('ui.favorites.lead') }}</p>
 
         @if ($properties->isEmpty())

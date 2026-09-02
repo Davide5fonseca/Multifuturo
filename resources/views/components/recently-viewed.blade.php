@@ -20,6 +20,6 @@
              },
          }"
          {{ $attributes }}>
-    <h2 class="text-3xl">{{ __('ui.property.recent') }}</h2>
+    <h2 class="display-sm">{{ __('ui.property.recent') }}</h2>
     <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" x-html="html"></div>
 </section>

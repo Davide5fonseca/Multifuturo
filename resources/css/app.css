@@ -318,8 +318,21 @@
         @apply bg-olive-900 text-sand-100;
     }
     .band-dark .eyebrow,
+    .band-dark .label,
     .band-dark .text-ink-muted {
         @apply text-sand-200;
+    }
+    /* Na faixa escura o botão principal inverte-se: areia sobre tinta. */
+    .band-dark .btn-primary {
+        @apply bg-sand-50 text-ink;
+        background-image: none;
+    }
+    .band-dark .btn-primary:hover,
+    .band-dark .btn-primary:focus-visible {
+        @apply bg-sand-100;
+    }
+    .band-dark a.link {
+        @apply text-sand-50;
     }
 
     /* Números grandes em itálico (minutos, anos, contagens). */

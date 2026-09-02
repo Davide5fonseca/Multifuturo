@@ -5,10 +5,12 @@
         A introdução fica à esquerda, fixa. O simulador entra no formulário
         pelo slot "simulator"; a conta faz-se no browser, sem pedidos.
     --}}
-    <section class="container-site grid gap-12 pt-16 pb-16 lg:grid-cols-[2fr_3fr]">
+    <section class="container-site grid gap-12 pb-16 pt-20 sm:pt-28 lg:grid-cols-[2fr_3fr]">
         <div class="lg:sticky lg:top-8 lg:self-start">
-            <p class="label">{{ __('ui.nav.valuation') }}</p>
-            <h1 class="mt-3 text-4xl sm:text-5xl">{{ __('ui.lead.title_valuation') }}</h1>
+            <x-site.reveal>
+                <p class="eyebrow">{{ __('ui.nav.valuation') }}</p>
+                <h1 class="display-sm mt-3">{{ __('ui.lead.title_valuation') }}</h1>
+            </x-site.reveal>
             <p class="mt-6 max-w-md text-ink-muted">{{ __('ui.lead.lead_valuation') }}</p>
             <p class="mt-4 max-w-md text-sm text-ink-muted">{{ __('ui.valuation.lead') }}</p>
         </div>

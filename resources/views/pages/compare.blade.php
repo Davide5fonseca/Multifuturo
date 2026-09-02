@@ -7,7 +7,7 @@
         Com ?slugs=, o servidor devolve só os imóveis publicados — e a página poda
         da lista os que ficaram pelo caminho (vendidos, retirados, apagados).
     --}}
-    <section class="container-site pt-16 pb-24"
+    <section class="container-site pb-24 pt-20 sm:pt-28"
              x-data="{ init() {
                  @if ($requested)
                      $store.compare.prune(@js($properties->pluck('slug')->all()));
@@ -16,8 +16,10 @@
                      if (s.length) { window.location.replace(@js(route('compare')) + '?slugs=' + encodeURIComponent(s.join(','))); }
                  @endif
              } }">
-        <p class="label">{{ config('agency.name') }}</p>
-        <h1 class="mt-3 text-4xl sm:text-5xl">{{ __('ui.compare.title') }}</h1>
+        <x-site.reveal>
+            <p class="eyebrow">{{ config('agency.name') }}</p>
+            <h1 class="display-sm mt-3">{{ __('ui.compare.title') }}</h1>
+        </x-site.reveal>
         <p class="mt-4 max-w-xl text-ink-muted">{{ __('ui.compare.lead') }}</p>
 
         @if ($properties->count() < 2)

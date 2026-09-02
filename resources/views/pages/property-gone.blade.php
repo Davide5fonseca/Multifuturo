@@ -1,6 +1,6 @@
 {{-- 410 Gone: o imóvel saiu do feed. Sem dados do imóvel (já não está publicado); só semelhantes e contacto. --}}
 <x-layouts.app :title="__('ui.property.gone_title')" robots="noindex,follow">
-    <section class="container-site pt-16 pb-24">
+    <section class="container-site pb-24 pt-20 sm:pt-28">
         <p class="label">{{ $property->reference ?? $property->internal_id }}</p>
         <h1 class="mt-3 max-w-2xl text-4xl sm:text-5xl">{{ __('ui.property.gone_title') }}</h1>
         <p class="mt-6 max-w-xl text-ink-muted">{{ __('ui.property.gone_lead') }}</p>
