@@ -65,7 +65,7 @@
     <link rel="icon" href="{{ asset('images/marca/favicon-192.png') }}" type="image/png" sizes="192x192">
     <link rel="icon" href="{{ asset('images/marca/favicon-512.png') }}" type="image/png" sizes="512x512">
     <link rel="apple-touch-icon" href="{{ asset('images/marca/favicon-180.png') }}">
-    <link rel="preload" href="{{ asset('fonts/fraunces-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('fonts/bodoni-moda-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="{{ asset('fonts/inter-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
 
     {{--

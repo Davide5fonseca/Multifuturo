@@ -16,7 +16,7 @@
                      data-fallback="{{ asset('images/placeholder-property.jpg') }}"
                      onerror="this.onerror=null;this.src=this.dataset.fallback">
             </div>
-            <div class="absolute inset-0 -z-10 bg-linear-to-t from-ink/80 via-ink/40 to-ink/10" aria-hidden="true"></div>
+            <div class="absolute inset-0 -z-10 bg-linear-to-t from-ink/85 via-ink/60 to-ink/25" aria-hidden="true"></div>
         @endif
 
         <div class="container-site pb-16 pt-32 sm:pb-24">

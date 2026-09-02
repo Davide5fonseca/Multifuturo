@@ -40,5 +40,5 @@ it('não faz pedidos a fontes externas', function () {
 
     expect($html)->not->toContain('fonts.googleapis.com')
         ->and($html)->not->toContain('fonts.gstatic.com')
-        ->and($html)->toContain('/fonts/fraunces-latin.woff2');
+        ->and($html)->toContain('/fonts/bodoni-moda-latin.woff2');
 });

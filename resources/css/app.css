@@ -9,24 +9,25 @@
 
 /*
  * Tipografia servida localmente (RGPD: sem pedidos a fonts.googleapis.com).
- * Fraunces — serif variável (peso 300–600, eixo ótico 9–144, eixo SOFT 0–100).
+ * Bodoni Moda — serif variável didone (peso 400–700, eixo ótico 6–96). É ela
+ * que dá o contraste alto e as hastes finas da direção visual.
  * Inter    — sans variável (peso 400–600, eixo ótico 14–32).
  * Ficheiros em public/fonts/, subset latin (cobre todo o português europeu).
  */
 @font-face {
-    font-family: 'Fraunces';
+    font-family: 'Bodoni Moda';
     font-style: normal;
-    font-weight: 300 600;
+    font-weight: 400 700;
     font-display: swap;
-    src: url('/fonts/fraunces-latin.woff2') format('woff2');
+    src: url('/fonts/bodoni-moda-latin.woff2') format('woff2');
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-    font-family: 'Fraunces';
+    font-family: 'Bodoni Moda';
     font-style: italic;
-    font-weight: 300 600;
+    font-weight: 400 700;
     font-display: swap;
-    src: url('/fonts/fraunces-italic-latin.woff2') format('woff2');
+    src: url('/fonts/bodoni-moda-italic-latin.woff2') format('woff2');
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
@@ -79,7 +80,7 @@
     --color-success: #4E6B3A;
 
     --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    --font-serif: 'Fraunces', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+    --font-serif: 'Bodoni Moda', 'Didot', 'Bodoni MT', 'Playfair Display', Georgia, serif;
 
     /* Geometria suavizada (pedido do cliente, 2026-08-19): campos e botões a 8 px,
        cartões e blocos a 16 px, chips em pílula. Escala fechada — sem outros valores. */
@@ -110,10 +111,12 @@
         @apply min-h-dvh flex flex-col;
     }
     h1, h2, h3, .font-serif {
-        font-variation-settings: 'SOFT' 50, 'opsz' 72;
+        /* A Bodoni Moda só tem o eixo ótico (6–96): nos tamanhos grandes as
+           hastes afinam, que é o efeito que se quer. */
+        font-variation-settings: 'opsz' 72;
     }
     h1, h2, h3 {
-        @apply font-serif font-light text-balance;
+        @apply font-serif font-normal text-balance;
     }
     [x-cloak] { display: none !important; }
     /* Foco visível em tudo o que é interativo. */
@@ -226,7 +229,7 @@
     }
     .price {
         @apply font-serif font-normal tabular-nums;
-        font-variation-settings: 'SOFT' 50, 'opsz' 24;
+        font-variation-settings: 'opsz' 24;
     }
     .field {
         @apply min-h-11 w-full rounded-md border border-sand-200 bg-white px-4 py-3 text-ink placeholder:text-ink-muted focus:border-olive-600 focus:outline-none;
@@ -276,7 +279,7 @@
         font-size: clamp(2.6rem, 8.5vw, 6.5rem);
         line-height: 0.94;
         letter-spacing: -0.015em;
-        font-variation-settings: 'SOFT' 0, 'opsz' 144;
+        font-variation-settings: 'opsz' 96;
     }
 
     /* Título de secção, com a mesma voz mas em tamanho de leitura. */
@@ -285,7 +288,7 @@
         font-size: clamp(1.9rem, 4.2vw, 3.2rem);
         line-height: 1;
         letter-spacing: -0.01em;
-        font-variation-settings: 'SOFT' 0, 'opsz' 96;
+        font-variation-settings: 'opsz' 88;
     }
 
     /*
@@ -293,7 +296,7 @@
      * palavras que interessam em itálico (<em>).
      */
     .editorial {
-        @apply font-serif font-light;
+        @apply font-serif font-normal;
         font-size: clamp(1.35rem, 2.9vw, 2.5rem);
         line-height: 1.24;
         letter-spacing: -0.012em;
@@ -337,7 +340,7 @@
 
     /* Números grandes em itálico (minutos, anos, contagens). */
     .stat {
-        @apply font-serif italic font-light;
+        @apply font-serif italic font-normal;
         font-size: clamp(1.9rem, 4vw, 3rem);
         line-height: 1;
     }

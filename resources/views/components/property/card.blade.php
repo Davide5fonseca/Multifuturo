@@ -2,7 +2,7 @@
     Cartão de imóvel — o componente mais reutilizado do site (listagens,
     destaques, semelhantes, favoritos, zonas). Fotografia 4:3 a dominar,
     badge "Exclusivo" discreto, favorito em localStorage, referência,
-    título, localização, preço em Fraunces e specs em linha.
+    título, localização, preço em serifada e specs em linha.
     Separação por tom (sand-100 sobre sand-50) e espaço — sem sombras.
 --}}
 @props(['property', 'eager' => false])
