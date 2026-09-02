@@ -9,6 +9,40 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Produção em Apache
+
+$${\color{#5D6348}\textsf{2026-09-02 · 11:43}}$$
+
+**Commit:** `f3bb5ea` — `Producao: Apache (mod_php) no lugar do Caddy e PHP-FPM; HTTPS no Apache do anfitriao`
+
+Como o servidor de produção será Apache, a pilha de deploy muda: sai o Caddy e o
+PHP-FPM, entra um só contentor **Apache + mod_php** (php:8.3-apache) que serve a
+aplicação e os estáticos. Ficam cinco serviços (`app`, `queue`, `scheduler`, `pgsql`,
+`redis`); só o `app` expõe uma porta HTTP (`HTTP_PORT`, 8080 por omissão). O HTTPS
+termina à frente, no Apache/painel do anfitrião, que faz proxy para essa porta — o
+Laravel já confiava nos `X-Forwarded-*` de redes privadas.
+
+- `docker/production/Dockerfile` — base `php:8.3-apache`; `a2enmod rewrite headers
+  deflate`; raiz em `public/`; cliente PostgreSQL 16 do repositório oficial (o Debian
+  trazia o 15, que recusa um servidor 16); a etapa `web` (Caddy) desaparece.
+- `docker/production/vhost.conf` — novo: raiz, `.htaccess` do Laravel a mandar,
+  cabeçalhos de segurança, compressão, caches dos estáticos, ficheiros escondidos
+  bloqueados, prefork dimensionado como o pool FPM anterior.
+- `docker/production/entrypoint.sh` — a espera pela base de dados usa PHP (a imagem
+  Debian não traz o `nc`); `Caddyfile` e `www.conf` removidos.
+- `compose.production.yaml` — sem o serviço `caddy`; `app` publica `HTTP_PORT`;
+  `queue`/`scheduler` correm como `www-data`.
+- `.env.production.example` — sem `ACME_EMAIL`/`HTTPS_PORT`; `HTTP_PORT=8080` comentado.
+- `DEPLOY.md` — secção **10** nova: o Apache do anfitrião com proxy + certbot (vhost
+  pronto a colar), painel cPanel/Plesk, e a nota sobre alojamentos sem Docker;
+  restantes secções atualizadas. `deploy/deploy.sh`, `README.md` — sem Caddy.
+- Verificado: pilha construída e levantada localmente em `localhost:8081` — `/up`,
+  site e portal a 200, `Server: Apache` com os cabeçalhos de segurança, estáticos do
+  Vite com cache de um ano, `/.env` bloqueado, `pg_dump` 16.15 e `backup:run` a
+  funcionar; depois desmontada (`down -v`).
+
+---
+
 ## Características num campo fechado
 
 $${\color{#5D6348}\textsf{2026-09-02 · 09:51}}$$
