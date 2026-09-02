@@ -9,6 +9,38 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Mapa dos resultados na listagem
+
+$${\color{#5D6348}\textsf{2026-09-02 · 14:39}}$$
+
+**Commit:** `2f459bb` — `Site: mapa dos resultados na listagem, com os alfinetes a seguir os filtros`
+
+As listagens ganham um mapa: o botão "Ver no mapa" abre-o com um alfinete por imóvel,
+e ao clicar num alfinete aparece o cartão com foto, título e preço, que leva à ficha.
+Os alfinetes acompanham os filtros e o scroll infinito — filtrar por Matosinhos deixa
+lá só os de Matosinhos. Só entram os imóveis com localização pública ("Visível" no
+mapa do backoffice): a coordenada de quem não autorizou nunca sai do servidor. O
+Leaflet vem do nosso servidor e só é carregado quando o mapa é aberto.
+
+- `resources/js/app.js` — `loadLeaflet()` partilhado (uma só promessa por página),
+  `propertyMap` e `resultsMap` como componentes Alpine; o cartão do alfinete é
+  construído com o DOM, sem HTML colado à mão.
+- `app/Livewire/PropertyListing.php` — `mapPoints()` com os imóveis já mostrados que
+  têm coordenadas públicas.
+- `resources/views/livewire/property-listing.blade.php` — botão, contentor do mapa
+  (`wire:ignore`, que é do Leaflet) e o elemento com `wire:key` que avisa o mapa quando
+  os resultados mudam.
+- `resources/views/pages/property.blade.php` — o mapa da ficha passa a usar o mesmo
+  componente: menos 30 linhas de JavaScript dentro de um atributo HTML.
+- `tests/Feature/SiteDinamicoTest.php` — teste novo: só entram os imóveis com
+  localização pública, o botão aparece e desaparece conforme há ou não pontos.
+  `tests/Feature/FrontendTest.php` — a asserção do mapa passa a apontar ao componente.
+- Verificado: 229 testes a passar, Pint limpo, e em Edge — Leaflet só carrega ao abrir
+  o mapa, 3 alfinetes, cartão com a ligação certa, 1 alfinete depois de filtrar, zero
+  erros de consola.
+
+---
+
 ## Site dinâmico: sugestões, scroll infinito, vistos recentemente e partilha
 
 $${\color{#5D6348}\textsf{2026-09-02 · 14:28}}$$
