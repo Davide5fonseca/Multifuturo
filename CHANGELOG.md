@@ -9,6 +9,24 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Abertura sem a barra de pesquisa
+
+$${\color{#5D6348}\textsf{2026-09-02 · 15:38}}$$
+
+**Commit:** `ce7e432` — `Site: abertura sem a barra de pesquisa`
+
+Sai a faixa com a pesquisa rápida que ficava por baixo da fotografia de abertura. A
+página inicial passa da fotografia direto para a declaração editorial. Quem quer
+procurar tem os filtros completos nas listagens (Comprar e Arrendar), e a pesquisa
+com sugestões continua a existir lá e na página de "não encontrado".
+
+- `resources/views/pages/home.blade.php` — secção removida e as seguintes renumeradas.
+- `tests/Feature/FrontendTest.php` — o teste da página inicial passa a afirmar o
+  contrário (não há formulário de pesquisa), para a decisão ficar escrita.
+- Verificado: 232 testes a passar, Pint limpo.
+
+---
+
 ## Bodoni Moda, a fonte nova
 
 $${\color{#5D6348}\textsf{2026-09-02 · 15:28}}$$
