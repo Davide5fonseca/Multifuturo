@@ -57,9 +57,9 @@ class PropertyObserver
     }
 
     /**
-     * Primeira vez publicável → published_at. É esta data que os alertas de
-     * imóveis usam para saber o que é novo; nunca mais se altera (uma edição,
-     * uma retirada e volta, não fazem do imóvel uma novidade).
+     * Primeira vez publicável → published_at. Fica registado quando a ficha
+     * apareceu no site; nunca mais se altera (uma edição, uma retirada e
+     * volta, não fazem do imóvel uma novidade).
      */
     public function saved(Property $property): void
     {

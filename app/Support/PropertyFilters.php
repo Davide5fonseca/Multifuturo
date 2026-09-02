@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Os filtros da listagem, num só sítio: a listagem (/comprar, /arrendar)
- * aplica-os à pesquisa e os alertas de imóveis guardam-nos e reaplicam-nos
+ * aplica-os à pesquisa.
  * a cada envio. Se um filtro novo entrar aqui, entra nos dois.
  *
  * Critérios (todas as chaves opcionais):
@@ -105,70 +105,5 @@ final class PropertyFilters
         }
 
         return $query;
-    }
-
-    /**
-     * Frase curta com os critérios, para o site, o email e o backoffice:
-     * "Venda · Sintra, Colares · Apartamento · T3+ · 150 000 € – 300 000 € · ≥ 80 m² · piscina".
-     *
-     * @param  array<string, mixed>  $c
-     */
-    public static function summary(array $c, string $listing): string
-    {
-        $parts = [__('ui.listing.'.($listing === 'rent' ? 'rent_eyebrow' : 'buy_eyebrow'))];
-
-        $place = Format::location($c['locality'] ?? null, $c['city'] ?? null);
-        if ($place !== '') {
-            $parts[] = $place;
-        }
-        if (filled($c['type'] ?? null)) {
-            $parts[] = (string) $c['type'];
-        }
-        if (filled($c['bedrooms'] ?? null)) {
-            $parts[] = 'T'.(int) $c['bedrooms'].'+';
-        }
-
-        $min = filled($c['price_min'] ?? null) ? Format::price((int) $c['price_min']) : null;
-        $max = filled($c['price_max'] ?? null) ? Format::price((int) $c['price_max']) : null;
-        if ($min && $max) {
-            $parts[] = "{$min} – {$max}";
-        } elseif ($min) {
-            $parts[] = "≥ {$min}";
-        } elseif ($max) {
-            $parts[] = "≤ {$max}";
-        }
-
-        if (filled($c['area_min'] ?? null)) {
-            $parts[] = '≥ '.Format::area((int) $c['area_min']);
-        }
-        if (! empty($c['features']) && is_array($c['features'])) {
-            $parts[] = implode(', ', $c['features']);
-        }
-
-        // Sem nenhum filtro: "Venda · todos os imóveis", em vez de "Venda" sozinho.
-        if (count($parts) === 1) {
-            $parts[] = __('ui.alerts.all_properties');
-        }
-
-        return implode(' · ', $parts);
-    }
-
-    /**
-     * Parâmetros do URL da listagem equivalentes aos critérios.
-     *
-     * @param  array<string, mixed>  $c
-     * @return array<string, mixed>
-     */
-    public static function urlParams(array $c): array
-    {
-        $params = [];
-
-        foreach (self::URL_PARAMS as $key => $param) {
-            if (isset($c[$key]) && $c[$key] !== '' && $c[$key] !== []) {
-                $params[$param] = $c[$key];
-            }
-        }
-
-        return $params;
     }
 }

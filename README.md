@@ -350,7 +350,7 @@ Os ficheiros restauram-se com `tar -xzf ficheiros.tar.gz -C storage/app/`.
 
 ```
 app/
-├── Console/Commands/     BackupRun (cópia diária) · ValuationImportIne (INE, semanal) · AlertsSend (alertas, de hora a hora) · ZonesImport
+├── Console/Commands/     BackupRun (cópia diária) · ValuationImportIne (INE, mensal) · ZonesImport · ZonesImport
 ├── Enums/                BusinessType · LeadSource · LeadKind · LeadStage · EventType · …
 ├── Http/
 │   ├── Controllers/      Page · Property (ficha, JSON-LD, 410) · Zone · Favorites · Lead · Sitemap · Robots

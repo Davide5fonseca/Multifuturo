@@ -178,7 +178,7 @@ em baixo — os contentores novos substituem os antigos.
 | Logs | `docker compose -f compose.production.yaml logs -f app` (ou `caddy`, `queue`, `scheduler`) |
 
 Os seis serviços: `caddy` (HTTPS e estáticos), `app` (a aplicação), `queue`
-(emails), `scheduler` (cópias, INE, alertas), `pgsql`, `redis`. Todos arrancam
+(emails), `scheduler` (cópias, INE), `pgsql`, `redis`. Todos arrancam
 sozinhos com o servidor (`restart: unless-stopped`).
 
 ---

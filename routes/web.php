@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ConsentController;
 use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\LeadController;
@@ -112,12 +111,6 @@ Route::prefix('{locale}')
 
         // Registo das escolhas do aviso de cookies (prova do consentimento, RGPD art. 7.º).
         Route::post('/consentimento', [ConsentController::class, 'store'])->middleware('throttle:leads')->name('consent.store');
-
-        // Alertas de imóveis — pedido (formulário nas listagens) e ligações
-        // assinadas dos emails: confirmar (double opt-in) e cancelar.
-        Route::post('/alertas', [AlertController::class, 'store'])->middleware('throttle:leads')->name('alerts.store');
-        Route::get('/alertas/{token}/confirmar', [AlertController::class, 'confirm'])->middleware('signed')->name('alerts.confirm');
-        Route::get('/alertas/{token}/cancelar', [AlertController::class, 'unsubscribe'])->middleware('signed')->name('alerts.unsubscribe');
     });
 
 // SEO — sem idioma: o sitemap lista todos, o robots é um só.
