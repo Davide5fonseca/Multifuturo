@@ -73,7 +73,7 @@
                 </x-site.reveal>
                 <a href="{{ route('buy') }}" class="link text-sm">{{ __('ui.home_sections.featured_all') }}</a>
             </div>
-            <div class="mt-12 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3" data-reveal-stagger="110">
+            <div class="mt-12 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4" data-reveal-stagger="110">
                 @foreach ($featured as $i => $property)
                     <x-site.reveal>
                         <x-property.card :property="$property" :eager="$i < 3" />

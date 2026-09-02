@@ -25,6 +25,7 @@ return [
         'favorites' => 'Favourites',
         'menu_open' => 'Open menu',
         'menu_close' => 'Close menu',
+        'language' => 'Language',
         'main' => 'Main navigation',
     ],
 

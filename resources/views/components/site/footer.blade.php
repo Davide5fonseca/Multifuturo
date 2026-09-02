@@ -10,8 +10,8 @@
     $social = array_filter($agency['social'] ?? []);
 @endphp
 <footer class="mt-24 bg-olive-900 text-sand-100 print:hidden">
-    <div class="container-site grid gap-12 py-16 md:grid-cols-4">
-        <div class="md:col-span-2">
+    <div class="container-site flex flex-col gap-12 py-16 md:flex-row md:items-start md:justify-between">
+        <div class="max-w-sm">
             {{-- No rodapé há altura para o logótipo completo. A imagem é verde
                  sobre fundo escuro: leva um filtro para ficar em bege claro. --}}
             <a href="{{ route('home') }}" class="inline-block" aria-label="{{ $agency['name'] }}">

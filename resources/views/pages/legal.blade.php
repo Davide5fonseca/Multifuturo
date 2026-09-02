@@ -20,7 +20,7 @@
             @endisset
         </header>
 
-        <div class="mt-12 grid gap-12 lg:grid-cols-[240px_minmax(0,1fr)]">
+        <div class="container-read mt-12 grid gap-12 lg:grid-cols-[240px_minmax(0,1fr)]">
             <nav class="hidden lg:block lg:sticky lg:top-8 lg:self-start" aria-label="Secções">
                 <ol class="space-y-2 border-l border-sand-200 pl-4 text-sm text-ink-muted">
                     @foreach ($doc['sections'] as $i => $section)
@@ -29,7 +29,7 @@
                 </ol>
             </nav>
 
-            <div class="max-w-2xl">
+            <div class="max-w-3xl">
                 @foreach ($doc['sections'] as $i => $section)
                     <section id="s{{ $i + 1 }}" class="mt-10 first:mt-0 scroll-mt-8">
                         <h2 class="font-sans text-lg font-medium">{{ $section['title'] }}</h2>

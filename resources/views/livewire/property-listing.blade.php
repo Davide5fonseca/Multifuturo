@@ -187,7 +187,7 @@
                     @endif
                 </div>
             @else
-                <div class="grid gap-x-6 gap-y-12 sm:grid-cols-2 xl:grid-cols-3" data-reveal-stagger="90">
+                <div class="grid gap-x-6 gap-y-12 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4" data-reveal-stagger="90">
                     @foreach ($results as $i => $property)
                         <x-site.reveal wire:key="p-{{ $property->id }}">
                             <x-property.card :property="$property" :eager="$i < 3" />

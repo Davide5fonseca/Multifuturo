@@ -25,6 +25,7 @@ return [
         'menu_open' => 'Abrir menu',
         'menu_close' => 'Fechar menu',
         'main' => 'Navegação principal',
+        'language' => 'Idioma',
     ],
 
     'footer' => [

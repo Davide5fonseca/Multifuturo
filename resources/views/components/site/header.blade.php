@@ -1,7 +1,7 @@
 {{--
-    Cabeçalho editorial: navegação à esquerda, marca ao centro, ações à direita
-    (favoritos, idioma e um botão de contacto). Fica colado ao topo e ganha uma
-    linha discreta assim que a página desce. Menu móvel em Alpine.
+    Cabeçalho editorial: marca encostada à esquerda, navegação a seguir e as
+    ações à direita (favoritos, idioma e um botão de contacto). Fica colado ao
+    topo e ganha uma linha discreta assim que a página desce. Menu móvel em Alpine.
 --}}
 @php
     $links = [
@@ -17,9 +17,16 @@
         @keydown.escape.window="open = false"
         @scroll.window="descido = window.scrollY > 24"
         :class="descido ? 'border-b border-sand-200' : 'border-b border-transparent'">
-    <div class="container-site grid h-20 grid-cols-[1fr_auto_1fr] items-center gap-6">
-        {{-- Esquerda: navegação (ou o botão do menu, em ecrãs estreitos) --}}
-        <nav class="hidden items-center gap-7 whitespace-nowrap xl:flex" aria-label="{{ __('ui.nav.main') }}">
+    <div class="container-site flex h-20 items-center gap-6">
+        {{-- A marca, o mais à esquerda possível --}}
+        <a href="{{ route('home') }}" class="flex shrink-0 items-center gap-3 text-ink" aria-label="{{ config('agency.name') }}">
+            <img src="{{ asset('images/marca/simbolo.png') }}" alt="" width="384" height="317" class="h-8 w-auto sm:h-9">
+            <span class="hidden font-serif text-base leading-tight tracking-[0.16em] uppercase sm:block">
+                Multifuturo<span class="block text-[0.62em] tracking-[0.22em] text-olive-600">Propriedades</span>
+            </span>
+        </a>
+
+        <nav class="ml-10 hidden items-center gap-7 whitespace-nowrap xl:flex" aria-label="{{ __('ui.nav.main') }}">
             @foreach ($links as $link)
                 <a href="{{ route($link['route']) }}"
                    @class(['text-sm tracking-wide transition-colors hover:text-olive-700', 'text-olive-700' => request()->routeIs($link['route']), 'text-ink' => ! request()->routeIs($link['route'])])
@@ -29,22 +36,14 @@
             @endforeach
         </nav>
 
-        <button type="button" class="-ml-2 grid h-11 w-11 place-items-center text-ink xl:hidden" @click="open = !open" :aria-expanded="open" aria-controls="menu-movel">
+        <button type="button" class="-mr-2 order-last grid h-11 w-11 place-items-center text-ink xl:hidden" @click="open = !open" :aria-expanded="open" aria-controls="menu-movel">
             <span class="sr-only" x-text="open ? @js(__('ui.nav.menu_close')) : @js(__('ui.nav.menu_open'))"></span>
             <svg x-show="!open" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" d="M3 7h18M3 12h18M3 17h18"/></svg>
             <svg x-show="open" x-cloak class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
         </button>
 
-        {{-- Centro: a marca --}}
-        <a href="{{ route('home') }}" class="flex items-center justify-center gap-3 justify-self-center text-ink" aria-label="{{ config('agency.name') }}">
-            <img src="{{ asset('images/marca/simbolo.png') }}" alt="" width="384" height="317" class="h-8 w-auto sm:h-9">
-            <span class="hidden font-serif text-base leading-tight tracking-[0.16em] uppercase sm:block">
-                Multifuturo<span class="block text-[0.62em] tracking-[0.22em] text-olive-600">Propriedades</span>
-            </span>
-        </a>
-
         {{-- Direita: ações --}}
-        <div class="flex items-center justify-end gap-4">
+        <div class="ml-auto flex items-center gap-4">
             <a href="{{ route('favorites') }}" class="relative hidden text-ink hover:text-olive-700 sm:block" x-data>
                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linejoin="round" d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10Z"/></svg>
                 <span class="sr-only">{{ __('ui.nav.favorites') }}</span>

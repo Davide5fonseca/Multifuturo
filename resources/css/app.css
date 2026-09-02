@@ -136,8 +136,20 @@
     .label {
         @apply text-xs uppercase tracking-label text-ink-muted font-medium;
     }
+    /*
+     * A página ocupa a largura toda (pedido do cliente, 2026-09-02): não há
+     * max-width, só margens que crescem com o ecrã. Os blocos de texto corrido
+     * é que trazem a sua própria medida — uma linha de 200 caracteres não se lê.
+     */
     .container-site {
-        @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+        @apply mx-auto w-full px-5 sm:px-8 lg:px-12 2xl:px-20;
+    }
+    /*
+     * Texto corrido (páginas legais, "A agência"): a página é larga, mas uma
+     * linha de 200 caracteres não se lê. Este bloco fica centrado dentro dela.
+     */
+    .container-read {
+        @apply mx-auto w-full max-w-[88rem];
     }
     /*
      * Botões — micro-interações sóbrias, fiéis à direção (sem gradientes
