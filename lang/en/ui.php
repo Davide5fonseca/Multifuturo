@@ -173,6 +173,8 @@ return [
         'price_max' => 'Max. price',
         'area_min' => 'Min. area (m²)',
         'features' => 'Features',
+        'any_features' => 'All features',
+        'features_selected' => '{1} 1 selected|[2,*] :count selected',
         'search' => 'Search',
         'search_placeholder' => 'Reference, municipality, parish…',
         'apply' => 'Apply',

@@ -172,6 +172,8 @@ return [
         'price_max' => 'Preço máx.',
         'area_min' => 'Área mín. (m²)',
         'features' => 'Características',
+        'any_features' => 'Todas as características',
+        'features_selected' => '{1} 1 selecionada|[2,*] :count selecionadas',
         'search' => 'Pesquisar',
         'search_placeholder' => 'Referência, concelho, freguesia…',
         'apply' => 'Aplicar',

@@ -92,17 +92,49 @@
                 </div>
 
                 @if ($opts['features'])
-                    <fieldset>
-                        <legend class="label">{{ __('ui.listing.features') }}</legend>
-                        <div class="mt-3 grid gap-2 text-sm">
-                            @foreach ($opts['features'] as $f)
-                                <label class="flex items-center gap-2">
-                                    <input type="checkbox" name="caracteristicas[]" value="{{ $f }}" wire:model.live="features" class="h-5 w-5 shrink-0 accent-olive-600">
-                                    <span class="capitalize">{{ $f }}</span>
-                                </label>
-                            @endforeach
+                    {{--
+                        Características fechadas num campo, como o "Tipo de imóvel": o botão
+                        mostra o resumo e abre a lista de opções (várias à escolha). Sem
+                        JavaScript, o noscript mostra a lista aberta e o botão fica escondido.
+                    --}}
+                    <div x-data="{ open: false }" @keydown.escape.window="open = false" class="relative" wire:key="filtro-caracteristicas">
+                        <span class="label" id="lst-features-label">{{ __('ui.listing.features') }}</span>
+                        <button type="button" x-cloak @click="open = ! open" :aria-expanded="open" aria-haspopup="true" aria-labelledby="lst-features-label"
+                                class="field mt-2 flex items-center justify-between gap-2 py-2 text-left text-sm">
+                            <span class="truncate {{ count($features) === 1 ? 'capitalize' : '' }}">
+                                @if (count($features) === 0)
+                                    {{ __('ui.listing.any_features') }}
+                                @elseif (count($features) === 1)
+                                    {{ $features[0] }}
+                                @else
+                                    {{ trans_choice('ui.listing.features_selected', count($features), ['count' => count($features)]) }}
+                                @endif
+                            </span>
+                            <svg class="h-4 w-4 shrink-0 text-ink-muted transition-transform" :class="open && 'rotate-180'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+                        </button>
+                        <div x-cloak x-show="open" @click.outside="open = false" x-transition.opacity.duration.150ms
+                             class="absolute z-20 mt-2 max-h-72 w-full overflow-y-auto rounded-md border border-sand-200 bg-white p-3 shadow-lg"
+                             role="group" aria-labelledby="lst-features-label">
+                            <div class="grid gap-2 text-sm">
+                                @foreach ($opts['features'] as $f)
+                                    <label class="flex items-center gap-2">
+                                        <input type="checkbox" name="caracteristicas[]" value="{{ $f }}" wire:model.live="features" @checked(in_array($f, $features, true)) class="h-5 w-5 shrink-0 accent-olive-600">
+                                        <span class="capitalize">{{ $f }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
                         </div>
-                    </fieldset>
+                        <noscript>
+                            <div class="mt-3 grid gap-2 text-sm">
+                                @foreach ($opts['features'] as $f)
+                                    <label class="flex items-center gap-2">
+                                        <input type="checkbox" name="caracteristicas[]" value="{{ $f }}" @checked(in_array($f, $features, true)) class="h-5 w-5 shrink-0 accent-olive-600">
+                                        <span class="capitalize">{{ $f }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </noscript>
+                    </div>
                 @endif
 
                 <div class="flex items-center gap-4">
