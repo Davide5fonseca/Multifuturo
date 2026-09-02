@@ -9,6 +9,22 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Campos de escolha sem o botão "×"
+
+$${\color{#5D6348}\textsf{2026-09-02 · 09:37}}$$
+
+**Commit:** `959a948` — `Backoffice: campos de escolha sem o botao de limpar (x)`
+
+Os campos de escolha do backoffice mostravam um "×" para limpar o valor ao lado da
+seta (Actual, Moeda, Tipo negócio, …). Sai. Não se perde nada: nos campos que podem
+ficar vazios, a própria lista continua a ter a opção do topo ("Seleccione uma opção"),
+que limpa o valor.
+
+- `resources/css/filament/admin/theme.css` — esconde `.fi-select-input-value-remove-btn`.
+- Verificado no browser: "Ativa" e "Venda" ficam só com a seta.
+
+---
+
 ## Valores de referência revistos todos os meses pelo INE
 
 $${\color{#5D6348}\textsf{2026-09-01 · 15:58}}$$
