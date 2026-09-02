@@ -9,6 +9,42 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Fotografias de arquivo na abertura
+
+$${\color{#5D6348}\textsf{2026-09-02 · 16:17}}$$
+
+**Commit:** `dcec7fa` — `Site: abertura com fotografias de arquivo (licenca livre) guardadas no nosso servidor`
+
+As fotografias da abertura deixam de ser as capas dos imóveis da carteira (que têm a
+marca de água) e passam a ser **seis fotografias de arquivo de imóveis** — moradias
+modernas, ao entardecer e com piscina, e um interior. Continuam a alternar de 5 em 5
+segundos, e a **ordem é sorteada em cada visita**, para quem volta não ver sempre a
+mesma primeira imagem.
+
+Duas decisões que vale a pena registar:
+
+**Não são imagens apanhadas ao acaso na internet.** Isso seria violação de direitos de
+autor. São do Unsplash, com licença que permite uso comercial sem atribuição, e foram
+escolhidas uma a uma (vi todas antes de as usar).
+
+**Estão guardadas no nosso servidor**, em WebP (1,5 MB no total, das quais só a
+primeira carrega de imediato). Não há nenhum pedido a servidores de terceiros — a
+mesma regra das fontes e do mapa, e o que a política de cookies promete.
+
+São **decorativas**: não são imóveis da agência. Quando houver fotografia própria da
+carteira ou da região, troca-se os ficheiros em `public/images/hero/` (ou a lista em
+`config/agency.php`) e fica feito. Fica a nota para a revisão jurídica que já está na
+lista do cliente.
+
+- `public/images/hero/hero-1.webp` … `hero-6.webp` — novas.
+- `config/agency.php` — `hero_images`, com a origem e a licença explicadas.
+- `app/Http/Controllers/PageController.php` — usa a lista, sorteada; sem lista
+  configurada volta às capas dos destaques.
+- Verificado: 232 testes a passar, Pint limpo, e em Edge — 6 fotografias, 6 pontos,
+  troca aos 5 e aos 10 segundos, zero erros de consola.
+
+---
+
 ## Abertura com fotografias a alternar
 
 $${\color{#5D6348}\textsf{2026-09-02 · 16:05}}$$
