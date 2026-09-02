@@ -9,6 +9,39 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Composição com fotografias de arquivo, e entradas mais lentas
+
+$${\color{#5D6348}\textsf{2026-09-02 · 16:46}}$$
+
+**Commit:** `08f218d` — `Site: composicao com fotografias de arquivo no tamanho certo; entradas mais lentas`
+
+As duas fotografias da composição da página inicial — que eram capas de imóveis da
+carteira, com a marca de água — passam a ser de arquivo, como as da abertura: um pátio
+mediterrânico ao entardecer (a grande) e um interior claro (a pequena). Escolhidas
+entre doze candidatas, todas vistas antes de entrarem.
+
+**No tamanho certo**: descarregadas já cortadas para onde vão aparecer (1600×1067 e
+900×900), em WebP — 336 KB e 125 KB. Nada de imagens enormes a serem encolhidas pelo
+browser.
+
+A composição também ganhou medida própria (`container-read`): espalhada pela largura
+toda ficava um vazio no meio em vez de uma composição.
+
+**As entradas ficaram mais lentas**, a pedido do cliente: o esbatimento passa de 0,9 s
+para 1,5 s (1,8 s no descobrir das imagens) e a escada entre cartões de 90 ms para
+130–180 ms. O site respira em vez de saltar.
+
+- `public/images/site/composicao-1.webp`, `composicao-2.webp` — novas.
+- `config/agency.php` — `story_images`, com a origem e a licença explicadas; também
+  decorativas, para trocar por fotografia própria quando houver.
+- `resources/views/pages/home.blade.php` — usa a lista (sem ela, volta às capas dos
+  destaques), com medida própria e as dimensões declaradas nas imagens.
+- `resources/css/app.css`, `resources/js/motion.js`,
+  `resources/views/livewire/property-listing.blade.php` — tempos de entrada.
+- Verificado: 232 testes a passar, Pint limpo, e a composição fotografada a 1920 px.
+
+---
+
 ## Fotografias de arquivo na abertura
 
 $${\color{#5D6348}\textsf{2026-09-02 · 16:17}}$$
