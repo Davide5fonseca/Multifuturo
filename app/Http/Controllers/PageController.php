@@ -30,11 +30,25 @@ class PageController extends Controller
             return $featured;
         });
 
-        $heroImage = config('agency.hero_image') ?: ($featured->first()?->cover_photo['url'] ?? null);
+        /*
+         * Fotografias da abertura, a alternar: a imagem configurada (se houver)
+         * seguida das capas dos destaques. São as fotografias reais da carteira,
+         * sem repetições, no máximo cinco.
+         */
+        $heroImages = collect([config('agency.hero_image')])
+            ->concat($featured->pluck('cover_photo.url'))
+            ->filter()
+            ->unique()
+            ->take(5)
+            ->values()
+            ->all();
+
+        $heroImage = $heroImages[0] ?? null;
 
         return view('pages.home', [
             'featured' => $featured,
             'heroImage' => $heroImage,
+            'heroImages' => $heroImages,
             'cities' => Zones::cities(),
             // Números da carteira publicada — contam no ecrã, e são verdade.
             'stats' => PropertyCache::remember('home:stats', fn () => [

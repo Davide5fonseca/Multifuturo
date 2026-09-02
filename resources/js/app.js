@@ -226,7 +226,47 @@ function resultsMap(assets, points) {
     };
 }
 
+/*
+ * Fotografias da abertura a alternar. Troca de imagem de X em X tempo, com um
+ * esbatimento lento; os pontos deixam escolher à mão e param a rotação (quem
+ * escolhe manda). Com "reduzir movimento" ligado, fica na primeira e quieta.
+ */
+function slideshow(total, intervalo = 5000) {
+    return {
+        atual: 0,
+        total,
+        timer: null,
+
+        init() {
+            if (this.total < 2) return;
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            this.comecar();
+            // Numa página em segundo plano não vale a pena andar a trocar imagens.
+            document.addEventListener('visibilitychange', () => {
+                document.hidden ? this.parar() : this.comecar();
+            });
+        },
+
+        comecar() {
+            this.parar();
+            this.timer = setInterval(() => { this.atual = (this.atual + 1) % this.total; }, intervalo);
+        },
+
+        parar() {
+            if (this.timer) clearInterval(this.timer);
+            this.timer = null;
+        },
+
+        /** Escolha manual: mostra a imagem e deixa de rodar sozinha. */
+        ir(i) {
+            this.atual = i;
+            this.parar();
+        },
+    };
+}
+
 document.addEventListener('alpine:init', () => {
+    window.Alpine.data('slideshow', slideshow);
     window.Alpine.data('suggestions', suggestions);
     window.Alpine.data('propertyMap', propertyMap);
     window.Alpine.data('resultsMap', resultsMap);

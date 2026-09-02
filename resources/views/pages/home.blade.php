@@ -8,15 +8,53 @@
 <x-layouts.app :title="__('ui.home.title')" :description="__('ui.home_sections.hero_lead')" :canonical="route('home')" :image="$heroImage">
     {{-- 1. Abertura: fotografia a toda a largura, texto encostado em baixo à esquerda --}}
     <section @class(['relative isolate flex items-end overflow-hidden', 'bg-olive-900 text-sand-50' => $heroImage, 'bg-sand-100 text-ink' => ! $heroImage])
-             style="min-height: min(92svh, 900px)">
-        @if ($heroImage)
+             style="min-height: min(92svh, 900px)"
+             @if ($heroImages) x-data="slideshow({{ count($heroImages) }}, 5000)" @endif>
+        @if ($heroImages)
+            {{--
+                As fotografias da carteira, a alternar de 5 em 5 segundos com um
+                esbatimento lento (slideshow, em resources/js/app.js). A primeira
+                carrega com prioridade; as outras chegam a seguir. Todas se movem
+                em conjunto dentro da moldura (parallax).
+            --}}
             <div class="parallax-frame absolute inset-0 -z-20" aria-hidden="true">
-                <img src="{{ $heroImage }}" alt="" width="1920" height="1080" fetchpriority="high" decoding="async"
-                     data-parallax="0.16" class="absolute inset-x-0 w-full object-cover"
-                     data-fallback="{{ asset('images/placeholder-property.jpg') }}"
-                     onerror="this.onerror=null;this.src=this.dataset.fallback">
+                <div data-parallax="0.16" class="absolute inset-x-0">
+                    @foreach ($heroImages as $i => $imagem)
+                        {{-- A opacidade vai no estilo, não numa classe: o :class do Alpine
+                             acrescenta classes sem tirar as que já lá estão, e as duas
+                             ficavam a discutir qual mandava. --}}
+                        <img src="{{ $imagem }}" alt="" width="1920" height="1080" decoding="async" data-hero-photo
+                             @if ($i === 0) fetchpriority="high" @else loading="lazy" @endif
+                             class="absolute inset-0 h-full w-full object-cover transition-opacity duration-[1500ms] ease-out"
+                             style="opacity: {{ $i === 0 ? '1' : '0' }}"
+                             :style="'opacity: ' + (atual === {{ $i }} ? 1 : 0)"
+                             data-fallback="{{ asset('images/placeholder-property.jpg') }}"
+                             onerror="this.onerror=null;this.src=this.dataset.fallback">
+                    @endforeach
+                </div>
             </div>
             <div class="absolute inset-0 -z-10 bg-linear-to-t from-ink/85 via-ink/60 to-ink/25" aria-hidden="true"></div>
+
+            {{-- Pontos: dizem quantas fotografias há e deixam escolher (a rotação pára). --}}
+            @if (count($heroImages) > 1)
+                {{-- Assentam por cima do aviso de cookies enquanto ele estiver no ecrã. --}}
+                <div x-cloak class="absolute bottom-6 right-5 z-10 flex gap-2.5 sm:right-8 lg:right-12 2xl:right-20"
+                     x-data="{ get offset() {
+                         const aviso = document.querySelector('[data-consent-banner]');
+                         return ($store.consent?.open && aviso) ? aviso.offsetHeight + 16 : 0;
+                     } }"
+                     :style="'bottom: calc(1.5rem + ' + offset + 'px)'">
+                    @foreach ($heroImages as $i => $imagem)
+                        <button type="button" @click="ir({{ $i }})"
+                                class="grid h-11 w-6 place-items-center"
+                                :aria-current="atual === {{ $i }} ? 'true' : 'false'"
+                                aria-label="{{ __('ui.home.photo_n', ['n' => $i + 1, 'total' => count($heroImages)]) }}">
+                            <span class="block h-1.5 rounded-full bg-sand-50 transition-all duration-500"
+                                  :class="atual === {{ $i }} ? 'w-6 opacity-100' : 'w-1.5 opacity-50'"></span>
+                        </button>
+                    @endforeach
+                </div>
+            @endif
         @endif
 
         <div class="container-site pb-16 pt-32 sm:pb-24">
@@ -144,17 +182,4 @@
     {{-- 7. Vistos recentemente (só a quem já visitou fichas) --}}
     <x-recently-viewed class="container-site pb-24 sm:pb-32" />
 
-    {{-- 8. Faixa escura: avaliação e contacto --}}
-    <section class="band band-dark">
-        <div class="container-site text-center">
-            <x-site.reveal>
-                <h2 class="display-sm mx-auto max-w-3xl">{{ __('ui.home_sections.cta_title') }}</h2>
-                <p class="mx-auto mt-6 max-w-md text-sand-200">{{ __('ui.home_sections.cta_lead') }}</p>
-                <div class="mt-10 flex flex-wrap justify-center gap-4">
-                    <a href="{{ route('valuation') }}" class="btn bg-sand-50 text-ink hover:bg-sand-100">{{ __('ui.home_sections.cta_button') }}</a>
-                    <a href="{{ route('contact') }}" class="btn border border-sand-200/40 text-sand-50 hover:bg-sand-50/10">{{ __('ui.home_sections.cta_contact') }}</a>
-                </div>
-            </x-site.reveal>
-        </div>
-    </section>
 </x-layouts.app>
