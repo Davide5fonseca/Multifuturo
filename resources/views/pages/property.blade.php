@@ -27,6 +27,13 @@
 
     $ami = config('agency.ami');
     $coords = $p->coordinates;
+    $leaflet = [
+        'css' => asset('vendor/leaflet/leaflet.css'),
+        'js' => asset('vendor/leaflet/leaflet.js'),
+        'icon' => asset('vendor/leaflet/images/marker-icon.png'),
+        'icon2x' => asset('vendor/leaflet/images/marker-icon-2x.png'),
+        'shadow' => asset('vendor/leaflet/images/marker-shadow.png'),
+    ];
 @endphp
 <x-layouts.app :title="$metaTitle" :description="$metaDescription" :keywords="$p->keywords()" :canonical="route('property.show', $p)" :image="$p->coverPhotoUrl()">
     <x-slot:head>
@@ -151,36 +158,7 @@
                     <h2 class="text-2xl font-semibold tracking-tight">{{ __('ui.property.map') }}</h2>
                     @if ($coords)
                         @php $lat = (float) $coords['lat']; $lon = (float) $coords['lon']; @endphp
-                        <div x-data="{
-                                map: null,
-                                async init() {
-                                    await this.loadLeaflet();
-                                    this.draw();
-                                },
-                                loadLeaflet() {
-                                    return new Promise((resolve) => {
-                                        if (window.L) return resolve();
-                                        const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = @js(asset('vendor/leaflet/leaflet.css')); document.head.appendChild(css);
-                                        const js = document.createElement('script'); js.src = @js(asset('vendor/leaflet/leaflet.js')); js.onload = resolve; document.head.appendChild(js);
-                                    });
-                                },
-                                draw() {
-                                    if (this.map || ! this.$refs.map) return;
-                                    const pos = [{{ $lat }}, {{ $lon }}];
-                                    this.map = L.map(this.$refs.map, { scrollWheelZoom: false, attributionControl: false }).setView(pos, 15);
-                                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(this.map);
-                                    // Sem aspas dentro do texto: este bloco vive num atributo HTML.
-                                    L.control.attribution({ prefix: false })
-                                        .addAttribution('&copy; <a href=' + @js('https://www.openstreetmap.org/copyright') + ' target=_blank rel=noopener>OpenStreetMap</a>')
-                                        .addTo(this.map);
-                                    L.marker(pos, { icon: L.icon({
-                                        iconUrl: @js(asset('vendor/leaflet/images/marker-icon.png')),
-                                        iconRetinaUrl: @js(asset('vendor/leaflet/images/marker-icon-2x.png')),
-                                        shadowUrl: @js(asset('vendor/leaflet/images/marker-shadow.png')),
-                                        iconSize: [25, 41], iconAnchor: [12, 41], shadowSize: [41, 41],
-                                    }) }).addTo(this.map);
-                                },
-                            }"
+                        <div x-data="propertyMap(@js($leaflet), {{ $lat }}, {{ $lon }})"
                             class="mt-5 overflow-hidden rounded-xl border border-sand-200 bg-sand-100">
                             <div x-ref="map" class="h-96 w-full" role="img" aria-label="{{ __('ui.property.map') }}" data-map></div>
                             <noscript><p class="p-4 text-sm"><a class="link" href="https://www.openstreetmap.org/?mlat={{ $lat }}&mlon={{ $lon }}#map=16/{{ $lat }}/{{ $lon }}" rel="noopener" target="_blank">OpenStreetMap</a></p></noscript>

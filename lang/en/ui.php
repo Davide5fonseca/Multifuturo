@@ -161,6 +161,8 @@ return [
         'empty' => 'We found no properties matching these criteria. Try widening your search.',
         'clear_filters' => 'Clear filters',
         'load_more' => 'Show more properties',
+        'map_view' => 'View on map',
+        'map_hide' => 'Close map',
         'loading' => 'Loading…',
         'showing' => ':shown of :total',
         'filters' => 'Filters',

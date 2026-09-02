@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Enums\BusinessType;
 use App\Models\Property;
+use App\Support\Format;
 use App\Support\PropertyCache;
 use App\Support\PropertyFilters;
 use Illuminate\Contracts\View\View;
@@ -205,6 +206,29 @@ class PropertyListing extends Component
                 'pageName' => 'page',
             ]);
         });
+    }
+
+    /**
+     * Alfinetes do mapa dos resultados: só os imóveis já mostrados e só os que
+     * têm localização pública (gmap_visible) — a coordenada de quem não
+     * autorizou nunca sai do servidor.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function mapPoints(): array
+    {
+        return $this->properties()->getCollection()
+            ->filter(fn (Property $p) => $p->coordinates !== null)
+            ->map(fn (Property $p) => [
+                'lat' => (float) $p->coordinates['lat'],
+                'lon' => (float) $p->coordinates['lon'],
+                'title' => $p->title ?: (string) ($p->reference ?? $p->internal_id),
+                'price' => Format::price($p->price, $p->currency, $p->business_type, $p->price_visible),
+                'photo' => $p->coverPhotoUrl(),
+                'url' => route('property.show', $p),
+            ])
+            ->values()
+            ->all();
     }
 
     /** Ainda há resultados por mostrar depois dos que já estão no ecrã? */

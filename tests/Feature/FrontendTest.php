@@ -150,7 +150,7 @@ it('com gmap_visible=true tem coordenadas no JSON-LD e o mapa aparece logo, com 
         ->and($html)->toContain('38.7123456')
         // O contentor do mapa está logo no DOM e o Alpine desenha-o ao iniciar — sem botão.
         ->and($html)->toContain('data-map')
-        ->and($html)->toContain('async init()')
+        ->and($html)->toContain('propertyMap(')
         ->and($html)->not->toContain('Mostrar mapa')
         ->and($html)->toContain('leaflet.js') // @js() escapa as barras: procura-se só o nome do ficheiro
         ->and($html)->not->toContain('export/embed.html');

@@ -160,6 +160,8 @@ return [
         'empty' => 'Não encontrámos imóveis com estes critérios. Experimente alargar a pesquisa.',
         'clear_filters' => 'Limpar filtros',
         'load_more' => 'Ver mais imóveis',
+        'map_view' => 'Ver no mapa',
+        'map_hide' => 'Fechar o mapa',
         'loading' => 'A carregar…',
         'showing' => ':shown de :total',
         'filters' => 'Filtros',

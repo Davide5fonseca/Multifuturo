@@ -2,6 +2,14 @@
     use App\Support\Format;
     $opts = $this->options;
     $results = $this->properties;
+    $pontos = $this->mapPoints();
+    $leaflet = [
+        'css' => asset('vendor/leaflet/leaflet.css'),
+        'js' => asset('vendor/leaflet/leaflet.js'),
+        'icon' => asset('vendor/leaflet/images/marker-icon.png'),
+        'icon2x' => asset('vendor/leaflet/images/marker-icon-2x.png'),
+        'shadow' => asset('vendor/leaflet/images/marker-shadow.png'),
+    ];
 @endphp
 <div class="container-site pb-24" x-data="{ filtersOpen: false }">
     {{-- Cabeçalho da secção + barra de pesquisa: título curto, resultado, ordenação --}}
@@ -148,6 +156,27 @@
 
         {{-- Resultados --}}
         <div wire:loading.class="opacity-60" class="transition-opacity">
+            {{--
+                Mapa dos resultados: fechado por omissão (o Leaflet só é carregado
+                ao abrir) e com um alfinete por imóvel com localização pública.
+                O contentor do mapa é do Leaflet — wire:ignore para o Livewire não
+                lhe tocar; os pontos chegam pelo elemento com wire:key abaixo.
+            --}}
+            @if ($pontos !== [] && ! $results->isEmpty())
+                <div class="mb-8" x-data="resultsMap(@js($leaflet), @js($pontos))"
+                     @@resultados-atualizados.window="update($event.detail.pontos)">
+                    <button type="button" class="btn-secondary py-2 text-sm" @click="toggle()" :aria-expanded="open">
+                        <span x-show="!open">{{ __('ui.listing.map_view') }}</span>
+                        <span x-show="open" x-cloak>{{ __('ui.listing.map_hide') }}</span>
+                    </button>
+                    <div x-show="open" x-cloak x-transition.opacity class="mt-4 overflow-hidden rounded-xl border border-sand-200">
+                        <div wire:ignore x-ref="map" class="h-[26rem] w-full" role="application" aria-label="{{ __('ui.listing.map_view') }}"></div>
+                    </div>
+                </div>
+                <div hidden wire:key="mapa-{{ md5(json_encode($pontos)) }}" x-data="{ pontos: @js($pontos) }"
+                     x-init="$dispatch('resultados-atualizados', { pontos })"></div>
+            @endif
+
             @if ($results->isEmpty())
                 <div class="rounded-xl border border-sand-200 bg-sand-100 px-6 py-16 text-center">
                     <p class="text-lg">{{ __('ui.listing.empty') }}</p>
