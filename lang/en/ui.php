@@ -192,6 +192,7 @@ return [
 
     'property' => [
         'reference' => 'Ref.',
+        'price' => 'Price',
         'typology' => 'Typology',
         'bedrooms_count' => 'Bedroom(s)',
         'wc' => 'Bathrooms',
@@ -242,6 +243,22 @@ return [
         'view' => 'View property',
     ],
 
+    'compare' => [
+        'title' => 'Compare properties',
+        'lead' => 'Pick up to three properties from the listings and see them side by side.',
+        'add' => 'Compare this property',
+        'remove' => 'Remove from comparison',
+        'open' => 'Compare',
+        'clear' => 'Clear',
+        'add_more' => 'Pick more properties',
+        'empty' => 'You have not picked any properties to compare yet. Use the compare button on the cards.',
+        'need_two' => 'Pick at least two properties to compare them.',
+        'count' => '{1} 1 property|[2,*] :count properties',
+        'bar_one' => 'property to compare',
+        'bar_many' => 'properties to compare',
+        'limit' => 'Maximum :max.',
+    ],
+
     'favorites' => [
         'title' => 'Favourites',
         'lead' => 'The properties you save stay on this device — no sign-up, no account.',
@@ -262,6 +279,12 @@ return [
     ],
 
     'home_sections' => [
+        'statement_eyebrow' => 'A closer way of working',
+        'statement' => 'We know the local market, we value with care and we handle the whole process — <em>from the first viewing to the deed</em> — so that buying, selling or renting is <em>simple and safe</em>.',
+        'why_statement' => 'Three reasons to trust your home to people who <em>treat it as their own</em>.',
+        'stat_properties' => '{0} properties listed|{1} property listed|[2,*] properties listed',
+        'stat_cities' => '{0} municipalities|{1} municipality|[2,*] municipalities',
+        'stat_localities' => '{0} parishes|{1} parish|[2,*] parishes',
         'hero_title' => 'The right home, in the right place',
         'hero_lead' => 'Estate agency with close support, from the first conversation to the deed.',
         'hero_cta' => 'View properties',

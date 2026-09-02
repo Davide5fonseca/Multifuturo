@@ -7,6 +7,7 @@
 
 use App\Livewire\PropertyListing;
 use App\Models\Property;
+use App\Support\Format;
 use App\Support\PropertyCache;
 use Livewire\Livewire;
 
@@ -128,6 +129,58 @@ it('os cartões dos vistos recentemente vêm pela ordem pedida e só de imóveis
 
     // Slugs inventados não passam pelo filtro.
     expect(trim($this->get(route('property.cards', ['slugs' => '../etc/passwd,<script>']))->assertOk()->getContent()))->toBe('');
+});
+
+it('o comparador põe até três imóveis lado a lado', function () {
+    // As referências são o que aparece em cada coluna — e, ao contrário dos slugs,
+    // não vão na query string (que o <link rel=alternate> repete no cabeçalho).
+    $a = Property::factory()->create(['reference' => 'CMP-A', 'city' => 'Espinho', 'bedrooms' => 3, 'price' => 250000, 'energy_rating' => 'B']);
+    $b = Property::factory()->create(['reference' => 'CMP-B', 'city' => 'Aveiro', 'bedrooms' => 2, 'price' => 180000, 'energy_rating' => 'C']);
+    $c = Property::factory()->create(['reference' => 'CMP-C', 'city' => 'Braga', 'bedrooms' => 4, 'price' => 320000, 'energy_rating' => 'A']);
+    $d = Property::factory()->create(['reference' => 'CMP-D', 'city' => 'Faro']);
+    $fora = Property::factory()->inactive()->create(['reference' => 'CMP-FORA', 'city' => 'Beja']);
+
+    // Sem escolhas: convite a escolher.
+    $this->get(route('compare'))->assertOk()->assertSee(__('ui.compare.empty'));
+
+    // Um só imóvel não é comparação nenhuma.
+    $this->get(route('compare', ['slugs' => $a->slug]))->assertOk()->assertSee(__('ui.compare.need_two'));
+
+    $html = $this->get(route('compare', ['slugs' => "{$b->slug},{$a->slug}"]))->assertOk()->getContent();
+
+    expect($html)->toContain(Format::price($a->price, $a->currency, $a->business_type))
+        ->toContain(Format::price($b->price, $b->currency, $b->business_type))
+        ->toContain(__('ui.property.energy_rating'))
+        // A ordem escolhida é a ordem das colunas.
+        ->and(strpos($html, 'CMP-B'))->toBeLessThan(strpos($html, 'CMP-A'));
+
+    // O teto são três: o quarto fica de fora, e os despublicados nunca entram.
+    $html = $this->get(route('compare', ['slugs' => "{$a->slug},{$b->slug},{$c->slug},{$d->slug}"]))->assertOk()->getContent();
+    expect($html)->toContain('CMP-A')->toContain('CMP-B')->toContain('CMP-C')->not->toContain('CMP-D')
+        ->and($html)->toContain(trans_choice('ui.compare.count', 3, ['count' => 3]));
+
+    $html = $this->get(route('compare', ['slugs' => "{$a->slug},{$fora->slug}"]))->assertOk()->getContent();
+    expect($html)->toContain(__('ui.compare.need_two'))->not->toContain('CMP-FORA');
+});
+
+it('as linhas vazias em todos os imóveis não aparecem na comparação', function () {
+    $a = Property::factory()->create(['plot_area' => null, 'floor_number' => null, 'city' => 'Espinho']);
+    $b = Property::factory()->create(['plot_area' => null, 'floor_number' => 3, 'city' => 'Aveiro']);
+
+    $html = $this->get(route('compare', ['slugs' => "{$a->slug},{$b->slug}"]))->assertOk()->getContent();
+
+    expect($html)->not->toContain(__('ui.property.plot_area'))   // vazia nos dois: fora
+        ->toContain(__('ui.property.floor'));                     // preenchida num: fica, com — no outro
+});
+
+it('os cartões e o layout trazem o comparador', function () {
+    Property::factory()->create(['business_type' => 'sale']);
+
+    $html = $this->get(route('buy'))->assertOk()->getContent();
+
+    expect($html)->toContain('$store.compare.toggle')
+        ->toContain('$store.compare.count')
+        ->toContain(__('ui.compare.open'));
 });
 
 it('a ficha regista-se nos vistos recentemente e tem partilha', function () {

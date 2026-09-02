@@ -191,6 +191,7 @@ return [
 
     'property' => [
         'reference' => 'Ref.',
+        'price' => 'Preço',
         'typology' => 'Tipologia',
         'bedrooms_count' => 'Quarto(s)',
         'wc' => 'WCs',
@@ -241,6 +242,22 @@ return [
         'view' => 'Ver imóvel',
     ],
 
+    'compare' => [
+        'title' => 'Comparar imóveis',
+        'lead' => 'Escolha até três imóveis nas listagens e veja-os lado a lado.',
+        'add' => 'Comparar este imóvel',
+        'remove' => 'Retirar da comparação',
+        'open' => 'Comparar',
+        'clear' => 'Limpar',
+        'add_more' => 'Escolher mais imóveis',
+        'empty' => 'Ainda não escolheu imóveis para comparar. Use o botão de comparar nos cartões.',
+        'need_two' => 'Escolha pelo menos dois imóveis para os comparar.',
+        'count' => '{1} 1 imóvel|[2,*] :count imóveis',
+        'bar_one' => 'imóvel para comparar',
+        'bar_many' => 'imóveis para comparar',
+        'limit' => 'Máximo :max.',
+    ],
+
     'favorites' => [
         'title' => 'Favoritos',
         'lead' => 'Os seus imóveis guardados ficam neste dispositivo — sem registo, sem conta.',
@@ -261,6 +278,12 @@ return [
     ],
 
     'home_sections' => [
+        'statement_eyebrow' => 'Um modo próximo de trabalhar',
+        'statement' => 'Conhecemos o mercado local, avaliamos com rigor e tratamos de todo o processo — <em>da primeira visita à escritura</em> — para que comprar, vender ou arrendar seja <em>simples e seguro</em>.',
+        'why_statement' => 'Três razões para confiar a sua casa a quem <em>a trata como se fosse sua</em>.',
+        'stat_properties' => '{0} imóveis na carteira|{1} imóvel na carteira|[2,*] imóveis na carteira',
+        'stat_cities' => '{0} concelhos|{1} concelho|[2,*] concelhos',
+        'stat_localities' => '{0} freguesias|{1} freguesia|[2,*] freguesias',
         'hero_title' => 'A casa certa, no sítio certo',
         'hero_lead' => 'Mediação imobiliária com acompanhamento próximo, do primeiro contacto à escritura.',
         'hero_cta' => 'Ver imóveis',

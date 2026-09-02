@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CompareController;
 use App\Http\Controllers\ConsentController;
 use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\PropertyCardsController;
@@ -99,6 +100,9 @@ Route::prefix('{locale}')
 
         // Favoritos (localStorage; o servidor só renderiza os cartões pedidos)
         Route::get('/favoritos', [FavoritesController::class, 'index'])->name('favorites');
+
+        // Comparador (até 3 imóveis; a escolha vive no browser, como os favoritos)
+        Route::get('/comparar', CompareController::class)->name('compare');
 
         // Sugestões da pesquisa (concelhos, freguesias, imóveis) enquanto se escreve,
         // e o fragmento de cartões pedido pelos "vistos recentemente". Só leitura.

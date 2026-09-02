@@ -68,6 +68,31 @@
     <link rel="preload" href="{{ asset('fonts/fraunces-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="{{ asset('fonts/inter-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
 
+    {{--
+        Barra do comparador: aparece quando há imóveis escolhidos e acompanha o
+        visitante pelo site. Só com JavaScript (a escolha vive no localStorage).
+    --}}
+    {{-- O aviso de cookies manda: enquanto estiver no ecrã, a barra assenta por cima dele. --}}
+    <div x-cloak x-show="$store.compare.count > 0" x-transition
+         x-data="{ get offset() {
+             const aviso = document.querySelector('[data-consent-banner]');
+             return ($store.consent?.open && aviso) ? aviso.offsetHeight : 0;
+         } }"
+         :style="'bottom: ' + offset + 'px'"
+         class="fixed inset-x-0 bottom-0 z-30 border-t border-sand-200 bg-sand-50/95 backdrop-blur print:hidden">
+        <div class="container-site flex flex-wrap items-center justify-between gap-3 py-3">
+            <p class="text-sm" aria-live="polite">
+                <span x-text="$store.compare.count"></span>
+                <span x-text="$store.compare.count === 1 ? @js(__('ui.compare.bar_one')) : @js(__('ui.compare.bar_many'))"></span>
+                <span x-show="$store.compare.full" x-transition class="ml-2 text-clay-600">{{ __('ui.compare.limit', ['max' => \App\Http\Controllers\CompareController::MAX]) }}</span>
+            </p>
+            <div class="flex items-center gap-3">
+                <button type="button" class="link text-sm" @click="$store.compare.clear()">{{ __('ui.compare.clear') }}</button>
+                <a href="{{ route('compare') }}" class="btn-primary px-6 py-2 text-sm" :class="$store.compare.count < 2 && 'pointer-events-none opacity-50'">{{ __('ui.compare.open') }}</a>
+            </div>
+        </div>
+    </div>
+
     {{-- Configuração do consentimento de cookies lida pelo consent.js (sem valores sensíveis). --}}
     <script>window.MF_CONSENT = {!! json_encode(['cookie' => config('consent.cookie'), 'days' => config('consent.days'), 'version' => config('consent.version'), 'categories' => config('consent.categories'), 'endpoint' => route('consent.store')], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!};</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])

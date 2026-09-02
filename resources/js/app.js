@@ -3,6 +3,7 @@
 // do consentimento de cookies (Fase 6).
 import './bootstrap';
 import './consent';
+import './motion';
 
 /*
  * Favoritos em localStorage — sem registo, sem servidor. Guardamos só os slugs;
@@ -11,6 +12,8 @@ import './consent';
 const FAVORITES_KEY = 'multifuturo:favoritos';
 const RECENT_KEY = 'multifuturo:vistos';
 const RECENT_MAX = 12;
+const COMPARE_KEY = 'multifuturo:comparar';
+const COMPARE_MAX = 3;
 
 /*
  * Pesquisa com sugestões: enquanto se escreve, o servidor devolve concelhos,
@@ -277,6 +280,71 @@ document.addEventListener('alpine:init', () => {
                 window.localStorage.setItem(FAVORITES_KEY, JSON.stringify(this.slugs));
             } catch {
                 /* armazenamento indisponível (modo privado) — os favoritos vivem só nesta sessão */
+            }
+        },
+    });
+
+    /*
+     * Comparador: até três imóveis escolhidos, guardados no aparelho do
+     * visitante. A página /comparar lê-os e pede ao servidor os dados para a
+     * tabela; nada disto sai daqui sem ser por escolha de quem navega.
+     */
+    window.Alpine.store('compare', {
+        slugs: [],
+        max: COMPARE_MAX,
+        full: false,
+
+        init() {
+            try {
+                const raw = window.localStorage.getItem(COMPARE_KEY);
+                this.slugs = raw ? JSON.parse(raw).filter((s) => typeof s === 'string').slice(0, COMPARE_MAX) : [];
+            } catch {
+                this.slugs = [];
+            }
+        },
+
+        has(slug) {
+            return this.slugs.includes(slug);
+        },
+
+        /** Tirar funciona sempre; pôr só até ao limite — daí o aviso "full". */
+        toggle(slug) {
+            if (this.has(slug)) {
+                this.slugs = this.slugs.filter((s) => s !== slug);
+            } else {
+                if (this.slugs.length >= COMPARE_MAX) {
+                    this.full = true;
+                    setTimeout(() => (this.full = false), 2500);
+                    return;
+                }
+                this.slugs = [...this.slugs, slug];
+            }
+            this.persist();
+        },
+
+        clear() {
+            this.slugs = [];
+            this.persist();
+        },
+
+        /** Tira da lista os imóveis que já não existem no site. */
+        prune(valid) {
+            const keep = this.slugs.filter((s) => valid.includes(s));
+            if (keep.length !== this.slugs.length) {
+                this.slugs = keep;
+                this.persist();
+            }
+        },
+
+        get count() {
+            return this.slugs.length;
+        },
+
+        persist() {
+            try {
+                window.localStorage.setItem(COMPARE_KEY, JSON.stringify(this.slugs));
+            } catch {
+                /* armazenamento indisponível — a escolha vive só nesta sessão */
             }
         },
     });

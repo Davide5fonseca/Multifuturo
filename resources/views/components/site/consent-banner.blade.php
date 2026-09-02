@@ -4,7 +4,7 @@
     peso visual que "Aceitar tudo" — recusa efetiva, sem dark patterns.
     Sem JS não há scripts não essenciais a ativar, logo o banner não é preciso (x-cloak).
 --}}
-<div x-data x-cloak x-show="$store.consent.open" x-transition.opacity
+<div x-data x-cloak x-show="$store.consent.open" x-transition.opacity data-consent-banner
      class="print:hidden fixed inset-x-0 bottom-0 z-40 border-t border-sand-200 bg-sand-50 text-ink"
      role="dialog" aria-modal="false" aria-labelledby="consent-title" aria-describedby="consent-text">
     <div class="container-site py-6">

@@ -252,3 +252,159 @@
     a { text-decoration: none; color: inherit; }
     .container-site { max-width: none; padding: 0; }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Linguagem editorial
+|--------------------------------------------------------------------------
+|
+| A direção nova (2026-09-02): tipografia serifada grande com ênfases em
+| itálico, faixas de cor a toda a largura, composições de imagens assimétricas
+| e muito espaço em branco. A paleta é a mesma de sempre — muda o ritmo, não
+| as cores.
+|
+*/
+@layer components {
+    /* Pequeno rótulo em itálico serifado, por cima dos títulos. */
+    .eyebrow {
+        @apply font-serif text-base italic text-ink-muted;
+    }
+
+    /* Título de abertura: caixa alta, muito grande, quase sem entrelinha. */
+    .display {
+        @apply font-serif font-normal uppercase;
+        font-size: clamp(2.6rem, 8.5vw, 6.5rem);
+        line-height: 0.94;
+        letter-spacing: -0.015em;
+        font-variation-settings: 'SOFT' 0, 'opsz' 144;
+    }
+
+    /* Título de secção, com a mesma voz mas em tamanho de leitura. */
+    .display-sm {
+        @apply font-serif font-normal uppercase;
+        font-size: clamp(1.9rem, 4.2vw, 3.2rem);
+        line-height: 1;
+        letter-spacing: -0.01em;
+        font-variation-settings: 'SOFT' 0, 'opsz' 96;
+    }
+
+    /*
+     * Parágrafo editorial: o texto grande que carrega a página, com as
+     * palavras que interessam em itálico (<em>).
+     */
+    .editorial {
+        @apply font-serif font-light;
+        font-size: clamp(1.35rem, 2.9vw, 2.5rem);
+        line-height: 1.24;
+        letter-spacing: -0.012em;
+        text-wrap: pretty;
+    }
+    .editorial em {
+        @apply not-italic;
+        font-style: italic;
+    }
+
+    /* Faixas a toda a largura, alternadas — o ritmo da página. */
+    .band {
+        @apply py-20 sm:py-28;
+    }
+    .band-sand {
+        @apply bg-sand-100;
+    }
+    .band-tan {
+        @apply bg-sand-200;
+    }
+    .band-dark {
+        @apply bg-olive-900 text-sand-100;
+    }
+    .band-dark .eyebrow,
+    .band-dark .text-ink-muted {
+        @apply text-sand-200;
+    }
+
+    /* Números grandes em itálico (minutos, anos, contagens). */
+    .stat {
+        @apply font-serif italic font-light;
+        font-size: clamp(1.9rem, 4vw, 3rem);
+        line-height: 1;
+    }
+
+    /*
+     * Campo com uma linha só, como nos formulários da referência. Herda a cor
+     * do texto, por isso funciona igual em fundo claro e em fundo escuro.
+     */
+    .field-line {
+        @apply min-h-11 w-full border-0 border-b bg-transparent px-0 py-3 text-current;
+        border-color: color-mix(in oklab, currentColor 30%, transparent);
+    }
+    .field-line::placeholder {
+        color: color-mix(in oklab, currentColor 45%, transparent);
+    }
+    .field-line:focus {
+        @apply outline-none;
+        border-color: currentColor;
+    }
+    select.field-line {
+        @apply pr-8;
+        background-position: right 0 center;
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Movimento (resources/js/motion.js)
+|--------------------------------------------------------------------------
+|
+| O estado inicial vive todo debaixo de `html.js`: sem JavaScript nada se
+| esconde. Com "reduzir movimento" ligado, o motion.js revela tudo de
+| imediato e a regra global de acessibilidade desliga as transições.
+|
+*/
+@layer utilities {
+    .js .reveal {
+        opacity: 0;
+        transform: translateY(1.75rem);
+        transition:
+            opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+            transform 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+            clip-path 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .js .reveal--fade {
+        transform: none;
+    }
+    /* Imagem que se descobre de baixo para cima. */
+    .js .reveal--wipe {
+        opacity: 1;
+        transform: none;
+        clip-path: inset(0 0 100% 0);
+    }
+    .js .reveal.is-visible {
+        opacity: 1;
+        transform: none;
+        clip-path: inset(0 0 0 0);
+    }
+
+    /* A fotografia move-se devagar dentro da moldura enquanto se desce. */
+    .parallax-frame {
+        @apply overflow-hidden;
+    }
+    .parallax-frame > [data-parallax] {
+        will-change: transform;
+        /* Folga em cima e em baixo para o deslocamento não descobrir a moldura. */
+        height: 118%;
+        top: -9%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .js .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        clip-path: none !important;
+    }
+    .parallax-frame > [data-parallax] {
+        transform: none !important;
+        height: 100%;
+        top: 0;
+    }
+}

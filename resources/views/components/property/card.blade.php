@@ -26,6 +26,20 @@
         @endif
     </a>
 
+    {{-- Comparar: só JS/localStorage, como o favorito. --}}
+    <button type="button" x-cloak x-data
+            @click.prevent="$store.compare.toggle(@js($p->slug))"
+            :aria-pressed="$store.compare.has(@js($p->slug))"
+            :aria-label="$store.compare.has(@js($p->slug)) ? @js(__('ui.compare.remove')) : @js(__('ui.compare.add'))"
+            :class="$store.compare.has(@js($p->slug)) ? 'bg-olive-600 text-sand-50' : 'bg-sand-50/90 text-ink hover:text-olive-700'"
+            class="absolute right-1.5 top-12 z-10 grid h-11 w-11 place-items-center rounded-full sm:right-3 sm:top-16">
+        <span class="grid h-9 w-9 place-items-center rounded-full">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h9M4 7l3-3M4 7l3 3M20 17h-9m9 0-3-3m3 3-3 3"/>
+            </svg>
+        </span>
+    </button>
+
     {{-- Favorito: só JS/localStorage. Sem JS, o botão não aparece (x-cloak). --}}
     <button type="button" x-cloak x-data
             @click.prevent="$store.favorites.toggle(@js($p->slug))"

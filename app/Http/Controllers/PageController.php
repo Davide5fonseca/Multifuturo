@@ -36,6 +36,12 @@ class PageController extends Controller
             'featured' => $featured,
             'heroImage' => $heroImage,
             'cities' => Zones::cities(),
+            // Números da carteira publicada — contam no ecrã, e são verdade.
+            'stats' => PropertyCache::remember('home:stats', fn () => [
+                'properties' => Property::query()->active()->count(),
+                'cities' => Property::query()->active()->whereNotNull('city')->distinct()->count('city'),
+                'localities' => Property::query()->active()->whereNotNull('locality')->distinct()->count('locality'),
+            ]),
         ]);
     }
 
