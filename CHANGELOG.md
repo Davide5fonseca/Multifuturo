@@ -9,6 +9,28 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Características num campo fechado
+
+$${\color{#5D6348}\textsf{2026-09-02 · 09:51}}$$
+
+**Commit:** `c085896` — `Site: caracteristicas num campo fechado, como o tipo de imovel`
+
+O filtro "Características" das listagens deixa de ser a lista aberta de vinte caixas e
+passa a um campo fechado, como o "Tipo de imóvel": mostra "Todas as características",
+abre ao clicar, escolhe-se as que se quiser (várias), e o campo resume — o nome quando
+é uma, "2 selecionadas" quando são mais. Fecha ao clicar fora ou com Escape. Sem
+JavaScript, a lista aparece aberta como antes (noscript) e o formulário continua a
+funcionar.
+
+- `resources/views/livewire/property-listing.blade.php` — campo com Alpine (botão +
+  painel), resumo, mesmas caixas ligadas ao Livewire.
+- `lang/pt/ui.php`, `lang/en/ui.php` — "Todas as características" e "N selecionadas".
+- Verificado em Edge: abre, seleciona duas, resume "2 selecionadas", filtra os
+  resultados, o URL leva `caracteristicas[]`, fecha ao clicar fora. Testes do site a
+  passar, Pint limpo.
+
+---
+
 ## Alertas de imóveis removidos por completo
 
 $${\color{#5D6348}\textsf{2026-09-02 · 09:46}}$$
