@@ -64,4 +64,14 @@ return [
         '/images/hero/hero-6.webp',
     ],
 
+    /*
+    | As duas fotografias da composição da página inicial (a grande e a pequena,
+    | desencontradas). Mesma origem e mesma licença das da abertura, e também
+    | decorativas: trocar por fotografia própria quando houver.
+    */
+    'story_images' => [
+        '/images/site/composicao-1.webp',
+        '/images/site/composicao-2.webp',
+    ],
+
 ];

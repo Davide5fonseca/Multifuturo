@@ -82,22 +82,34 @@
         </x-site.reveal>
     </section>
 
-    {{-- 3. Composição assimétrica: duas fotografias da carteira, desencontradas --}}
-    @php $composicao = $featured->take(2)->pluck('cover_photo.url')->filter()->values(); @endphp
+    {{--
+        3. Composição assimétrica: duas fotografias desencontradas, com movimento
+        lento. Vêm de config/agency.php (arquivo, decorativas); sem lista, usam-se
+        as capas dos destaques. A composição tem medida própria — espalhada pela
+        largura toda ficava um vazio no meio em vez de uma composição.
+    --}}
+    @php
+        $composicao = collect(config('agency.story_images', []))->filter()->values();
+        if ($composicao->count() < 2) {
+            $composicao = $featured->take(2)->pluck('cover_photo.url')->filter()->values();
+        }
+    @endphp
     @if ($composicao->count() === 2)
-        <section class="container-site grid grid-cols-12 items-end gap-6 pb-24 sm:pb-32">
-            <x-site.reveal tipo="wipe" class="col-span-8 lg:col-span-6">
-                <div class="parallax-frame relative aspect-[4/5] sm:aspect-[3/2]">
-                    <img src="{{ $composicao[0] }}" alt="" loading="lazy" decoding="async"
-                         data-parallax="0.1" class="absolute inset-x-0 w-full object-cover">
-                </div>
-            </x-site.reveal>
-            <x-site.reveal tipo="wipe" atraso="200" class="col-span-4 lg:col-start-9 lg:col-span-3 lg:-mb-24">
-                <div class="parallax-frame relative aspect-square">
-                    <img src="{{ $composicao[1] }}" alt="" loading="lazy" decoding="async"
-                         data-parallax="0.22" class="absolute inset-x-0 w-full object-cover">
-                </div>
-            </x-site.reveal>
+        <section class="container-site pb-24 sm:pb-32">
+            <div class="container-read grid grid-cols-12 items-end gap-6">
+                <x-site.reveal tipo="wipe" class="col-span-8 lg:col-span-7">
+                    <div class="parallax-frame relative aspect-[4/5] sm:aspect-[3/2]">
+                        <img src="{{ $composicao[0] }}" alt="" width="1600" height="1067" loading="lazy" decoding="async"
+                             data-parallax="0.1" class="absolute inset-x-0 w-full object-cover">
+                    </div>
+                </x-site.reveal>
+                <x-site.reveal tipo="wipe" atraso="200" class="col-span-4 lg:col-start-9 lg:col-span-4 lg:-mb-20">
+                    <div class="parallax-frame relative aspect-square">
+                        <img src="{{ $composicao[1] }}" alt="" width="900" height="900" loading="lazy" decoding="async"
+                             data-parallax="0.22" class="absolute inset-x-0 w-full object-cover">
+                    </div>
+                </x-site.reveal>
+            </div>
         </section>
     @endif
 
@@ -111,7 +123,7 @@
                 </x-site.reveal>
                 <a href="{{ route('buy') }}" class="link text-sm">{{ __('ui.home_sections.featured_all') }}</a>
             </div>
-            <div class="mt-12 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4" data-reveal-stagger="110">
+            <div class="mt-12 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4" data-reveal-stagger="150">
                 @foreach ($featured as $i => $property)
                     <x-site.reveal>
                         <x-property.card :property="$property" :eager="$i < 3" />
@@ -129,7 +141,7 @@
                 <h2 class="editorial mt-6 max-w-4xl">{!! __('ui.home_sections.why_statement') !!}</h2>
             </x-site.reveal>
 
-            <div class="mt-20 grid gap-12 sm:grid-cols-3" data-reveal-stagger="140">
+            <div class="mt-20 grid gap-12 sm:grid-cols-3" data-reveal-stagger="180">
                 @foreach ([1, 2, 3] as $n)
                     <x-site.reveal>
                         <span class="flex items-center gap-3" aria-hidden="true">
@@ -143,7 +155,7 @@
             </div>
 
             {{-- Números que contam ao entrar no ecrã. São a carteira real, não promessas. --}}
-            <div class="mt-20 grid gap-10 border-t border-ink/10 pt-12 sm:grid-cols-3" data-reveal-stagger="120">
+            <div class="mt-20 grid gap-10 border-t border-ink/10 pt-12 sm:grid-cols-3" data-reveal-stagger="160">
                 @foreach ($stats as $chave => $valor)
                     <x-site.reveal class="text-center">
                         <p class="stat"><span data-count="{{ $valor }}">0</span></p>
@@ -163,7 +175,7 @@
                 </x-site.reveal>
                 <a href="{{ route('zones.index') }}" class="link text-sm">{{ __('ui.home_sections.zones_all') }}</a>
             </div>
-            <ul class="mt-4" data-reveal-stagger="70">
+            <ul class="mt-4" data-reveal-stagger="100">
                 @foreach ($cities->take(8) as $c)
                     <x-site.reveal as="li" class="border-b border-sand-200">
                         <a href="{{ route('zones.city', $c['slug']) }}" class="group flex items-baseline justify-between gap-6 py-5 transition-colors hover:text-olive-700">

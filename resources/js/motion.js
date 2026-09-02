@@ -58,7 +58,7 @@ function observarRevelacoes(raiz = document) {
  */
 function escalonar(raiz = document) {
     raiz.querySelectorAll('[data-reveal-stagger]').forEach((grupo) => {
-        const passo = Number(grupo.dataset.revealStagger) || 90;
+        const passo = Number(grupo.dataset.revealStagger) || 130;
         [...grupo.children].forEach((filho, i) => {
             const alvo = filho.matches('[data-reveal]') ? filho : filho.querySelector('[data-reveal]');
             if (alvo && !alvo.style.transitionDelay) {
