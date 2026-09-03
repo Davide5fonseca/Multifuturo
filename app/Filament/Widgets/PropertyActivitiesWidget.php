@@ -24,31 +24,35 @@ class PropertyActivitiesWidget extends TableWidget
     public function table(Table $table): Table
     {
         return $table
+            // Quem deixa o painel aberto vê chegar as novidades sem carregar em nada.
+            ->poll('60s')
             ->query(PropertyActivity::query()->with(['property', 'user'])->latest())
             ->paginated([8, 25])
             ->defaultPaginationPageOption(8)
             ->emptyStateHeading('Ainda sem alterações registadas')
             ->emptyStateIcon('heroicon-o-clock')
             ->columns([
-                TextColumn::make('user.name')
-                    ->label('Utilizador')
-                    ->placeholder('—')
-                    ->formatStateUsing(fn (?string $state) => $state ? collect(explode(' ', $state))->map(fn ($p) => mb_substr($p, 0, 1))->take(2)->implode('') : '—')
-                    ->tooltip(fn (PropertyActivity $record) => $record->user?->name)
-                    ->badge()
-                    ->color('gray'),
-                TextColumn::make('created_at')
-                    ->label('Data')
-                    ->dateTime('d-m-Y H:i')
-                    ->sortable(),
-                ImageColumn::make('property.cover_photo.url')
-                    ->label('Propriedade')
+                /*
+                 * Registo de atividade, não folha de cálculo: quatro colunas em
+                 * vez de seis. Em meia largura, seis colunas empurravam o detalhe
+                 * para fora do cartão.
+                 */
+                ImageColumn::make('foto')
+                    ->label('')
                     ->disk(null)
+                    // As fotos carregadas no backoffice são "/storage/…": o Filament só mostra URLs completos.
+                    ->getStateUsing(fn (PropertyActivity $record): ?string => $record->property?->coverPhotoUrl())
                     ->defaultImageUrl(asset('images/placeholder-property.jpg'))
-                    ->height(32),
+                    ->height(40)
+                    ->extraImgAttributes(['class' => 'rounded-md object-cover']),
                 TextColumn::make('property.reference')
-                    ->label('Referência')
-                    ->placeholder('—')
+                    ->label('Imóvel')
+                    // Sem estado, o Filament mostra o marcador e deixa cair a descrição:
+                    // o detalhe é o que interessa nas linhas de imóveis já apagados.
+                    ->getStateUsing(fn (PropertyActivity $record): string => $record->property?->reference ?? '—')
+                    ->weight('medium')
+                    ->description(fn (PropertyActivity $record): ?string => $record->detail)
+                    ->wrap()
                     ->url(fn (PropertyActivity $record) => $record->property ? route('filament.admin.resources.properties.edit', $record->property) : null),
                 TextColumn::make('type')
                     ->label('Tipo')
@@ -60,10 +64,12 @@ class PropertyActivitiesWidget extends TableWidget
                         'status' => 'danger',
                         default => 'gray',
                     }),
-                TextColumn::make('detail')
-                    ->label('Detalhes')
-                    ->placeholder('—')
-                    ->wrap(),
+                TextColumn::make('created_at')
+                    ->label('Quando')
+                    ->since()
+                    ->tooltip(fn (PropertyActivity $record): string => $record->created_at->format('d-m-Y H:i'))
+                    ->description(fn (PropertyActivity $record): ?string => $record->user?->name)
+                    ->sortable(),
             ]);
     }
 }

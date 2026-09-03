@@ -33,6 +33,12 @@ class LeadResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    /** @return array<int, string> */
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'email', 'phone'];
+    }
+
     public static function canCreate(): bool
     {
         return false;

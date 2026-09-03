@@ -6,6 +6,7 @@ use App\Filament\Pages\Calendario;
 use App\Filament\Resources\Properties\Pages\CreateProperty;
 use App\Filament\Resources\Properties\Pages\EditProperty;
 use App\Filament\Widgets\BuyerLeadsWidget;
+use App\Filament\Widgets\DashboardStats;
 use App\Filament\Widgets\ListingLeadsWidget;
 use App\Filament\Widgets\PropertyActivitiesWidget;
 use App\Filament\Widgets\PropertyViewsChart;
@@ -94,7 +95,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                // Dashboard com os mesmos quadros do antigo CRM.
+                // Os números primeiro; depois o gráfico e os quadros do antigo CRM.
+                DashboardStats::class,
                 ListingLeadsWidget::class,
                 BuyerLeadsWidget::class,
                 PropertyActivitiesWidget::class,

@@ -19,6 +19,8 @@ class PropertyViewsChart extends ChartWidget
 
     protected ?string $maxHeight = '240px';
 
+    protected ?string $pollingInterval = '60s';
+
     protected function getType(): string
     {
         return 'line';

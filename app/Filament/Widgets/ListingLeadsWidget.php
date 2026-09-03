@@ -25,6 +25,8 @@ class ListingLeadsWidget extends TableWidget
     public function table(Table $table): Table
     {
         return $table
+            // Quem deixa o painel aberto vê chegar as novidades sem carregar em nada.
+            ->poll('30s')
             ->query(
                 Lead::query()
                     ->with(['assignee', 'contact', 'property'])

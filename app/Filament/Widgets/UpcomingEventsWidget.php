@@ -23,6 +23,8 @@ class UpcomingEventsWidget extends TableWidget
     public function table(Table $table): Table
     {
         return $table
+            // Quem deixa o painel aberto vê chegar as novidades sem carregar em nada.
+            ->poll('60s')
             ->query(
                 Event::query()
                     ->with(['contact', 'property', 'user'])
