@@ -9,6 +9,30 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Os testes do GitHub voltam a passar
+
+$${\color{#5D6348}\textsf{2026-09-03 · 12:25}}$$
+
+**Commit:** `229b15e` — `CI: corrigir a ordem dos imports em routes/web.php (Pint falhava e parava o workflow)`
+
+O workflow "Testes" falhava a cada push desde `17547ab` (o lote das funcionalidades
+dinâmicas), e o cliente recebia o aviso de cada vez. A causa era pequena e minha: ao
+acrescentar o `PropertyCardsController` e o `SearchSuggestController` ao
+`routes/web.php`, os `use` ficaram fora de ordem alfabética. O Pint reprova isso, e
+como corre antes dos testes, o job morria ali — os 235 testes nunca chegavam a correr.
+
+Porque é que não dei por isso: local, corri sempre `pint --test app tests`; o
+workflow corre `pint --test` no projeto **inteiro**, que inclui `routes/`, `config/`
+e `database/`. Passo a correr o comando completo, como o CI.
+
+- `routes/web.php` — imports por ordem.
+- Verificado à maneira do CI: `pint --test` sem caminhos (196 ficheiros, tudo a passar)
+  e `pest --ci` (235 testes). Confirmei também que tudo o que o site precisa está
+  versionado — fontes, wordmark da Nexus e fotografias —, porque o CI parte de um
+  checkout limpo.
+
+---
+
 ## Entrada sem o código de verificação
 
 $${\color{#5D6348}\textsf{2026-09-03 · 12:14}}$$
