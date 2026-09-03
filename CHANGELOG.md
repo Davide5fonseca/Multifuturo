@@ -9,6 +9,52 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Painel de controlo com vida
+
+$${\color{#5D6348}\textsf{2026-09-03 · 10:21}}$$
+
+**Commit:** `888ab41` — `Backoffice: indicadores no topo, quadros a atualizar sozinhos, registo de atividade legivel e pesquisa global`
+
+O painel abria com quatro tabelas iguais, cinzentas, e nada se mexia até alguém
+carregar em F5. Passa a abrir com os números que interessam e a manter-se vivo.
+
+**Quatro indicadores no topo**, cada um com a sua linha de tendência: imóveis no site
+(e quantos entraram este mês, tendência de seis meses), pedidos por responder (a
+vermelho enquanto houver alguém à espera, com a idade do mais antigo, e clicável para
+a lista), pedidos dos últimos 30 dias (com a variação face aos 30 anteriores e a curva
+dos últimos 14) e o valor da carteira à venda com preço público.
+
+**Tudo se atualiza sozinho**: indicadores e listas de pedidos de 30 em 30 segundos,
+registo de atividade e agenda de minuto a minuto. Quem deixa o painel aberto vê chegar
+os pedidos sem tocar em nada. O gráfico de visualizações estava a recarregar de 5 em
+5 segundos (o valor por omissão do Filament) e passou a 60.
+
+**"Actualizações" era ilegível**: seis colunas em meia largura, com o detalhe cortado
+a meio da palavra. Passa a um registo de atividade com quatro colunas — fotografia,
+imóvel com o detalhe por baixo, tipo e "há 1 dia" com o nome de quem mexeu. A
+fotografia tinha o mesmo defeito de URL relativo que já tinha sido corrigido na lista
+de imóveis.
+
+**A caixa de pesquisa do topo passa a encontrar alguma coisa.** Estava lá desde o
+início e não devolvia nada: nenhum recurso declarava o que era pesquisável. Agora
+procura imóveis (referência, id interno, concelho, freguesia, zona — com localização e
+preço no resultado), clientes e pedidos (nome, email, telefone).
+
+- `app/Filament/Widgets/DashboardStats.php` — novo. As séries são preenchidas com zero
+  nos períodos sem nada: um gráfico com buracos mente sobre a forma da curva.
+- `app/Filament/Widgets/*.php` — intervalos de atualização; registo de atividade refeito.
+- `app/Filament/Resources/{Properties,Contacts,Leads}` — pesquisa global.
+- `app/Providers/Filament/AdminPanelProvider.php` — indicadores à cabeça do painel.
+- `tests/Feature/PainelIndicadoresTest.php` — novo (4 testes): contas certas, séries com
+  um ponto por período, intervalo de atualização e ligação do indicador em alerta, e a
+  pesquisa global a encontrar por referência e por concelho. Os métodos do Filament são
+  protegidos: chega-se a eles por reflexão, e o `assertOk()` garante à parte que o
+  quadro renderiza.
+- Limpei 24 registos de atividade que os **meus** imóveis de teste deixaram no painel.
+- Verificado: 235 testes a passar, Pint limpo, e o painel fotografado em Edge.
+
+---
+
 ## Listagem no género da referência
 
 $${\color{#5D6348}\textsf{2026-09-03 · 09:42}}$$
