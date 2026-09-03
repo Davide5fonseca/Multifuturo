@@ -9,6 +9,50 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Listagem no género da referência
+
+$${\color{#5D6348}\textsf{2026-09-03 · 09:42}}$$
+
+**Commit:** `b51849a` — `Site: listagem no genero da referencia (barra horizontal, filtro de distrito, cartoes limpos); sem cabecalho nem mapa`
+
+As listagens (Comprar e Arrendar) passam a seguir o exemplo enviado pelo cliente.
+
+**Barra de filtros horizontal**, por cima dos resultados, com campos de uma linha só:
+separadores **Comprar / Arrendar** à esquerda (o ativo sublinhado), **Ordenar** e um
+botão de "mais filtros" à direita; depois Distrito · Concelho · Freguesia, e Tipo de
+imóvel · Tipologia · Preço mín. · Preço máx. com a lupa ao fim. A pesquisa livre, a
+área mínima e as comodidades ficam atrás do botão de mais filtros. Sem JavaScript
+continua a ser um formulário GET que funciona.
+
+**Filtro de distrito, novo.** Escolher um distrito reduz os concelhos aos que lá
+existem, e trocar de concelho recomeça a freguesia.
+
+**Cartões limpos**, como no exemplo: fotografia em retrato sem moldura nem sombra,
+"Exclusivo" como única etiqueta sobre a imagem, e por baixo a localização em caixa
+alta (concelho — freguesia) e uma linha com tipologia, área e preço. A referência
+ficou, discreta, por baixo: é por ela que o cliente fala de um imóvel ao telefone —
+e foram três testes a lembrá-lo quando a tirei.
+
+**Sai o cabeçalho da página** (rótulo, título e contagem): a página abre direta nos
+separadores. O `<h1>` e a contagem continuam a existir para leitores de ecrã e motores
+de busca — uma página sem `<h1>` não se anuncia a ninguém.
+
+**Sai o mapa dos resultados**, com tudo o que o servia: o botão, o componente
+`resultsMap` do JavaScript, o método `mapPoints()`, os textos e o teste. O mapa da
+ficha de imóvel não foi tocado.
+
+- `app/Support/PropertyFilters.php`, `app/Livewire/PropertyListing.php` — distrito
+  (filtro, opções em cascata, limpeza) e remoção do `mapPoints()`.
+- `resources/views/livewire/property-listing.blade.php` — reescrita.
+- `resources/views/components/property/card.blade.php` — cartão novo (vale para
+  listagens, destaques, favoritos, comparador e semelhantes).
+- `lang/pt/ui.php`, `lang/en/ui.php` — Distrito, Todos os distritos, Mais filtros,
+  contagem de quartos; saem os textos do mapa da listagem.
+- `resources/js/app.js`, `tests/Feature/SiteDinamicoTest.php` — sai o que servia o mapa.
+- Verificado: 231 testes a passar, Pint limpo, e a listagem fotografada a 1600 px.
+
+---
+
 ## Composição com fotografias de arquivo, e entradas mais lentas
 
 $${\color{#5D6348}\textsf{2026-09-02 · 16:46}}$$
