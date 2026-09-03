@@ -22,8 +22,16 @@ return [
     // própria, onde o módulo de imóveis é só um dos cartões.
     'name' => env('PORTAL_NAME', 'Nexus'),
 
-    // Segunda etapa por email ligada? Em desenvolvimento os códigos chegam ao Mailpit.
-    'mfa' => (bool) env('PORTAL_MFA', true),
+    /*
+     | Segunda etapa por email (código de seis algarismos). DESLIGADA a pedido
+     | do cliente em 2026-09-03: entra-se só com email e palavra-passe.
+     |
+     | O mecanismo continua todo aqui — para o voltar a ligar basta pôr
+     | PORTAL_MFA=true no .env. Vale a pena ligá-lo em produção: o backoffice
+     | dá acesso a dados de clientes, e uma palavra-passe sozinha é tudo o que
+     | separa quem quer que a descubra desses dados.
+     */
+    'mfa' => (bool) env('PORTAL_MFA', false),
 
     // Minutos de validade de um código.
     'code_minutes' => 10,
