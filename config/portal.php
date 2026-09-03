@@ -20,7 +20,7 @@ return [
 
     // Nome da plataforma. Não é o da agência: o portal é uma área de trabalho
     // própria, onde o módulo de imóveis é só um dos cartões.
-    'name' => env('PORTAL_NAME', 'Portal'),
+    'name' => env('PORTAL_NAME', 'Nexus'),
 
     // Segunda etapa por email ligada? Em desenvolvimento os códigos chegam ao Mailpit.
     'mfa' => (bool) env('PORTAL_MFA', true),

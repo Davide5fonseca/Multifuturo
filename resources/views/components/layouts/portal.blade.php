@@ -1,8 +1,8 @@
 {{--
     Layout do portal da equipa. Uma plataforma própria, sem nada da agência:
-    nome e marca vêm de config/portal.php (PORTAL_NAME), o visual de
-    resources/css/portal.css, e os textos são genéricos — o módulo de
-    imóveis é só um dos cartões.
+    a marca é a da Nexus (o wordmark do Infra-nexus), o visual vem de
+    resources/css/portal.css — que segue a Nexus Technical Suite — e os
+    textos são genéricos: o módulo de imóveis é só um dos cartões.
 
     Props:
       title   — título da página
@@ -18,17 +18,19 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <meta name="theme-color" content="#0B1220">
+    <meta name="theme-color" content="#0A2A18">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title }} · {{ $portal }}</title>
-    {{-- Ícone próprio do portal (grelha de módulos), não o da agência. --}}
-    <link rel="icon" href="data:image/svg+xml,{{ rawurlencode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#4F46E5"/><g fill="#fff"><rect x="7" y="7" width="8" height="8" rx="2"/><rect x="17" y="7" width="8" height="8" rx="2"/><rect x="7" y="17" width="8" height="8" rx="2"/><rect x="17" y="17" width="8" height="8" rx="2"/></g></svg>') }}">
+    {{-- Ícone do portal: o "N" da Nexus em verde, não o da agência. --}}
+    <link rel="icon" href="data:image/svg+xml,{{ rawurlencode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#0A2A18"/><path d="M9 23V9l14 14V9" fill="none" stroke="#22C55E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>') }}">
     @vite(['resources/css/portal.css'])
 </head>
 <body>
 @php
-    $marca = '<span class="p-marca__simbolo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>'
-        .'<span><span class="p-marca__nome">'.e($portal).'</span><span class="p-marca__sub">Área de trabalho</span></span>';
+    // O wordmark da Nexus, como na barra lateral do Infra-nexus: logótipo em
+    // cima, "área de trabalho" por baixo em maiúsculas espaçadas.
+    $marca = '<img src="'.asset('images/nexus/nexus.png').'" alt="'.e($portal).'" width="150" height="28" class="p-marca__logo">'
+        .'<span class="p-marca__sub">Área de trabalho</span>';
 @endphp
 @if ($entrada)
     <div class="p-entrada">
