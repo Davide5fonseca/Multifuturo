@@ -9,6 +9,35 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Entrada sem o código de verificação
+
+$${\color{#5D6348}\textsf{2026-09-03 · 12:14}}$$
+
+**Commit:** `d01d5ec` — `Portal: entrada sem o codigo de verificacao (mecanismo mantido atras de PORTAL_MFA)`
+
+A segunda etapa do login — o código de seis algarismos enviado por email — deixa de
+existir a pedido do cliente. Entra-se com email e palavra-passe e vai-se direto ao
+portal. A página do código, o texto que o anunciava e o botão "Continuar" (que passa a
+"Entrar") desaparecem sozinhos: já estavam todos atrás do mesmo interruptor.
+
+**O mecanismo não foi apagado**, só desligado: fica atrás de `PORTAL_MFA`, e basta
+pôr `PORTAL_MFA=true` no `.env` para voltar. Foi a escolha deliberada — apagar código
+de segurança é fácil, repô-lo é que não. Se preferir que desapareça de vez
+(controlador, serviço, tabela dos códigos, notificação e testes), é dizer.
+
+Fica registado, sem insistir: o backoffice dá acesso a dados de clientes, e agora é
+uma palavra-passe sozinha que os separa de quem a descubra. Vale a pena voltar a ligar
+em produção.
+
+- `config/portal.php` — `PORTAL_MFA` passa a `false` por omissão, com o porquê e o como
+  voltar atrás escritos no ficheiro.
+- `.env.example`, `.env.production.example` — `PORTAL_MFA=false`, com a recomendação.
+- Verificado: 235 testes a passar (os testes do portal cobrem os dois caminhos, ligado
+  e desligado), Pint limpo, e a entrada testada no site a correr — `POST /entrar`
+  responde 302 direto para `/portal`, sem passar pelo `/verificar`.
+
+---
+
 ## Portal com o ADN da Nexus
 
 $${\color{#5D6348}\textsf{2026-09-03 · 10:49}}$$
