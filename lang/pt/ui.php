@@ -151,6 +151,9 @@ return [
     ],
 
     'listing' => [
+        'district' => 'Distrito',
+        'any_district' => 'Todos os distritos',
+        'more_filters' => 'Mais filtros',
         'buy_eyebrow' => 'Venda',
         'rent_eyebrow' => 'Arrendamento',
         'buy_title' => 'Imóveis para comprar',
@@ -162,8 +165,6 @@ return [
         'empty' => 'Não encontrámos imóveis com estes critérios. Experimente alargar a pesquisa.',
         'clear_filters' => 'Limpar filtros',
         'load_more' => 'Ver mais imóveis',
-        'map_view' => 'Ver no mapa',
-        'map_hide' => 'Fechar o mapa',
         'loading' => 'A carregar…',
         'showing' => ':shown de :total',
         'filters' => 'Filtros',
@@ -192,6 +193,7 @@ return [
     ],
 
     'property' => [
+        'rooms_count' => '{0} sem quartos|{1} :count quarto|[2,*] :count quartos',
         'reference' => 'Ref.',
         'price' => 'Preço',
         'typology' => 'Tipologia',

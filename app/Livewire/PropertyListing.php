@@ -4,7 +4,6 @@ namespace App\Livewire;
 
 use App\Enums\BusinessType;
 use App\Models\Property;
-use App\Support\Format;
 use App\Support\PropertyCache;
 use App\Support\PropertyFilters;
 use Illuminate\Contracts\View\View;
@@ -54,6 +53,9 @@ class PropertyListing extends Component
     #[Url(as: 'tipologia', except: '')]
     public string $bedrooms = '';
 
+    #[Url(as: 'distrito', except: '')]
+    public string $district = '';
+
     #[Url(as: 'concelho', except: '')]
     public string $city = '';
 
@@ -91,6 +93,12 @@ class PropertyListing extends Component
         // Filtro novo (ou página nova): recomeça-se com um bloco.
         $this->batches = 1;
         $this->sanitize();
+        // Escolher um distrito recomeça o concelho e a freguesia; trocar de
+        // concelho recomeça a freguesia — senão ficavam pares impossíveis.
+        if ($name === 'district') {
+            $this->city = '';
+            $this->locality = '';
+        }
         if ($name === 'city') {
             $this->locality = '';
         }
@@ -104,7 +112,7 @@ class PropertyListing extends Component
 
     public function clearFilters(): void
     {
-        $this->reset(['search', 'type', 'bedrooms', 'city', 'locality', 'priceMin', 'priceMax', 'areaMin', 'features']);
+        $this->reset(['search', 'type', 'bedrooms', 'district', 'city', 'locality', 'priceMin', 'priceMax', 'areaMin', 'features']);
         $this->sort = 'recent';
         $this->batches = 1;
         $this->resetPage();
@@ -115,6 +123,7 @@ class PropertyListing extends Component
     {
         $this->search = mb_substr(trim($this->search), 0, 80);
         $this->type = mb_substr(trim($this->type), 0, 64);
+        $this->district = mb_substr(trim($this->district), 0, 96);
         $this->city = mb_substr(trim($this->city), 0, 96);
         $this->locality = mb_substr(trim($this->locality), 0, 96);
         $this->bedrooms = ctype_digit($this->bedrooms) && (int) $this->bedrooms <= 20 ? $this->bedrooms : '';
@@ -191,7 +200,7 @@ class PropertyListing extends Component
     {
         $page = $this->getPage();
         $key = 'listing:'.md5(json_encode([
-            $this->businessType, $this->search, $this->type, $this->bedrooms, $this->city, $this->locality,
+            $this->businessType, $this->search, $this->type, $this->bedrooms, $this->district, $this->city, $this->locality,
             $this->priceMin, $this->priceMax, $this->areaMin, $this->features, $this->sort, $page, $this->batches,
         ]));
 
@@ -208,29 +217,6 @@ class PropertyListing extends Component
         });
     }
 
-    /**
-     * Alfinetes do mapa dos resultados: só os imóveis já mostrados e só os que
-     * têm localização pública (gmap_visible) — a coordenada de quem não
-     * autorizou nunca sai do servidor.
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    public function mapPoints(): array
-    {
-        return $this->properties()->getCollection()
-            ->filter(fn (Property $p) => $p->coordinates !== null)
-            ->map(fn (Property $p) => [
-                'lat' => (float) $p->coordinates['lat'],
-                'lon' => (float) $p->coordinates['lon'],
-                'title' => $p->title ?: (string) ($p->reference ?? $p->internal_id),
-                'price' => Format::price($p->price, $p->currency, $p->business_type, $p->price_visible),
-                'photo' => $p->coverPhotoUrl(),
-                'url' => route('property.show', $p),
-            ])
-            ->values()
-            ->all();
-    }
-
     /** Ainda há resultados por mostrar depois dos que já estão no ecrã? */
     public function hasMore(): bool
     {
@@ -242,7 +228,7 @@ class PropertyListing extends Component
     /**
      * Opções dos filtros a partir da carteira ativa desta finalidade.
      *
-     * @return array{types: array<int,string>, cities: array<int,string>, localities: array<int,string>, features: array<int,string>, bedrooms: array<int,int>}
+     * @return array{types: array<int,string>, districts: array<int,string>, cities: array<int,string>, localities: array<int,string>, features: array<int,string>, bedrooms: array<int,int>}
      */
     #[Computed]
     public function options(): array
@@ -254,11 +240,20 @@ class PropertyListing extends Component
 
             return [
                 'types' => (clone $active)->whereNotNull('property_type')->distinct()->orderBy('property_type')->pluck('property_type')->all(),
+                'districts' => (clone $active)->whereNotNull('district')->distinct()->orderBy('district')->pluck('district')->all(),
                 'cities' => (clone $active)->whereNotNull('city')->distinct()->orderBy('city')->pluck('city')->all(),
                 'features' => $features,
                 'bedrooms' => (clone $active)->whereNotNull('bedrooms')->distinct()->orderBy('bedrooms')->pluck('bedrooms')->map(fn ($b) => (int) $b)->all(),
             ];
         });
+
+        // Escolhido um distrito, só se oferecem os concelhos que lá existem.
+        if ($this->district !== '') {
+            $base['cities'] = PropertyCache::remember('cities:'.$this->businessType.':'.mb_strtolower($this->district), fn () => Property::query()->active()
+                ->whereIn('business_type', $this->businessTypes())
+                ->whereRaw('LOWER(district) = ?', [mb_strtolower($this->district)])
+                ->whereNotNull('city')->distinct()->orderBy('city')->pluck('city')->all());
+        }
 
         $base['localities'] = $this->city === '' ? [] : PropertyCache::remember('localities:'.$this->businessType.':'.mb_strtolower($this->city), fn () => Property::query()->active()
             ->whereIn('business_type', $this->businessTypes())
@@ -280,6 +275,7 @@ class PropertyListing extends Component
         return PropertyFilters::sanitize([
             'type' => $this->type,
             'bedrooms' => $this->bedrooms,
+            'district' => $this->district,
             'city' => $this->city,
             'locality' => $this->locality,
             'price_min' => $this->priceMin,
@@ -291,7 +287,7 @@ class PropertyListing extends Component
 
     public function hasFilters(): bool
     {
-        return $this->search !== '' || $this->type !== '' || $this->bedrooms !== '' || $this->city !== ''
+        return $this->search !== '' || $this->type !== '' || $this->bedrooms !== '' || $this->district !== '' || $this->city !== ''
             || $this->locality !== '' || $this->priceMin !== '' || $this->priceMax !== '' || $this->areaMin !== '' || $this->features !== [];
     }
 

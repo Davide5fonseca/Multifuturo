@@ -89,29 +89,6 @@ it('a paginação numerada continua a existir para quem não tem JavaScript', fu
     expect($lista->instance()->properties()->count())->toBe(PropertyListing::PER_PAGE);
 });
 
-it('o mapa da listagem só leva os imóveis com localização pública', function () {
-    $comMapa = Property::factory()->create(['business_type' => 'sale', 'city' => 'Espinho', 'lat' => 41.007, 'lon' => -8.641, 'gmap_visible' => true]);
-    Property::factory()->create(['business_type' => 'sale', 'city' => 'Aveiro', 'lat' => 40.640, 'lon' => -8.653, 'gmap_visible' => false]);
-    Property::factory()->create(['business_type' => 'sale', 'city' => 'Braga', 'lat' => null, 'lon' => null]);
-
-    $pontos = Livewire::test(PropertyListing::class, ['businessType' => 'sale'])->instance()->mapPoints();
-
-    expect($pontos)->toHaveCount(1)
-        ->and($pontos[0]['lat'])->toBe(41.007)
-        ->and($pontos[0]['url'])->toBe(route('property.show', $comMapa));
-
-    // O botão do mapa aparece na listagem, e o Leaflet vem do nosso servidor.
-    $html = $this->get(route('buy'))->assertOk()->getContent();
-    expect($html)->toContain(__('ui.listing.map_view'))
-        ->toContain('resultsMap(')
-        ->toContain('leaflet.css'); // @js() escapa as barras: procura-se só o nome do ficheiro
-
-    // Sem nenhum imóvel com localização pública não há mapa nenhum.
-    Property::query()->update(['gmap_visible' => false]);
-    PropertyCache::flush();
-    expect($this->get(route('buy'))->getContent())->not->toContain(__('ui.listing.map_view'));
-});
-
 it('os cartões dos vistos recentemente vêm pela ordem pedida e só de imóveis publicados', function () {
     $a = Property::factory()->create(['city' => 'Porto']);
     $b = Property::factory()->create(['city' => 'Braga']);

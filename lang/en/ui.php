@@ -152,6 +152,9 @@ return [
     ],
 
     'listing' => [
+        'district' => 'District',
+        'any_district' => 'All districts',
+        'more_filters' => 'More filters',
         'buy_eyebrow' => 'Sale',
         'rent_eyebrow' => 'Rental',
         'buy_title' => 'Properties for sale',
@@ -163,8 +166,6 @@ return [
         'empty' => 'We found no properties matching these criteria. Try widening your search.',
         'clear_filters' => 'Clear filters',
         'load_more' => 'Show more properties',
-        'map_view' => 'View on map',
-        'map_hide' => 'Close map',
         'loading' => 'Loading…',
         'showing' => ':shown of :total',
         'filters' => 'Filters',
@@ -193,6 +194,7 @@ return [
     ],
 
     'property' => [
+        'rooms_count' => '{0} no bedrooms|{1} :count bedroom|[2,*] :count bedrooms',
         'reference' => 'Ref.',
         'price' => 'Price',
         'typology' => 'Typology',

@@ -36,7 +36,7 @@ final class PropertyFilters
     {
         $out = [];
 
-        foreach (['type' => 64, 'city' => 96, 'locality' => 96] as $key => $max) {
+        foreach (['type' => 64, 'district' => 96, 'city' => 96, 'locality' => 96] as $key => $max) {
             $value = mb_substr(trim((string) ($raw[$key] ?? '')), 0, $max);
             if ($value !== '') {
                 $out[$key] = $value;
@@ -83,6 +83,9 @@ final class PropertyFilters
         }
         if (filled($c['bedrooms'] ?? null)) {
             $query->where('bedrooms', '>=', (int) $c['bedrooms']);
+        }
+        if (filled($c['district'] ?? null)) {
+            $query->whereRaw('LOWER(district) = ?', [mb_strtolower((string) $c['district'])]);
         }
         if (filled($c['city'] ?? null)) {
             $query->whereRaw('LOWER(city) = ?', [mb_strtolower((string) $c['city'])]);

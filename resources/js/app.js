@@ -147,86 +147,6 @@ function propertyMap(assets, lat, lon) {
 }
 
 /*
- * Mapa dos resultados da listagem: um alfinete por imóvel com localização
- * pública, com o cartãozinho (foto, título, preço) ao clicar. O mapa só é
- * construído quando o visitante o abre, e volta a desenhar-se sempre que os
- * resultados mudam (filtros, scroll infinito).
- */
-function resultsMap(assets, points) {
-    return {
-        open: false,
-        map: null,
-        layer: null,
-        points,
-
-        async toggle() {
-            this.open = !this.open;
-            if (!this.open) return;
-            await loadLeaflet(assets);
-            this.$nextTick(() => this.draw());
-        },
-
-        /**
-         * Os resultados mudaram (filtro novo ou mais um bloco): o Livewire
-         * reconstrói o elemento que traz os pontos e este avisa o mapa.
-         */
-        update(points) {
-            this.points = points;
-            if (this.open && this.map) this.$nextTick(() => this.draw());
-        },
-
-        draw() {
-            const points = this.points;
-
-            if (!this.map) {
-                this.map = window.L.map(this.$refs.map, { scrollWheelZoom: false, attributionControl: false });
-                window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(this.map);
-                attribution(this.map);
-            }
-
-            this.layer?.remove();
-            if (!points.length) return;
-
-            this.layer = window.L.layerGroup(points.map((p) => {
-                return window.L.marker([p.lat, p.lon], { icon: marker(assets), title: p.title })
-                    .bindPopup(this.card(p));
-            })).addTo(this.map);
-
-            this.map.fitBounds(points.map((p) => [p.lat, p.lon]), { padding: [40, 40], maxZoom: 15 });
-            this.map.invalidateSize();
-        },
-
-        /** Cartão do alfinete construído com o DOM: nada de HTML colado à mão. */
-        card(p) {
-            const link = document.createElement('a');
-            link.href = p.url;
-            link.className = 'block w-44 no-underline';
-
-            if (p.photo) {
-                const img = document.createElement('img');
-                img.src = p.photo;
-                img.alt = '';
-                img.loading = 'lazy';
-                img.className = 'mb-2 h-24 w-full rounded object-cover';
-                link.appendChild(img);
-            }
-
-            const title = document.createElement('span');
-            title.textContent = p.title;
-            title.className = 'block text-sm font-medium leading-snug text-ink';
-            link.appendChild(title);
-
-            const price = document.createElement('span');
-            price.textContent = p.price;
-            price.className = 'mt-1 block text-sm text-ink-muted';
-            link.appendChild(price);
-
-            return link;
-        },
-    };
-}
-
-/*
  * Fotografias da abertura a alternar. Troca de imagem de X em X tempo, com um
  * esbatimento lento; os pontos deixam escolher à mão e param a rotação (quem
  * escolhe manda). Com "reduzir movimento" ligado, fica na primeira e quieta.
@@ -269,7 +189,6 @@ document.addEventListener('alpine:init', () => {
     window.Alpine.data('slideshow', slideshow);
     window.Alpine.data('suggestions', suggestions);
     window.Alpine.data('propertyMap', propertyMap);
-    window.Alpine.data('resultsMap', resultsMap);
 
     window.Alpine.store('favorites', {
         slugs: [],
