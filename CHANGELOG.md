@@ -9,6 +9,40 @@ atualizam este ficheiro não têm entrada própria.
 
 ---
 
+## Portal com o ADN da Nexus
+
+$${\color{#5D6348}\textsf{2026-09-03 · 10:49}}$$
+
+**Commit:** `0299e17` — `Portal: ADN Nexus (verde da marca, Poppins, gradiente da lateral e wordmark)`
+
+A entrada e o portal deixam de ter a identidade que eu tinha inventado (azul-índigo,
+Inter, ícone de grelha) e passam a ter a da **Nexus**. As cores e medidas não foram
+escolhidas aqui: vieram do `suite.css` da Nexus Technical Suite, o sistema de desenho
+partilhado pelo Infra-nexus — verde da marca `#16A34A`, superfícies `#F8FAFC`/branco,
+texto `#111827`, barra lateral no gradiente `#0A2A18 → #061008 → #020503` com o
+indicador a `#22C55E`, raios de 8 e 12 px e as sombras de lá.
+
+**Poppins**, a letra da Nexus. Servida do nosso servidor, não do Google — é a regra do
+projeto e o que a política de cookies promete (a Nexus carrega-a do Google; aqui não).
+São 32 KB para os quatro pesos.
+
+**O wordmark da Nexus** substitui o ícone que eu tinha desenhado, no painel de entrada
+e no topo da barra lateral, com "área de trabalho" por baixo. O ícone do separador
+passa a ser o "N" verde e o portal passa a chamar-se **Nexus** (`PORTAL_NAME`, ainda
+mudável por variável de ambiente) — o assunto do email do código de verificação já
+chega como "[Nexus] Código de verificação".
+
+- `resources/css/portal.css` — tokens, tipografia, gradientes e halos (os dois brilhos
+  ainda eram índigo).
+- `resources/views/components/layouts/portal.blade.php` — marca, ícone e cor do tema.
+- `public/fonts/poppins-{400,500,600,700}-latin.woff2`, `public/images/nexus/nexus.png`
+  — novos; o logótipo veio do Infra-nexus.
+- `config/portal.php` — o nome por omissão.
+- Verificado: 235 testes a passar, Pint limpo, e a entrada e o portal fotografados em
+  Edge (gradiente, Poppins e wordmark confirmados no browser).
+
+---
+
 ## Painel de controlo com vida
 
 $${\color{#5D6348}\textsf{2026-09-03 · 10:21}}$$
